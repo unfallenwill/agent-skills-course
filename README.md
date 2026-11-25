@@ -4,6 +4,9 @@
 
 站点为纯静态 HTML5，无框架、无构建步骤、无 npm 依赖、无 CDN。可以直接双击打开，也可以部署到 GitHub Pages 的项目子路径。
 
+- 在线站点：<https://unfallenwill.github.io/agent-skills-course/>
+- 源码仓库：<https://github.com/unfallenwill/agent-skills-course>
+
 ## 内容来源
 
 课程以 [agentskills.io](https://agentskills.io/home.md) 的九个页面为主要依据，检索日期 **2026-11-25**。完整 URL、每页覆盖内容、外部补充资料以及“哪些不是来源内容”见站点内的 `docs/sources.html` 与根目录的 `SOURCE_ANALYSIS.md`。
@@ -35,23 +38,21 @@ python3 -m http.server 8000
 
 也可以用任意静态服务器，例如 Node.js 自带的临时服务或 VS Code 的 Live Server。站点不依赖服务端能力。
 
-## 部署到 GitHub Pages（项目子路径）
+## 部署与更新
 
-本站已按“项目站点”设计：所有页面与资源引用均为相对路径（例如 `../assets/style.css`、`05-tutorials/t1-roll-dice.html`），没有根绝对路径；`docs/.nojekyll` 已存在，避免 Jekyll 处理带来意外。
+站点已部署：GitHub Pages 从 `main` 分支的 `/docs` 目录发布，首页即 `docs/index.html`。`docs/.nojekyll` 使文件按原样提供，不经过 Jekyll。
 
-1. 把整个仓库推送到 GitHub（本仓库当前**未**执行 `git init`、未推送，也未启用 Pages）。
-2. 打开仓库的 **Settings → Pages**。
-3. 在 **Build and deployment** 下，将 **Source** 设为 **Deploy from a branch**。
-4. **Branch** 选择你的默认分支（例如 `main`），**Folder** 选择 **`/docs`**，点击 **Save**。
-5. 等待发布完成。项目站点地址形如：
+更新内容后推送即可，约 1 分钟自动重建：
 
-   ```text
-   https://<你的用户名>.github.io/<仓库名>/
-   ```
+```bash
+git add -A
+git commit -m "docs: ..."
+git push
+```
 
-   首页即 `docs/index.html`。
+本站按“项目站点”设计：所有页面与资源引用均为相对路径（例如 `../assets/style.css`、`05-tutorials/t1-roll-dice.html`），没有根绝对路径。因此改仓库名、迁移到用户/组织根站点时都不需要修改页面代码。
 
-不需要自定义域名、DNS、构建命令或 GitHub Actions。因为使用相对路径，站点在根路径与子路径下都能工作。
+如需在自己的 fork 或副本中另建站点，在 **Settings → Pages** 将 **Source** 设为 **Deploy from a branch**，**Branch** 选 `main`、**Folder** 选 `/docs` 即可。
 
 > 参考：GitHub 文档《Configuring a publishing source for your GitHub Pages site》说明可从分支的根目录或 `/docs` 目录发布。
 
@@ -107,7 +108,7 @@ node tools/check-links.js
 输出示例：
 
 ```text
-SUMMARY pages=34 links=1357 broken=0 rootAbsolute=0 externalAssets=0 orphans=0 notIndexed=0
+SUMMARY pages=34 links=1381 broken=0 rootAbsolute=0 externalAssets=0 orphans=0 notIndexed=0
 ```
 
 **示例 Skill 的 frontmatter 校验**
@@ -140,7 +141,7 @@ node tools/validate-skills.js examples
 - 搜索为标题/模块/关键词的子串匹配，不理解同义词。
 - 搜索索引是预生成的静态文件；新增或重命名页面时，需要同步更新 `docs/assets/search-index.js` 以及导航和上一页/下一页链接（或重新生成页面）。
 - 无障碍只实现了基础项（语义标签、跳转链接、焦点样式），未做完整 WCAG 审计。
-- 本仓库未执行 `git init`、未推送、未部署。
+- 站点已部署到 GitHub Pages，仓库内容与本地一致；`.claude/` 为本地工具配置，已在 `.gitignore` 中排除，不属于课程发布内容。
 
 ## 许可与归属
 
