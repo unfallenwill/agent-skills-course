@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>教程 2：用 references/ 给 Skill 减负 · Agent Skills 课程</title>
+  <meta name="description" content="从一个 180 行的臃肿 SKILL.md 出发，把风格指南迁移到 references/，写上明确的加载触发，再用行数与实际加载行为验证。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html" class="current" aria-current="page">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#goal">目标与结果</a></li>
+        <li><a href="#step1">步骤 1：建立原始版本</a></li>
+        <li><a href="#step2">步骤 2：判断什么该移走</a></li>
+        <li><a href="#step3">步骤 3：创建 references/style-guide.md</a></li>
+        <li><a href="#step4">步骤 4：重写 SKILL.md（v2）</a></li>
+        <li><a href="#step5">步骤 5：测量并校验</a></li>
+        <li><a href="#step6">步骤 6：验证加载行为</a></li>
+        <li><a href="#expected">预期结果</a></li>
+        <li><a href="#checkpoint">检查点</a></li>
+        <li><a href="#errors">常见错误</a></li>
+        <li><a href="#if-error">如果出错了</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><a href="../05-tutorials/t1-roll-dice.html">动手教程</a><span aria-hidden="true">/</span><span>教程 2</span></p>
+      <p class="stage-badge">S3 写出好内容</p>
+      <h1>教程 2：用 references/ 给 Skill 减负</h1>
+      <p class="lead">从一个 180 行的臃肿 SKILL.md 出发，把风格指南迁移到 references/，写上明确的加载触发，再用行数与实际加载行为验证。</p>
+      <p class="page-meta">阶段：S3 写出好内容 · 建议 40 分钟 · 先修：教程 1</p>
+      <article class="content">
+<p class="lead">上一课的技能只有 20 行，因为它只做一件事。真实技能往往要复杂得多：分类规则、措辞规范、模板、边界情况。这一课练习关键动作：把“每次都要”和“偶尔才要”分开，并让模型知道什么时候去读后者。</p>
+
+<h2 id="goal">目标与结果</h2>
+
+<p>我们有一个 134 行的 <code>release-notes</code> 技能，所有内容都堆在 SKILL.md 里。它能用，但每次激活都要读完整份，包括很少用到的措辞表和版本历史。做完本课，你会把它压到 59 行，并新增一个 <code>references/style-guide.md</code>，只在需要调整措辞或处理破坏性变更时加载。</p>
+
+<ul>
+  <li><strong>前置：</strong>完成教程 1；会使用终端与编辑器。</li>
+  <li><strong>预计时间：</strong>40 分钟。</li>
+  <li><strong>预期结果：</strong>SKILL.md 行数下降 56%；技能仍能生成发布说明；只有在特定提示下才读取 references。</li>
+</ul>
+
+<h2 id="step1">步骤 1：建立原始版本</h2>
+
+<div class="callout">
+  <p class="callout-title">Windows 命令提示</p>
+  <p>本课命令以 Git Bash 为例。PowerShell 中 <code>mkdir -p a/b</code> 可写成 <code>New-Item -ItemType Directory -Force -Path a/b</code>，<code>wc -l 文件</code> 可写成 <code>(Get-Content 文件).Count</code>，<code>grep -n 文本 文件</code> 可写成 <code>Select-String -Path 文件 -Pattern 文本</code>。直接在 VS Code 中创建文件同样可以完成本课。</p>
+</div>
+
+<pre><code>mkdir -p .agents/skills/release-notes/references
+</code></pre>
+
+<p>创建 <code>.agents/skills/release-notes/SKILL.md</code>，先写入下面这份“臃肿版”。</p>
+
+<details>
+  <summary>展开 v1 全文（134 行）</summary>
+<pre><code>---
+name: release-notes
+description: Write release notes from git history.
+---
+
+# Release Notes Skill
+
+## 概述
+
+发布说明（release notes）是软件交付的重要组成部分。它帮助用户了解新版本带来了哪些变化，也帮助支持团队回答“为什么行为变了”这类问题。写好发布说明需要清晰的结构、准确的分类和一致的措辞。
+
+## 何时使用
+
+当用户要求为某个版本编写发布说明、整理变更日志，或在发布前汇总本次改动时，使用本技能。不要在用户只是询问某次提交做了什么时使用。
+
+## 输入
+
+- 版本号，例如 v2.4.0
+- 上一个发布标签，例如 v2.3.1
+- 可选的受众说明：最终用户、内部团队或开发者
+
+如果用户没有提供版本号，先询问，不要猜测。
+
+## 获取变更
+
+使用 git 查看两个标签之间的提交：
+
+```bash
+git log --oneline v2.3.1..v2.4.0
+```
+
+也可以查看合并的 PR：
+
+```bash
+git log --merges --oneline v2.3.1..v2.4.0
+```
+
+## 分类规则
+
+所有变更必须归入以下四类之一。
+
+### Features
+
+新增的用户可见能力。包括新页面、新接口、新的配置项。判断标准：用户能否做以前做不到的事。
+
+### Improvements
+
+对已有能力的增强。包括性能提升、易用性改进、错误信息优化。判断标准：用户能做的事没变，但做得更顺。
+
+### Fixes
+
+修复错误行为。包括崩溃、错误结果、界面错位。判断标准：以前是错的，现在对了。
+
+### Breaking Changes
+
+会破坏现有用法的变更。包括删除接口、修改默认值、重命名字段。判断标准：升级后用户的代码或流程可能失败。
+
+如果一条变更同时属于多类，放入 Breaking Changes 并在描述中说明。
+
+## 措辞规则
+
+- 使用现在时，例如 “Add” 而不是 “Added”。
+- 每条以动词开头：Add、Improve、Fix、Remove、Deprecate。
+- 面向用户描述结果，而不是实现细节。写 “Support CSV export”，不要写 “Refactor exporter module”。
+- 不要写内部工单号；如果必须保留，放在条目末尾的括号里。
+- 不要使用 “various”“some”“minor” 这类模糊词。
+- 每条不超过 120 个字符。
+- 同一版本内不要重复描述同一件事。
+- 不要承诺未来功能。
+- 不要包含未经验证的性能数字。
+- 不要写“若干问题修复”这种占位条目。
+
+## 输出模板
+
+```markdown
+# Release vX.Y.Z
+
+发布日期：YYYY-MM-DD
+
+## Highlights
+- 一到三条最重要的变化
+
+## Features
+- ...
+
+## Improvements
+- ...
+
+## Fixes
+- ...
+
+## Breaking Changes
+- ...（若无则写 “None”）
+
+## Upgrade notes
+- 升级步骤与注意事项
+```
+
+## 流程
+
+1. 确认版本号与上一个标签。
+2. 获取提交列表。
+3. 逐条分类。
+4. 按模板撰写。
+5. 检查措辞。
+6. 输出最终结果。
+
+## 检查清单
+
+- [ ] 每条都有分类
+- [ ] 每条以动词开头
+- [ ] 没有内部工单号泄漏
+- [ ] Breaking Changes 有升级说明
+- [ ] 版本号与日期正确
+
+## 常见问题
+
+### 提交信息很乱怎么办
+
+尽量从 PR 标题和描述中提取用户可见的变化；无法判断的提交先跳过，不要编造。
+
+### 要不要包含内部重构
+
+通常不要，除非它影响性能、稳定性或对外行为。
+
+### 多个小修复能否合并
+
+可以合并为一条，但必须说明影响范围，不能写成“若干修复”。
+
+## 版本历史
+
+- 1.0：初始版本
+- 1.1：补充分类规则
+- 1.2：补充措辞规则</code></pre>
+</details>
+
+<p>先测量：</p>
+
+<pre><code>wc -l .agents/skills/release-notes/SKILL.md
+# 134 .agents/skills/release-notes/SKILL.md
+</code></pre>
+
+<h2 id="step2">步骤 2：判断什么该移走</h2>
+
+<p>逐段问两个问题：</p>
+
+<ol>
+  <li><strong>每次生成发布说明都要用吗？</strong> 流程、输出模板、自检清单：是。</li>
+  <li><strong>只在特定情况下才需要吗？</strong> 详细措辞规则、分类歧义、边界情况：是。</li>
+</ol>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>内容</th><th>去向</th><th>理由</th></tr></thead>
+  <tbody>
+    <tr><td>流程、分类默认、输出模板、Gotchas、自检</td><td>留在 SKILL.md</td><td>每次执行都用</td></tr>
+    <tr><td>动词表、句子规则、破坏性变更写法、安全修复措辞、依赖升级</td><td><code>references/style-guide.md</code></td><td>只在调整措辞或处理特殊类型时用</td></tr>
+    <tr><td>“概述”段、通用解释</td><td>删除</td><td>模型已知，不写也不会错</td></tr>
+    <tr><td>版本历史</td><td>删除</td><td>属于版本控制，不属于技能指令</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>注意：“分类规则”没有整段移走。四类的判断标准是每次分类都要用的，保留为精简的默认规则；更细的歧义处理（例如“性能提升但用户无感：不写”）才进参考文件。这是本课最重要的判断：<strong>拆分不是整章搬迁，而是按使用频率切分。</strong></p>
+
+<h2 id="step3">步骤 3：创建 references/style-guide.md</h2>
+
+<pre><code># 发布说明风格指南
+
+## 动词表
+
+| 场景 | 使用 | 不要使用 |
+| - | - | - |
+| 新增 | Add | Added, Introducing |
+| 增强 | Improve | Enhance, Optimize（除非有数据） |
+| 修复 | Fix | Resolve, Patch |
+| 移除 | Remove | Delete（除非指数据删除） |
+| 弃用 | Deprecate | Discontinue |
+
+## 句子规则
+
+1. 现在时、主动语态、动词开头。
+2. 一条只讲一件事；不超过 120 字符。
+3. 面向结果，不写实现。反例：“Refactor exporter module”；正例：“Support CSV export for reports over 10,000 rows”。
+4. 数字必须来自已验证的来源；没有数据就不写。
+5. 不写内部代号、工单号、人员姓名。
+
+## 边界情况
+
+### 破坏性变更
+
+必须包含：受影响的对象、旧行为、新行为、迁移步骤。示例：
+
+- **Breaking:** Remove `GET /v1/users`. Use `GET /v2/users`; the response shape is unchanged.
+
+### 安全修复
+
+可以写“Fix an authorization bypass in project sharing”，但不要公开利用细节，直到修复版本广泛部署。
+
+### 依赖升级
+
+只有当用户可感知（性能、兼容性、安全）时才写；否则省略。
+
+### 实验性功能
+
+标注 “Experimental”，并说明可能变化。
+
+## 分类歧义
+
+- 性能提升但用户无感：不写。
+- 修复了错误但改变输出格式：归入 Breaking Changes。
+- 新增配置项但默认关闭：Features，并说明如何启用。
+</code></pre>
+
+<h2 id="step4">步骤 4：重写 SKILL.md（v2）</h2>
+
+<p>把原文件替换为下面 59 行的版本。注意最后“参考文件”小节的写法：它写清了<strong>什么时候</strong>读、<strong>读哪个</strong>、<strong>用来做什么</strong>。</p>
+
+<pre><code>---
+name: release-notes
+description: 从 git 历史生成面向用户的发布说明，按 Features、Improvements、Fixes、Breaking Changes 分类。当用户要求编写发布说明、整理变更日志或在发布前汇总改动时使用。
+---
+
+## 何时使用 / 不适用
+
+当用户要求编写发布说明、整理变更日志，或问“上次发布以来改了什么”时使用。不适用于解释单条提交、改写 commit message 或执行回滚。
+
+# Release Notes
+
+## 流程
+
+1. 确认版本号与上一个标签。用户未提供时先询问，不要猜测。
+2. 获取变更：`git log --oneline &lt;prev&gt;..&lt;version&gt;`；优先读合并的 PR 标题与描述。
+3. 按下方默认规则分类；无法判断用户可见性的提交先跳过，不要编造。
+4. 按模板撰写，每条以动词开头，面向用户描述结果。
+5. 运行自检；不通过则修正后重跑。
+
+## 分类默认
+
+- **Features**：用户能做以前做不到的事。
+- **Improvements**：能力不变，但更快、更顺或错误信息更清楚。
+- **Fixes**：以前是错的，现在对了。
+- **Breaking Changes**：升级后用户的代码或流程可能失败。同时属于多类时放这里，并写升级说明。
+
+## 输出模板
+
+```markdown
+# Release vX.Y.Z
+
+发布日期：YYYY-MM-DD
+
+## Highlights
+- 一到三条最重要的变化
+
+## Features / Improvements / Fixes
+- ...
+
+## Breaking Changes
+- ...（若无写 None）
+
+## Upgrade notes
+- ...
+```
+
+## Gotchas
+
+- 不要写内部工单号；必须保留时放在条目末尾括号内。
+- 不要写“若干问题修复”这类占位条目；合并小修复时必须说明影响范围。
+- 不要承诺未来功能，也不要写未经验证的性能数字。
+- 内部重构通常不写，除非影响性能、稳定性或对外行为。
+
+## 自检
+
+- [ ] 每条都有分类，且以动词开头
+- [ ] 没有模糊词（various、some、minor）
+- [ ] Breaking Changes 均有升级说明
+- [ ] 版本号与日期正确
+
+## 参考文件
+
+- 当需要调整措辞、判断边界情况，或处理 Breaking Changes 的写法时，读 `references/style-guide.md`，按其中的规则与示例修改。</code></pre>
+
+<h2 id="step5">步骤 5：测量并校验</h2>
+
+<pre><code>wc -l .agents/skills/release-notes/SKILL.md
+# 59 .agents/skills/release-notes/SKILL.md
+
+grep -n "references/style-guide.md" .agents/skills/release-notes/SKILL.md
+# 59:- 当需要调整措辞、判断边界情况，或处理 Breaking Changes 的写法时，读 `references/style-guide.md`，按其中的规则与示例修改。
+
+node /path/to/tools/validate-skills.js .agents/skills
+</code></pre>
+
+<p>行数从 134 降到 59（约 −56%），而每次执行必需的信息没有减少。</p>
+
+<h2 id="step6">步骤 6：验证加载行为</h2>
+
+<p>用两个提示观察工具调用。关键是看它有没有读取 <code>references/style-guide.md</code>，而不只是看最终文本。</p>
+
+<ol>
+  <li><strong>常规提示：</strong>“为 v2.4.0 写发布说明，上一个标签是 v2.3.1。”预期：读取 SKILL.md，获取 git 变更，输出模板；<strong>不</strong>读取 style-guide。</li>
+  <li><strong>触发参考：</strong>“这次有一个删除旧接口的破坏性变更，按我们的风格写，并给出迁移说明。”预期：读取 SKILL.md，并读取 <code>references/style-guide.md</code>，产出符合“对象、旧行为、新行为、迁移步骤”的条目。</li>
+</ol>
+
+<p>不同客户端的日志形态不同：有的显示文件读取工具调用，有的在详细输出里列出已读文件。找不到时，可以临时在参考文件里放一句独特的话，检查最终输出是否体现了它。</p>
+
+<h2 id="expected">预期结果</h2>
+<p>预期结果是“主文件明显变短，且常规任务不再读取参考文件”。行数只是代理指标，真正的证据是两次提示的工具记录：一次没有读 references，另一次读取了它。</p>
+<h2 id="checkpoint">检查点</h2>
+<p>先看行数与触发句，再看两次提示的加载行为。若行数下降但常规任务仍读参考，说明触发条件写得太宽；若参考从未被读，说明触发条件写得太窄或不可观察。</p>
+<div class="checkpoint">
+  <span class="cp-label">CHECKPOINT</span>
+  <ol>
+    <li><code>wc -l .agents/skills/release-notes/SKILL.md</code> 输出 59（允许因空行微调，但应明显小于 80）。</li>
+    <li><code>grep -n "references/style-guide.md" .agents/skills/release-notes/SKILL.md</code> 有且仅有一处，且该行同时包含“当……时”的条件。</li>
+    <li><code>wc -l .agents/skills/release-notes/references/style-guide.md</code> 输出 45。</li>
+    <li>常规提示的输出中没有出现“动词表”“迁移步骤”等只属于参考文件的内容，工具记录中也没有读取 references。</li>
+    <li>破坏性变更提示的工具记录中出现了读取 references 的动作，或输出严格包含旧行为、新行为与迁移步骤。</li>
+    <li>校验脚本对 <code>release-notes</code> 报 PASS。</li>
+  </ol>
+</div>
+
+<h2 id="errors">常见错误</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>错误</th><th>后果</th><th>修复</th></tr></thead>
+  <tbody>
+    <tr><td>只写“详见 references/”</td><td>模型不知道何时读，通常不读</td><td>写成“当 X 时读 Y，用于 Z”</td></tr>
+    <tr><td>把分类判断也移走</td><td>每次分类都要先读参考，反而增加步骤</td><td>高频规则留主文件，只移低频歧义</td></tr>
+    <tr><td>在参考文件里再引用第三个文件</td><td>形成深链，漏读概率上升</td><td>扁平化到一层</td></tr>
+    <tr><td>删掉了 Breaking Changes 的升级说明要求</td><td>输出缺少关键信息</td><td>该要求属于每次都要，应留在主文件</td></tr>
+    <tr><td>没有更新描述</td><td>拆分后触发行为可能变化，未重新验证</td><td>把新场景写进 description 并重测</td></tr>
+    <tr><td>只按行数平均切分</td><td>文件之间没有清晰加载条件</td><td>按“是否同一情境下需要”切分</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="if-error">如果出错了</h2>
+<p>下面按“症状—原因—修复”列出最常见的三类问题。先定位症状，再检查原因，不要同时改多个地方；每次只改一处，重跑同一检查点。</p>
+<div class="table-wrap"><table><thead><tr><th>症状</th><th>可能原因</th><th>修复</th></tr></thead><tbody><tr><td>行数没有明显下降</td><td>只删了内容，没有把低频细节移走；或移走后又在主文件复述</td><td>用 wc -l 对比；检查主文件是否仍包含动词表、完整示例等低频内容</td></tr><tr><td>参考文件从未被读取</td><td>触发写成“详见 references”，没有可观察条件</td><td>改成“当需要调整措辞/处理破坏性变更时读 style-guide.md”</td></tr><tr><td>常规任务也读取参考</td><td>触发条件过宽，或放在流程开头</td><td>把触发嵌到对应步骤，并收窄条件</td></tr></tbody></table></div>
+
+<p>测量时要把“文件变短”和“加载变少”分开看。文件变短只说明你移动了内容；加载变少才说明模型在常规路径上不再读它。后者才是渐进披露的目标。如果两者不一致，优先修加载触发，而不是继续删正文；触发写错，删得再多也不会改善执行。</p>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p>把参考文件的加载触发改成“输入触发”类型：当变更涉及数据库迁移时读取。写出句子。</p>
+      <details><summary>提示与自检</summary><p>示例：“当变更中包含 migration 文件或提到数据库结构变化时，读 references/style-guide.md，按‘破坏性变更’一节的格式写迁移说明。”检查条件是否可在提交列表中观察到。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p>回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p>合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p>把参考文件再拆一次：动词表与安全修复措辞是否应该分开？给出你的判断与加载触发。</p>
+      <details><summary>提示与自检</summary><p>通常不必拆：两者都属于“写条目时的措辞问题”，在同一情境下一起需要。若拆成 style.md 与 security.md，安全触发要具体（“当变更涉及认证、权限或数据泄露时”）。拆得过多会增加漏读风险。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p>把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p>两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p>为这个技能补一个 <code>assets/template.md</code>，把输出模板移出正文；在主文件写清加载触发。比较移出前后主文件行数与“生成常规发布说明”的步骤数，说明是否值得。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../05-tutorials/t1-roll-dice.html"><span>上一页</span><strong>教程 1：20 分钟做出第一个 Skill（roll-dice）</strong></a>
+      <a class="pager-next" href="../05-tutorials/t3-scripts.html"><span>下一页</span><strong>教程 3：打包 scripts/ 并建立验证循环</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

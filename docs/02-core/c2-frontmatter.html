@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Frontmatter 字段完全指南 · Agent Skills 课程</title>
+  <meta name="description" content="六个字段的必填性、长度与字符限制，逐条给出合法与非法示例，并解释 name 必须匹配父目录等硬性规则。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html" class="current" aria-current="page">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#fields">六个字段一览</a></li>
+        <li><a href="#name">name：最容易被校验拦下的字段</a></li>
+        <li><a href="#description">description：唯一决定触发的字段</a></li>
+        <li><a href="#optional">四个可选字段</a></li>
+        <li><a href="#yaml-pitfalls">YAML 的四个常见坑</a></li>
+        <li><a href="#validate">校验</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><a href="../02-core/c1-anatomy.html">规范与机制</a><span aria-hidden="true">/</span><span>规范</span></p>
+      <p class="stage-badge">S2 读懂规范</p>
+      <h1>Frontmatter 字段完全指南</h1>
+      <p class="lead">六个字段的必填性、长度与字符限制，逐条给出合法与非法示例，并解释 name 必须匹配父目录等硬性规则。</p>
+      <p class="page-meta">阶段：S2 读懂规范 · 建议 40 分钟 · 先修：Skill 的解剖</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> Frontmatter 是客户端唯一能稳定解析的部分。它决定技能能不能被发现、名字是否合法、描述会不会被加载。正文写得再好，frontmatter 不合法也会在校验或发现阶段失败。</p>
+
+<h2 id="fields">六个字段一览</h2>
+
+<div class="prov prov-src">
+  <p><span class="prov-mark prov-norm">[规范]</span> 规范定义了六个 frontmatter 字段：<code>name</code>（必选）、<code>description</code>（必选）、<code>license</code>、<code>compatibility</code>、<code>metadata</code>、<code>allowed-tools</code>（均可选）。（来源：<a href="https://agentskills.io/specification.md#frontmatter">specification.md</a>）</p>
+</div>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>字段</th><th>必选</th><th>类型</th><th>约束</th><th>作用</th></tr></thead>
+  <tbody>
+    <tr><td><code>name</code></td><td>是</td><td>字符串</td><td>最长 64 字符；仅小写字母、数字、连字符；不得以连字符开头或结尾；不得有连续连字符；必须与父目录名一致</td><td>技能标识</td></tr>
+    <tr><td><code>description</code></td><td>是</td><td>字符串</td><td>1–1024 字符；非空</td><td>说明做什么、何时使用，是触发判断的主要依据</td></tr>
+    <tr><td><code>license</code></td><td>否</td><td>字符串</td><td>无长度硬限制；建议简短</td><td>许可证名称或捆绑许可证文件的引用</td></tr>
+    <tr><td><code>compatibility</code></td><td>否</td><td>字符串</td><td>最长 500 字符</td><td>环境要求：目标产品、系统包、网络访问等</td></tr>
+    <tr><td><code>metadata</code></td><td>否</td><td>映射</td><td>字符串键到字符串值</td><td>规范之外的附加属性，键名建议保持唯一</td></tr>
+    <tr><td><code>allowed-tools</code></td><td>否</td><td>字符串</td><td>空格分隔</td><td>预先批准的工具；实验性，支持程度因实现而异</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-norm">[规范]</span> 字段不多，但每一条约束都值得记住。下面逐项展开。</p>
+
+
+<p><span class="prov-mark prov-norm">[规范]</span> 读这张表时，先分清“必选”与“可选”的意义。必选字段决定技能能否被发现和被正确路由；可选字段只在确有需要时提供。name 和 description 是客户端的稳定接口，其他字段更多是给人和工具看的补充信息。license 不参与触发，compatibility 不参与正文推理，metadata 也不应该承载关键流程。把关键信息放进可选字段，常见后果是：技能能被发现，但模型不知道该怎么做。</p><p><span class="prov-mark prov-norm">[规范]</span> 另一个容易忽略的点是类型。YAML 对“字符串”和“数字/布尔”很敏感：version: 1.0 会被解析成数字，metadata 要求字符串值，因此需要写成 "1.0"。description 里的冒号、井号、引号也可能改变解析结果。写完后用校验工具跑一遍，比肉眼检查可靠。规范给出的限制都是硬约束，不因为客户端宽松就失效。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="name">name：最容易被校验拦下的字段</h2>
+
+<p><span class="prov-mark prov-norm">[规范]</span> <code>name</code> 的规则可以拆成五条：</p>
+
+<ol>
+  <li>长度 1–64 字符。</li>
+  <li>只允许小写字母 <code>a-z</code>、数字 <code>0-9</code> 和连字符 <code>-</code>。</li>
+  <li>不得以连字符开头或结尾。</li>
+  <li>不得包含连续两个连字符。</li>
+  <li>必须与父目录名完全一致。</li>
+</ol>
+
+<p><span class="prov-mark prov-norm">[规范]</span>（<a href="https://agentskills.io/specification.md#name-field">specification.md</a>）</p>
+
+<h3 id="name-valid">合法示例</h3>
+
+<pre><code>name: pdf-processing
+name: data-analysis
+name: code-review
+</code></pre>
+
+<h3 id="name-invalid">非法示例与原因</h3>
+
+<pre><code>name: PDF-Processing   # 含大写，只允许小写
+name: -pdf             # 以连字符开头
+name: pdf--processing  # 含连续连字符
+name: pdf_processing   # 含下划线，只允许 a-z、0-9、-
+</code></pre>
+
+<p>还有一类更隐蔽的错误：名字本身合法，但与目录不一致。例如目录叫 <code>pdf-processing/</code>，frontmatter 写 <code>name: pdf_processing</code>。规范要求两者匹配；客户端实现可能只警告并继续加载，但校验工具会报错。<span class="prov-mark prov-norm">[规范]</span>（<a href="https://agentskills.io/client-implementation/adding-skills-support.md#lenient-validation">adding-skills-support.md</a>）</p>
+
+<div class="prov prov-src">
+  <p><span class="prov-mark prov-norm">[规范]</span> 客户端实现指南采用“宽松校验”：名字与父目录不匹配或超过 64 字符时警告但仍加载；描述缺失或为空时跳过该技能；YAML 完全无法解析时跳过并记录错误。（来源：<a href="https://agentskills.io/client-implementation/adding-skills-support.md#lenient-validation">adding-skills-support.md</a>）这说明“能加载”不等于“合法”，不能把宽松实现当作规范。</p>
+</div>
+
+
+<p><span class="prov-mark prov-norm">[规范]</span> 为什么要求与父目录一致？因为客户端通常用目录来定位技能，用 name 来建立索引；两者不一致时，有的实现会用目录名覆盖，有的会用 frontmatter，行为不统一。跨客户端复制时，这种不一致最容易暴露。改名前要同时改目录，改完后重新运行校验，并检查引用该技能的地方是否还在使用旧名字。</p>
+<h2 id="description">description：唯一决定触发的字段</h2>
+
+<p>描述必须 1–1024 字符，非空，并且应当同时说明“这个技能做什么”和“什么时候使用它”，包含有助于 Agent 识别相关任务的具体关键词。<span class="prov-mark prov-norm">[规范]</span>（<a href="https://agentskills.io/specification.md#description-field">specification.md</a>）</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>写法</th><th>示例</th><th>问题</th></tr></thead>
+  <tbody>
+    <tr><td>好</td><td>Extracts text and tables from PDF files, fills PDF forms, and merges multiple PDFs. Use when working with PDF documents or when the user mentions PDFs, forms, or document extraction.</td><td>无：说清能力、场景与关键词</td></tr>
+    <tr><td>差</td><td>Helps with PDFs.</td><td>太窄也太空：没有说明具体能力，也没有触发场景</td></tr>
+    <tr><td>差</td><td>A powerful, professional, best-in-class tool for all your document needs, built with advanced AI technology.</td><td>营销词堆砌，没有可判断的信息，且过宽</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>描述写作有专门的方法与评估流程，第 4 模块会用整页展开。这里先记住一个反直觉的事实：<strong>描述不是给人看的简介，而是给模型看的判断依据。</strong><span class="prov-mark prov-course">[本课程观点]</span></p>
+
+
+<p><span class="prov-mark prov-norm">[规范]</span> 描述的目标不是“概括全文”，而是“让模型在正确的时刻想起它”。因此它要同时包含能力与场景，并且使用用户可能说出的词。不要写“功能强大、适用于多种场景”这类无法判断的话；也不要把内部实现细节当成触发词。一个实用的检查是：把描述给一位不了解项目的同事看，问他“什么情况下会想到用这个技能”。如果他的回答与你的预期一致，描述大概率合格；如果他只能复述功能名，说明场景还不够具体。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节的每条要求对应到一个失败场景：如果不这样做，会出现什么可观察的错误？写不出错误的条目，要么删掉，要么补上具体字段、阈值或命令。</p>
+<h2 id="optional">四个可选字段</h2>
+
+<h3 id="license">license</h3>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 指定适用于该技能的许可证，可以是许可证名称，也可以指向捆绑的许可证文件。规范建议保持简短。示例：</p>
+
+<pre><code>license: Apache-2.0
+license: Proprietary. LICENSE.txt has complete terms
+</code></pre>
+
+<h3 id="compatibility">compatibility</h3>
+
+<p>仅当技能有特定环境要求时才需要写，最长 500 字符。可说明目标产品、必需的软件包、网络访问等。规范特别提示：大多数技能不需要这个字段。<span class="prov-mark prov-norm">[规范]</span>（<a href="https://agentskills.io/specification.md#compatibility-field">specification.md</a>）</p>
+
+<pre><code>compatibility: Designed for Claude Code (or similar products)
+compatibility: Requires git, docker, jq, and access to the internet
+compatibility: Requires Python 3.14+ and uv
+</code></pre>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 不要把 <code>compatibility</code> 当成营销标签。写成“适用于所有 AI 产品”没有信息量；写成“需要 Node.js 18+ 与网络访问”才能帮客户端判断能否运行。</p>
+
+<h3 id="metadata">metadata</h3>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 一个字符串键到字符串值的映射，供客户端存放规范之外的属性。规范建议键名保持一定唯一性，避免冲突。示例：</p>
+
+<pre><code>metadata:
+  author: example-org
+  version: "1.0"
+</code></pre>
+
+<p>注意 <code>version: "1.0"</code> 的引号：不加引号时，YAML 可能把它解析为数字 1.0，而 <code>metadata</code> 要求值是字符串。类似地，<code>version: 1.0.0</code> 不加引号也会被当成字符串（因为不是合法数字），但为了可读性与一致性，建议所有版本号都加引号。<span class="prov-mark prov-course">[本课程观点]</span></p>
+
+<h3 id="allowed-tools">allowed-tools</h3>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 空格分隔的预批准工具列表，例如：</p>
+
+<pre><code>allowed-tools: Bash(git:*) Bash(jq:*) Read
+</code></pre>
+
+<p>规范把它标为实验性，并明确“不同 Agent 实现的支持可能不同”。<span class="prov-mark prov-norm">[规范]</span>（<a href="https://agentskills.io/specification.md#allowed-tools-field">specification.md</a>）不要依赖它实现安全隔离；真正的权限应由客户端的权限系统控制。</p>
+
+<h2 id="yaml-pitfalls">YAML 的四个常见坑</h2>
+
+<ol>
+  <li><strong>未加引号的冒号。</strong> <code>description: Use this skill when: the user asks about PDFs</code> 在技术上不是合法 YAML，因为值里出现了第二个冒号。客户端实现指南建议对此类情况做兜底（自动加引号或转成块标量），但不要指望每个客户端都兜底。<span class="prov-mark prov-norm">[规范]</span>（<a href="https://agentskills.io/client-implementation/adding-skills-support.md#handling-malformed-yaml">adding-skills-support.md</a>）</li>
+  <li><strong>块标量缩进不一致。</strong> 用 <code>&gt;</code> 写多行描述时，后续行必须保持一致的缩进；缩进错位会改变解析结果或直接报错。</li>
+  <li><strong>值里有 <code>#</code>。</strong> 未加引号时，<code>#</code> 可能被当作注释起点。含井号的值请加引号。</li>
+  <li><strong>制表符。</strong> YAML 禁止用 Tab 缩进。编辑器显示对齐，解析器却报错。</li>
+</ol>
+
+<pre><code>description: &gt;
+  Analyze CSV and tabular data files — compute summary statistics,
+  add derived columns, generate charts, and clean messy data. Use this
+  skill when the user has a CSV, TSV, or Excel file and wants to
+  explore, transform, or visualize the data, even if they don't
+  explicitly mention "CSV" or "analysis."
+</code></pre>
+
+<p>块标量（<code>&gt;</code>）是写长描述的常用方式：可读性好，也不容易踩冒号的坑。来源在描述优化指南中使用了这种写法。<span class="prov-mark prov-norm">[规范]</span>（<a href="https://agentskills.io/skill-creation/optimizing-descriptions.md#applying-the-result">optimizing-descriptions.md</a>）</p>
+
+
+<p><span class="prov-mark prov-norm">[规范]</span> 这些坑的共同点是“人眼看起来没问题，解析器却不这么认为”。最稳妥的写法是：描述用块标量 >，版本号加引号，含特殊字符的值加引号，缩进只用空格。写完后不要只依赖客户端加载成功，还要用校验工具确认解析出的字符串长度和内容。尤其是中文描述里出现英文冒号时，未加引号会让 YAML 把它当成新的键值分隔，导致描述被截断或解析失败。</p>
+<h2 id="validate">校验</h2>
+
+<p><span class="prov-mark prov-norm">[规范]</span> 来源推荐使用 <code>skills-ref</code> 参考库校验：</p>
+
+<pre><code>skills-ref validate ./my-skill
+</code></pre>
+
+<p>它会检查 frontmatter 是否合法、是否符合命名约定。<span class="prov-mark prov-norm">[规范]</span>（<a href="https://agentskills.io/specification.md#validation">specification.md</a>；仓库：<a href="https://github.com/agentskills/agentskills/tree/main/skills-ref">agentskills/agentskills/skills-ref</a>）本课程还提供了一份零依赖的 Node 校验脚本，用法见 <a href="../02-core/c5-validation.html">校验、兼容性与常见坑</a>。</p>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-norm">[规范]</span> 校验应该成为提交前的固定动作，而不是出问题后的补救。skills-ref 检查的是格式与命名约定，不检查内容质量；它能告诉你 name 是否合法、描述是否在范围内，但不能告诉你描述是否覆盖了正确的场景。因此校验通过只是第一关，后面还要做触发评估与输出评估。把三关分开，能避免“格式正确所以技能一定好”的错觉。校验失败时，先修硬性错误，再谈内容优化。</p><p><span class="prov-mark prov-norm">[规范]</span> 本地脚本与官方工具的分工也要清楚：本地脚本适合快速迭代，覆盖本课程用到的字段与常见 YAML 错误；官方工具更适合作为最终门禁。两者都通过，仍然不代表跨客户端一定可用，因为扫描路径、激活方式和 frontmatter 处理可能不同。把“格式正确”“本机可用”“跨客户端可移植”当成三个独立目标，排查会更有条理。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li><code>name</code> 必须与父目录一致，且只含小写字母、数字与单个连字符，最长 64 字符。</li>
+    <li><code>description</code> 同时承担“做什么”和“何时用”，长度 1–1024；它是触发判断的主要依据。</li>
+    <li>可选字段按需使用；<code>compatibility</code> 只在有真实环境要求时写，<code>allowed-tools</code> 仍是实验性。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 判断下列 name 是否合法，并指出原因：<code>Data-Cleaner</code>、<code>data--cleaner</code>、<code>data-cleaner-</code>、<code>data-cleaner</code>、<code>data_cleaner</code>。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 仅 <code>data-cleaner</code> 合法。其余分别因为大写、连续连字符、结尾连字符、下划线。还要记得：即使字面合法，也必须与父目录名一致。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 为“把客户反馈邮件归类为功能请求 / 缺陷 / 咨询”的技能写一个 description（80–200 字），要求：说明做什么、何时用、至少覆盖三种用户说法，并划出一个不该触发的边界。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格示例应包含“分类客户反馈邮件”“当用户要求整理、标记或统计反馈时使用”，并涵盖“客户来信”“支持邮箱”“反馈汇总”等说法；边界可写“不用于撰写回复邮件”。若描述只写“分析邮件”，既太窄又太宽。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 下面这段 frontmatter 有几处问题？逐一指出并改正。<br><code>name: PDF_Helper</code><br><code>description: Use this skill when: user has a PDF</code><br><code>metadata:</code><br><code>&nbsp;&nbsp;version: 1.0</code><br><code>compatibility: Works everywhere</code></p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../02-core/c1-anatomy.html"><span>上一页</span><strong>Skill 的解剖：目录结构与 SKILL.md</strong></a>
+      <a class="pager-next" href="../02-core/c3-budgets.html"><span>下一页</span><strong>渐进披露的工程实现：预算、拆分与加载触发</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

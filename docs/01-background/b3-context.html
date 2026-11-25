@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>上下文窗口与 Token：为什么上下文是稀缺资源 · Agent Skills 课程</title>
+  <meta name="description" content="Token、上下文窗口、注意力分配。理解为什么“把一切都写进提示词”会失败，这是渐进披露存在的根本原因。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html" class="current" aria-current="page">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#token">Token：模型处理文本的最小计量单位</a></li>
+        <li><a href="#window">上下文窗口：一次能看见多少</a></li>
+        <li><a href="#attention">为什么“都放进去”不等于“都能用好”</a></li>
+        <li><a href="#cost">上下文的三种成本</a></li>
+        <li><a href="#economy">上下文经济：一句判断准则</a></li>
+        <li><a href="#implications">这对 Skill 结构的三个要求</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>预备知识</span></p>
+      <p class="stage-badge">S1 认知准备</p>
+      <h1>上下文窗口与 Token：为什么上下文是稀缺资源</h1>
+      <p class="lead">Token、上下文窗口、注意力分配。理解为什么“把一切都写进提示词”会失败，这是渐进披露存在的根本原因。</p>
+      <p class="page-meta">阶段：S1 认知准备 · 建议 30 分钟 · 先修：什么是 Agent</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> 如果 Agent 的所有判断都基于“当前上下文里有什么”，那么上下文就是它的工作台。工作台面积有限，放得越满，找东西越慢。理解这一点，才能理解为什么 Skill 要分层加载。</p>
+
+<h2 id="token">Token：模型处理文本的最小计量单位</h2>
+
+<p><strong>Token</strong>（词元，也译作标记）是模型处理文本时使用的单位。OpenAI 的定义是：“模型用来处理文本的单位”；根据输入不同，一个 token 可能对应一个字符、一个词片段、一个完整单词或标点，空白也会影响切分。<span class="prov-mark prov-ext">[外部: https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them]</span> <a href="https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them">Understanding and counting tokens</a>（检索于 2026-11-25）。</p>
+
+<p>不同模型使用不同的分词器（tokenizer），所以同一段文字在不同模型中的 token 数可能不同。中文通常比英文更“费”token：一个常用汉字往往对应一个或多个 token，而英文平均约四个字符一个 token。<span class="prov-mark prov-course">[本课程观点]</span> 这是经验规律，不是精确换算；写 Skill 时只需记住“中文正文会明显增加预算压力”。</p>
+
+<p>你不需要手算 token。需要的是一个判断：<strong>这段内容值不值得占用上下文。</strong>来源给出的参考值是：元数据约 100 token，SKILL.md 正文建议少于 5000 token。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/specification.md#progressive-disclosure">specification.md</a>）</p>
+
+
+<p><span class="prov-mark prov-ext">[外部: https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them]</span> 为什么要在意切分方式？因为模型看到的不是“字”，而是 token 序列。同一段中文，写成书面语还是口语、是否夹杂代码和英文、有没有大量空格，都会改变 token 数。写 Skill 时不必追求精确计数，但要有量级感：一段 500 字的中文说明已经占掉相当一部分正文预算，一个 300 行的字段表则几乎必然超支。把内容按“每次都要”和“偶尔才要”分开，比事后压缩措辞更有效。</p>
+<h2 id="window">上下文窗口：一次能看见多少</h2>
+
+<p><strong>上下文窗口</strong>（context window）通常指模型在一次请求中能够处理的最大 token 数量。它包含输入（系统提示词、工具定义、技能目录、对话历史、读入的文件）和输出（模型生成的回复、工具调用参数）。具体上限与计算方式因模型而异，应以所用模型的文档为准。<span class="prov-mark prov-course">[本课程观点]</span></p>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 即使窗口很大，它也不是无限的。一个装了几十个 Skill、读进十几个文件、聊了三十轮的会话，很容易把窗口填满。窗口满后，客户端通常会截断较早的消息、做摘要，或者拒绝继续；无论哪种，都会丢信息。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> “窗口很大”不等于“可以随便塞”。一方面，客户端会在窗口接近上限时做截断或摘要，被删掉的可能是你最早写下的关键约束；另一方面，输入越长，模型定位相关信息越困难。设计长流程时，应该假设较早的内容可能被压缩，把必须持续遵守的规则放在技能正文或结构化清单里，并在关键步骤重复一次。不要把一次性的分析结果当成后续步骤永远可见的事实。</p>
+<h2 id="attention">为什么“都放进去”不等于“都能用好”</h2>
+
+<p>窗口装得下，不代表模型能同等有效地使用每一段内容。论文《Lost in the Middle: How Language Models Use Long Contexts》通过多文档问答与键值检索任务发现：模型对位于上下文开头和结尾的信息利用得更好，对埋在中间的信息明显更差，即使模型声称支持长上下文。<span class="prov-mark prov-ext">[外部: https://arxiv.org/abs/2307.03172]</span> <a href="https://arxiv.org/abs/2307.03172">arXiv:2307.03172</a>（检索于 2026-11-25）。</p>
+
+<p><span class="prov-mark prov-ext">[外部: https://arxiv.org/abs/2307.03172]</span> 这个发现对 Skill 设计的含义很直接：</p>
+
+<ul>
+  <li><strong>重要的约束要放在显眼位置</strong>，例如正文开头或专门的 Gotchas 小节，而不是埋在第三页参考文档里。</li>
+  <li><strong>不要把“可能有用”的内容全部前置加载</strong>；模型不一定能找到，而且会挤占真正重要的指令。</li>
+  <li><strong>长文档不是免费的知识库</strong>。读进去 50 页，不等于模型会用其中第 37 页的例外规则。</li>
+</ul>
+
+
+<p><span class="prov-mark prov-ext">[外部: https://arxiv.org/abs/2307.03172]</span> 这个结论对“把规范全文贴进去”的做法是一个警告。模型可能读到了正确段落，却没有把它用于当前判断，尤其是当中间夹着大量相似但无关的内容时。更稳的结构是：把当前任务最需要的 3 到 5 条规则放在显眼位置，把完整参考放到按需加载的文件里；当任务进入特定分支时，再明确要求读取对应文件。这样既减少干扰，也让“读了哪一段”变成可观察的行为。</p>
+<h2 id="cost">上下文的三种成本</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>成本</th><th>表现</th><th>对 Skill 的影响</th></tr></thead>
+  <tbody>
+    <tr><td>费用</td><td>按输入/输出 token 计费，读入越多越贵</td><td>几十个 Skill 的正文若全部常驻，成本会持续累积</td></tr>
+    <tr><td>延迟</td><td>上下文越长，首 token 时间通常越长</td><td>用户等待变久，交互体验下降</td></tr>
+    <tr><td>注意力</td><td>相关信息被无关内容稀释，模型抓不住重点</td><td>指令互相冲突、关键步骤被忽略、输出退化为泛泛而谈</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>第三种成本最容易被忽略，却最致命。一个 800 行的 SKILL.md 看起来“资料齐全”，实际可能让模型在多个可选路径之间摇摆，或者执行了不适用于当前任务的步骤。来源在最佳实践中明确提醒：过度全面的 Skill 可能弊大于利，模型难以提取相关内容，还可能被不适用的指令带偏。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#aim-for-moderate-detail">best-practices.md</a>）</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 三种成本通常不会同时最优，需要明确取舍。例如，为了让输出更稳定而加入大量示例，可能提高准确率，却增加每次激活的费用与延迟；为了省钱而把正文压到极短，可能让模型在边界情况下缺少判断依据。一个实用的做法是先测“有技能”和“无技能”的通过率差，再看 token 与时间的增量。如果提升很小而成本翻倍，就应该删减；如果提升明显，贵一点也合理。成本判断必须和效果一起看。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节的每条要求对应到一个失败场景：如果不这样做，会出现什么可观察的错误？写不出错误的条目，要么删掉，要么补上具体字段、阈值或命令。</p>
+<h2 id="economy">上下文经济：一句判断准则</h2>
+
+<p>来源把这件事称为“聪明地花上下文”，并给出一条极好用的准则：<strong>补上 Agent 缺的，省掉它已经知道的</strong>（Add what the agent lacks, omit what it knows）。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#add-what-the-agent-lacks-omit-what-it-knows">best-practices.md</a>）</p>
+
+<p><span class="prov-mark prov-src">[源站]</span> 落实到写作，就是每写一段都问：</p>
+
+<div class="callout">
+  <div class="callout-title">删减测试</div>
+  <p><span class="prov-mark prov-src">[源站]</span> 如果没有这段内容，Agent 会在当前任务上做错吗？<br>会：保留，并写具体。<br>不会：删掉。<br>不确定：拿一个真实任务测试，而不是凭感觉保留。</p>
+</div>
+
+<p><span class="prov-mark prov-src">[源站]</span> 例如，“PDF 是一种常见的文件格式，包含文本、图片”这类介绍，模型早已知道，删掉不会影响结果；而“扫描件要先转图片再做 OCR，否则 <code>pdfplumber</code> 提取为空”是模型可能踩坑的具体事实，应该保留。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 这条准则不是“越短越好”，而是“只留下会影响结果的信息”。有些内容很短但价值很高，例如一个反直觉的字段名；有些内容很长但完全可以删，例如对行业背景的介绍。判断时不要问“这段话对不对”，而要问“删掉它，Agent 在当前任务上会不会做错”。如果答案是“可能会”，就保留并写具体；如果答案是“不会”，就删掉。这个测试可以反复做，直到每一段都能对应一个具体风险。</p>
+<h2 id="implications">这对 Skill 结构的三个要求</h2>
+
+<ol>
+  <li><strong>元数据要短而准。</strong> 启动时每个 Skill 都要加载名字和描述；描述写成长篇介绍，会让目录本身变重。来源建议每个技能目录约 50–100 token。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/client-implementation/adding-skills-support.md#building-the-skill-catalog">adding-skills-support.md</a>）</li>
+  <li><strong>正文只放每次都要用的内容。</strong> 偶发才需要的细节移到 <code>references/</code>，并写明加载条件。</li>
+  <li><strong>资源按需读取。</strong> 脚本、模板、长篇参考不应在激活时全部读入；让模型在执行到某一步时再读。</li>
+</ol>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-src">[源站]</span> 三个层次对应三种写作动作。元数据层要克制：描述只需覆盖“做什么、何时用、边界”，不要塞进完整流程。正文层要自足：一个从未见过该任务的人，按正文能完成一次标准操作。资源层要可按需定位：文件名表达内容，加载条件写进流程，而不是放在文末的“参考资料”里。三层都做到，技能才能既省上下文，又在需要时拿得出细节。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 用一个你熟悉的真实材料照这一节做一遍：先保留必须的字段与判断，再删掉模型已知的解释，最后补一个别人能执行的验证。完成后让同事只看结构，判断他能否说出何时该读哪个文件。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>Token 是计量单位，上下文窗口是一次请求能处理的 token 总量，两者都有限。</li>
+    <li>内容放进窗口不等于被有效利用；位置、长度和无关信息都会稀释注意力。</li>
+    <li>写 Skill 的核心动作是做减法：只写 Agent 不知道、且会影响结果的内容。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 下面两段，哪一段更可能值得占用 Skill 的上下文？为什么？<br>（A）“HTTP 是一种用于传输网页的协议，包含请求和响应。”（B）“内部网关要求所有请求带 <code>X-Tenant-Id</code>，缺失时返回 403 而不是 401。”</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> B。A 是模型已知的通用常识，删掉不影响结果；B 是项目特有的、会导致具体错误的约束。若你选 A 是因为“解释更完整”，重读“补上缺的，省掉已知的”。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 估算：一个 Skill 的 SKILL.md 有 420 行中文，平均每行 30 字；另有 3 个 references 文件各 200 行。按“中文 1 字约 1–2 token”粗算，激活时如果只读 SKILL.md，大约占多少 token？如果全部读入呢？这个估算有什么不确定性？</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> SKILL.md 约 420×30=12600 字，约 1.3–2.5 万 token，已远超 5000 的推荐值；全部读入约 4 倍。不确定性来自分词器、代码与中英混排、空行。重点不是精确数字，而是发现“正文超预算，应拆分”。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 找一份你写过的长提示词或说明文档（200 行以上），标出三类内容：模型已知的常识、项目特有的事实、偶发才需要的细节。给出拆分方案：哪些留在主文件，哪些进 references，各自的加载触发是什么。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../01-background/b2-tools.html"><span>上一页</span><strong>工具调用：Agent 如何真正执行动作</strong></a>
+      <a class="pager-next" href="../01-background/b4-prompt-config.html"><span>下一页</span><strong>提示词、指令与文件式配置</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

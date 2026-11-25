@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>全站索引 · Agent Skills 课程</title>
+  <meta name="description" content="按模块列出的全部课程页面。搜索不可用或想一次看全结构时使用这一页。">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+  <script>window.SITE_ROOT = "";</script>
+  <script src="assets/search-index.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="index.html">首页</a>
+        <a href="path.html">学习路径</a>
+        <a href="01-background/b1-agent.html">预备知识</a>
+        <a href="02-core/c1-anatomy.html">规范</a>
+        <a href="03-authoring/a1-expertise.html">设计方法</a>
+        <a href="04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="06-cases/case1-pdf-forms.html">案例</a>
+        <a href="07-capstone.html">毕业项目</a>
+        <a href="glossary.html">术语表</a>
+        <a href="index-all.html" class="current" aria-current="page">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#idx-home">首页（1 页）</a></li>
+        <li><a href="#idx-path">学习路径（1 页）</a></li>
+        <li><a href="#idx-bg">预备知识（5 页）</a></li>
+        <li><a href="#idx-core">规范与机制（5 页）</a></li>
+        <li><a href="#idx-author">设计方法（6 页）</a></li>
+        <li><a href="#idx-eval">触发与评估（3 页）</a></li>
+        <li><a href="#idx-tut">动手教程（4 页）</a></li>
+        <li><a href="#idx-case">实战案例（3 页）</a></li>
+        <li><a href="#idx-cap">毕业项目（1 页）</a></li>
+        <li><a href="#idx-ref">参考资料（5 页）</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>参考资料</span><span aria-hidden="true">/</span><span>全站索引</span></p>
+      <p class="stage-badge">参考</p>
+      <h1>全站索引</h1>
+      <p class="lead">按模块列出的全部课程页面。搜索不可用或想一次看全结构时使用这一页。</p>
+      <p class="page-meta">阶段：参考 · 建议 3 分钟</p>
+      <article class="content">
+<h2 id="idx-home">首页（1 页）</h2>
+      <ul class="index-list">
+          <li><a href="index.html">从零到独立设计 Agent Skills</a><span>一套面向零基础学习者的中文课程：从理解 AI Agent、读懂 Agent Skills 规范，到写出能被可靠触发、可评估、可维护的高质量 Skill。</span></li>
+      </ul>
+      <h2 id="idx-path">学习路径（1 页）</h2>
+      <ul class="index-list">
+          <li><a href="path.html">学习路径：五个阶段与毕业自检</a><span>五个阶段从认知准备走到交付与迁移。每一阶段都写清进入状态、离开状态、先修要求、预计时间、组成页面与可观察能力，最后给出毕业自检门禁。</span></li>
+      </ul>
+      <h2 id="idx-bg">预备知识（5 页）</h2>
+      <ul class="index-list">
+          <li><a href="01-background/b1-agent.html">什么是 Agent：从模型到会动手的系统</a><span>先建立最基本的心智模型：大语言模型、Agent、Agent 循环，以及 Agent 为什么需要外部知识与流程。</span></li>
+          <li><a href="01-background/b2-tools.html">工具调用：Agent 如何真正执行动作</a><span>模型只产生文本，真正让 Agent 动手的是工具调用（tool use）。理解调用、执行、回传的闭环，以及它与 Skill 的分工。</span></li>
+          <li><a href="01-background/b3-context.html">上下文窗口与 Token：为什么上下文是稀缺资源</a><span>Token、上下文窗口、注意力分配。理解为什么“把一切都写进提示词”会失败，这是渐进披露存在的根本原因。</span></li>
+          <li><a href="01-background/b4-prompt-config.html">提示词、指令与文件式配置</a><span>从聊天里的提示词，到可版本控制、可审查、可按需加载的指令文件。理解 SKILL.md 这种“文件式配置”的价值。</span></li>
+          <li><a href="01-background/b5-progressive.html">渐进披露：为什么不能把所有内容一次塞进去</a><span>用“目录—章节—附录”的类比建立渐进披露直觉，并看清它在 Agent Skills 中对应哪三层、各自花多少 token。</span></li>
+      </ul>
+      <h2 id="idx-core">规范与机制（5 页）</h2>
+      <ul class="index-list">
+          <li><a href="02-core/c1-anatomy.html">Skill 的解剖：目录结构与 SKILL.md</a><span>一个 Skill 就是一个目录，最少只需要一个 SKILL.md。看清必选与可选的每一部分，以及正文该怎么组织。</span></li>
+          <li><a href="02-core/c2-frontmatter.html">Frontmatter 字段完全指南</a><span>六个字段的必填性、长度与字符限制，逐条给出合法与非法示例，并解释 name 必须匹配父目录等硬性规则。</span></li>
+          <li><a href="02-core/c3-budgets.html">渐进披露的工程实现：预算、拆分与加载触发</a><span>把“渐进披露”落到工程细节：每层多少 token、SKILL.md 的 500 行与 5000 token 预算、如何拆分并写出明确的加载触发。</span></li>
+          <li><a href="02-core/c4-lifecycle.html">生命周期：发现、激活、执行</a><span>从会话启动扫描目录，到模型判断相关并加载全文，再到按需读取资源。同时说明目录约定、冲突覆盖与信任边界。</span></li>
+          <li><a href="02-core/c5-validation.html">校验、兼容性与常见坑</a><span>用 skills-ref 校验、理解严格规范与宽松实现的差别，并逐项排查 name 不匹配、描述缺失、YAML 解析失败等高频问题。</span></li>
+      </ul>
+      <h2 id="idx-author">设计方法（6 页）</h2>
+      <ul class="index-list">
+          <li><a href="03-authoring/a1-expertise.html">从真实专长出发，而不是让模型凭空编</a><span>好 Skill 的共同点是“装着别人不知道的东西”。学习从亲手任务与项目材料中提炼可复用专长。</span></li>
+          <li><a href="03-authoring/a2-refine.html">用真实执行打磨 Skill</a><span>第一稿几乎总是不够好。用执行轨迹而不只是最终输出来定位三类浪费：指令太虚、指令不适用、选项太多没有默认。</span></li>
+          <li><a href="03-authoring/a3-context-economy.html">上下文经济：加该加的，删该删的</a><span>每一句指令都在和对话历史、其他 Skill 争夺注意力。用“没有它 Agent 会做错吗”这条准则做减法，并划出连贯的能力边界。</span></li>
+          <li><a href="03-authoring/a4-structure.html">结构设计：渐进披露与文件组织</a><span>把长内容移到 references/，并明确告诉 Agent 什么时候读哪个文件。比较“泛泛指路”和“带条件的加载触发”。</span></li>
+          <li><a href="03-authoring/a5-control.html">控制校准：自由度与规定性的取舍</a><span>同一个 Skill 里，不同部分需要不同强度的控制。学会按“脆弱性”决定是给自由还是给死命令，并提供默认值而非菜单。</span></li>
+          <li><a href="03-authoring/a6-patterns.html">高效指令模式：坑点、模板、清单、验证循环</a><span>六种可直接套用的结构：Gotchas、输出模板、多步清单、验证循环、计划-校验-执行、打包脚本，以及脚本的代理友好设计。</span></li>
+      </ul>
+      <h2 id="idx-eval">触发与评估（3 页）</h2>
+      <ul class="index-list">
+          <li><a href="04-trigger-eval/e1-description.html">描述字段：Skill 触发的唯一入口</a><span>description 承担了全部触发判断。掌握四条写作原则，并用“改前/改后”对比看清窄与宽的边界。</span></li>
+          <li><a href="04-trigger-eval/e2-trigger-eval.html">触发评估：用查询集调准 description</a><span>构造 20 条真实查询、划分训练/验证集、每条跑 3 次算触发率，按五步循环改进而不是堆关键词。</span></li>
+          <li><a href="04-trigger-eval/e3-output-eval.html">输出质量评估：断言、基线与迭代</a><span>把“看起来还行”变成可比较的证据：写评估用例、跑有/无 Skill 的对照、用断言与证据打分、比较通过率与成本。</span></li>
+      </ul>
+      <h2 id="idx-tut">动手教程（4 页）</h2>
+      <ul class="index-list">
+          <li><a href="05-tutorials/t1-roll-dice.html">教程 1：20 分钟做出第一个 Skill（roll-dice）</a><span>从空目录开始，写出一个能真正掷骰子的 Skill：创建目录、写 frontmatter、在 Agent 模式下确认被发现、观察激活与执行。</span></li>
+          <li><a href="05-tutorials/t2-references.html">教程 2：用 references/ 给 Skill 减负</a><span>从一个 180 行的臃肿 SKILL.md 出发，把风格指南迁移到 references/，写上明确的加载触发，再用行数与实际加载行为验证。</span></li>
+          <li><a href="05-tutorials/t3-scripts.html">教程 3：打包 scripts/ 并建立验证循环</a><span>给 Skill 配一个无依赖的 Node.js 脚本，让它输出结构化结果、用退出码报告失败，并把“运行—检查—修复—重跑”写进指令。</span></li>
+          <li><a href="05-tutorials/t4-description-eval.html">教程 4：写 3 个评估用例并调好 description</a><span>给 changelog-writer 建立最小触发评估：6 条查询、3 次运行、训练/验证划分，按失败类型改描述而不是堆关键词。</span></li>
+      </ul>
+      <h2 id="idx-case">实战案例（3 页）</h2>
+      <ul class="index-list">
+          <li><a href="06-cases/case1-pdf-forms.html">案例 1：PDF 表单批量填写（文档处理）</a><span>300 份表单、字段名不统一、填错代价高。完整走一遍情境、需求、被否决的方案、SKILL.md、验证方法与失败模式。</span></li>
+          <li><a href="06-cases/case2-code-review.html">案例 2：团队代码评审（代码工作流）</a><span>用 Skill 固化团队的评审关注点与输出格式，同时避免变成噪声制造机。重点在控制校准与历史 PR 验证。</span></li>
+          <li><a href="06-cases/case3-csv-analysis.html">案例 3：运营 CSV 分析（数据分析）</a><span>编码不一、日期格式混乱、金额带符号。用默认库、脚本与坑点清单把一次性的分析变成可复现流程。</span></li>
+      </ul>
+      <h2 id="idx-cap">毕业项目（1 页）</h2>
+      <ul class="index-list">
+          <li><a href="07-capstone.html">毕业项目：设计并发布你自己的高质量 Skill</a><span>用一个真实、重复出现的任务完成端到端交付：技能目录、支持文件、触发与输出评估、证据记录。附 100 分评分表与反模式清单。</span></li>
+      </ul>
+      <h2 id="idx-ref">参考资料（5 页）</h2>
+      <ul class="index-list">
+          <li><a href="glossary.html">术语表</a><span>课程中出现的技术术语，按主题分组：中文名、英文原文、一两句定义，并链接到首次系统讲解它的页面。</span></li>
+          <li><a href="checklist.html">可打印检查清单</a><span>从设计前到发布前的逐项检查，可直接打印在 A4 纸上，也可作为评审他人 Skill 的对照表。</span></li>
+          <li><a href="index-all.html">全站索引</a><span>按模块列出的全部课程页面。搜索不可用或想一次看全结构时使用这一页。</span></li>
+          <li><a href="sources.html">来源、检索日期与溯源说明</a><span>九个来源页面的确切 URL、检索日期、各自覆盖的内容，以及哪些内容来自来源、哪些来自外部资料、哪些是本课程的原创设计。</span></li>
+          <li><a href="about.html">关于本课程</a><span>课程目标、目标读者、教学设计、技术实现、已知限制与使用许可。</span></li>
+      </ul>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="checklist.html"><span>上一页</span><strong>可打印检查清单</strong></a>
+      <a class="pager-next" href="sources.html"><span>下一页</span><strong>来源、检索日期与溯源说明</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="path.html">学习路径</a>
+        <a href="checklist.html">检查清单</a>
+        <a href="index-all.html">全站索引</a>
+        <a href="sources.html">来源与检索日期</a>
+        <a href="about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

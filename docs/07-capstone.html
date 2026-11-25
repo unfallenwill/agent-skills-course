@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>毕业项目：设计并发布你自己的高质量 Skill · Agent Skills 课程</title>
+  <meta name="description" content="用一个真实、重复出现的任务完成端到端交付：技能目录、支持文件、触发与输出评估、证据记录。附 100 分评分表与反模式清单。">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+  <script>window.SITE_ROOT = "";</script>
+  <script src="assets/search-index.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="index.html">首页</a>
+        <a href="path.html">学习路径</a>
+        <a href="01-background/b1-agent.html">预备知识</a>
+        <a href="02-core/c1-anatomy.html">规范</a>
+        <a href="03-authoring/a1-expertise.html">设计方法</a>
+        <a href="04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="06-cases/case1-pdf-forms.html">案例</a>
+        <a href="07-capstone.html" class="current" aria-current="page">毕业项目</a>
+        <a href="glossary.html">术语表</a>
+        <a href="index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#brief">项目简报</a></li>
+        <li><a href="#deliverables">交付物</a></li>
+        <li><a href="#milestones">建议节奏（约 6 小时）</a></li>
+        <li><a href="#rubric">评分表（100 分）</a></li>
+        <li><a href="#levels">难度自选</a></li>
+        <li><a href="#antipatterns">反模式清单</a></li>
+        <li><a href="#submission">提交前检查</a></li>
+        <li><a href="#peer">同行评审协议（30 分钟）</a></li>
+        <li><a href="#after">完成之后</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>毕业项目</span></p>
+      <p class="stage-badge">S5 交付与迁移</p>
+      <h1>毕业项目：设计并发布你自己的高质量 Skill</h1>
+      <p class="lead">用一个真实、重复出现的任务完成端到端交付：技能目录、支持文件、触发与输出评估、证据记录。附 100 分评分表与反模式清单。</p>
+      <p class="page-meta">阶段：S5 交付与迁移 · 建议 240 分钟 · 先修：五个阶段全部完成</p>
+      <article class="content">
+<p class="lead">毕业项目只有一个要求：解决一个你真实、重复遇到的问题。不是做一个演示，而是交付一个下周还会被使用、能被同事接手、能证明比不用更好的 Skill。</p>
+
+<h2 id="brief">项目简报</h2>
+
+<p>选择一个你最近三个月至少做过三次的任务。它应当满足：有稳定的产出、有外行不知道的判断、有可验证的对错。不要选“写一份商业计划书”这种开放任务，也不要选“解释一段代码”这种一次性请求。</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>项目要素</th><th>要求</th></tr></thead>
+  <tbody>
+    <tr><td>任务</td><td>真实、重复、有明确产出；来自你的工作，而不是课程虚构</td></tr>
+    <tr><td>范围</td><td>能在一次任务中完成一个连贯单元；不与相邻技能重叠</td></tr>
+    <tr><td>知识</td><td>至少包含 3 条“外行会做错”的具体事实（字段、命令、阈值、边界）</td></tr>
+    <tr><td>验证</td><td>至少有一个可运行的检查或可观察的断言</td></tr>
+    <tr><td>规模</td><td>SKILL.md 建议 50–150 行；支持文件按需拆分</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="deliverables">交付物</h2>
+
+<ol>
+  <li><strong>技能目录</strong>：<code>&lt;skill-name&gt;/SKILL.md</code>，frontmatter 合法，name 与目录一致。</li>
+  <li><strong>至少一个支持文件</strong>：<code>references/</code>、<code>scripts/</code> 或 <code>assets/</code>，并在主文件写明可观察的加载触发。</li>
+  <li><strong>输出评估</strong>：<code>evals/evals.json</code>，至少 3 个用例，每个至少 2 条可验证断言。</li>
+  <li><strong>触发评估</strong>：<code>evals/trigger_queries.json</code>，至少 6 条（建议 20 条），含至少 2 条近邻负例；记录每条 3 次运行结果。</li>
+  <li><strong>设计说明</strong>：400–600 字，说明范围边界、三个关键取舍、触发策略、验证结论。</li>
+  <li><strong>证据</strong>：触发记录表、有/无技能的通过率对照、token 与耗时（可用估算），以及至少一条人工评审反馈。</li>
+  <li><strong>自评</strong>：按下方评分表打分，附一分项理由。</li>
+</ol>
+
+<h2 id="milestones">建议节奏（约 6 小时）</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>阶段</th><th>时间</th><th>产出</th><th>完成标志</th></tr></thead>
+  <tbody>
+    <tr><td>M1 选题</td><td>30 分钟</td><td>一句话任务描述、3 条“外行会做错”的事实</td><td>能说出“没有这个技能，Agent 会错在哪”</td></tr>
+    <tr><td>M2 提取</td><td>60 分钟</td><td>知识清单、输入输出样例、失败模式</td><td>至少有 1 个真实输入与 1 个真实输出</td></tr>
+    <tr><td>M3 初稿</td><td>90 分钟</td><td>SKILL.md + 一个支持文件</td><td>能在一个真实任务上跑通</td></tr>
+    <tr><td>M4 评估</td><td>90 分钟</td><td>触发表、3 个输出用例、有/无对照</td><td>有数字，不只是印象</td></tr>
+    <tr><td>M5 修订与打包</td><td>60 分钟</td><td>第二版、设计说明、证据整理</td><td>至少根据一条失败证据做了修改</td></tr>
+    <tr><td>M6 同行评审</td><td>30 分钟</td><td>评审意见与回应</td><td>他人能按说明复现你的验证</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="rubric">评分表（100 分）</h2>
+
+<p>七个维度来自来源的最佳实践：真实专长、范围、上下文经济、渐进披露、控制校准、触发描述、验证闭环。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md">best-practices.md</a>）权重是本课程的判断。<span class="prov-mark prov-course">[本课程观点]</span></p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>维度</th><th>权重</th><th>1 分（不合格）</th><th>3 分（合格）</th><th>5 分（优秀）</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>真实专长</strong></td><td>15</td>
+      <td>正文出现 3 段以上通用最佳实践；删掉这些段落后，任务结果不变</td>
+      <td>至少 3 条项目特有事实，每条能对应一个真实错误或失败场景</td>
+      <td>至少 3 条事实可追溯到亲手任务、故障记录或项目材料，并各配一个“不写就会错”的具体场景</td>
+    </tr>
+    <tr>
+      <td><strong>范围</strong></td><td>10</td>
+      <td>范围无法用一句话说清，或完成一次任务需要加载 3 个以上技能</td>
+      <td>能用一句话说清边界；至少 3 个任务属于同一连贯单元</td>
+      <td>描述中写明“不适用”；与相邻技能各有 1 条边界；范围经 1 个真实任务验证</td>
+    </tr>
+    <tr>
+      <td><strong>上下文经济</strong></td><td>15</td>
+      <td>出现解释 PDF/HTTP/CSV 等常识的段落，或 5 条以上“注意质量”式空话</td>
+      <td>随机抽 3 段，每段都能说出“不写会错”的具体场景；无重复示例</td>
+      <td>删减有记录（列出删掉的段落及理由）；主文件 <200 行；多方案处有默认值而非并列选项</td>
+    </tr>
+    <tr>
+      <td><strong>渐进披露</strong></td><td>15</td>
+      <td>0 个支持文件，或支持文件无加载触发，或存在 A→B→C 引用链</td>
+      <td>至少 1 个支持文件，且有可观察的加载触发（条件+路径+用途）</td>
+      <td>至少 2 个支持文件；每个都有“当 X 时读 Y”触发且嵌入流程；主文件 <200 行；无二级引用链</td>
+    </tr>
+    <tr>
+      <td><strong>控制校准</strong></td><td>15</td>
+      <td>高风险步骤只写“小心操作”，或所有步骤都写成固定命令且无判断标准</td>
+      <td>不可逆步骤有精确命令；开放步骤有判断标准；至少 1 处默认值</td>
+      <td>每个不可逆步骤都有精确命令与停止条件；每个开放步骤都有判断标准；至少 3 处使用默认值加明确例外</td>
+    </tr>
+    <tr>
+      <td><strong>触发描述</strong></td><td>15</td>
+      <td>描述无“何时使用”句，或无场景/关键词，或超过 1024 字符</td>
+      <td>描述含做什么、何时用、至少 3 种用户说法；不超过 1024 字符</td>
+      <td>有至少 6 条查询×3 次记录；训练/验证分开；负例含至少 2 条近邻；描述不超过 1024 字符</td>
+    </tr>
+    <tr>
+      <td><strong>验证闭环</strong></td><td>15</td>
+      <td>无评估用例或断言，或断言无证据、无法复核</td>
+      <td>至少 3 个用例、每条至少 2 条断言；有/无技能对照</td>
+      <td>至少 3 个用例、每条至少 2 条断言且 PASS 附证据；有/无对照通过率；记录 token 与耗时；至少 1 条人工反馈并据此修改</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p><strong>通过线：</strong>总分 ≥80，且“真实专长”“触发描述”“验证闭环”三个维度均不低于 3 分。任何硬性违规（frontmatter 不合法、name 与目录不一致、描述缺失）直接不通过，需修复后重评。</p>
+
+<h2 id="levels">难度自选</h2>
+
+<div class="stage-card-grid">
+  <article class="card">
+    <h3>基础</h3>
+    <p>交付 SKILL.md + 一个支持文件；完成 3 个输出用例；触发查询 6 条。</p>
+    <p>目标分数：80。</p>
+  </article>
+  <article class="card">
+    <h3>进阶</h3>
+    <p>在基础上增加：20 条触发查询、训练/验证划分、两轮迭代、成本对照。</p>
+    <p>目标分数：88。</p>
+  </article>
+  <article class="card">
+    <h3>挑战</h3>
+    <p>在进阶上增加：同行评审两位、跨客户端验证、脚本带自动化测试、失败模式复盘。</p>
+    <p>目标分数：95。</p>
+  </article>
+</div>
+
+<h2 id="antipatterns">反模式清单</h2>
+
+<p>逐项检查；命中任意一项，先修复再评分。每条都对应一种常见失败。</p>
+
+<ul class="cap-anti">
+  <li><strong>通用废话。</strong> “注意质量”“妥善处理错误”“遵循最佳实践”——无法执行，也不提供新信息。</li>
+  <li><strong>解释模型已知的知识。</strong> 用段落介绍 PDF、HTTP、CSV、数据库迁移是什么。</li>
+  <li><strong>万能技能。</strong> 一个技能覆盖读取、转换、分析、部署、运维；描述无法精确触发。</li>
+  <li><strong>菜单式选项。</strong> 列出四个库或三种方法，却不给默认值。</li>
+  <li><strong>无触发的拆分。</strong> 把内容切进 references，只写“详见 references/”。</li>
+  <li><strong>深链引用。</strong> A 文件让读 B，B 又让读 C；模型容易漏读。</li>
+  <li><strong>把低频细节放主文件。</strong> 字段字典、完整错误码表、历史变更日志占据正文。</li>
+  <li><strong>高风险步骤模糊。</strong> 对删除、迁移、批量发送只写“小心操作”。</li>
+  <li><strong>交互式脚本。</strong> 运行后等待用户输入，Agent 环境下挂起。</li>
+  <li><strong>失败也返回 0。</strong> 脚本出错但退出码为 0，Agent 误以为成功。</li>
+  <li><strong>把日志写进 stdout。</strong> 结构化输出被诊断信息污染，无法解析。</li>
+  <li><strong>验证靠嘴。</strong> 只写“请确保输出正确”，没有命令、断言或期望值。</li>
+  <li><strong>为通过而改期望。</strong> 校验失败后修改断言或期望值，而不是修复问题。</li>
+  <li><strong>描述堆关键词。</strong> 把失败查询里的词直接塞进描述，导致过拟合与误触发。</li>
+  <li><strong>用验证集调参。</strong> 拿验证集失败指导修改，失去泛化检验。</li>
+  <li><strong>没有负例。</strong> 触发查询全是正例，测不出“太宽”。</li>
+  <li><strong>假评估。</strong> 用例只覆盖顺利路径，所有断言无论有无技能都通过。</li>
+  <li><strong>不可复现。</strong> 依赖随机数、当前时间、隐藏状态，却不记录种子与版本。</li>
+  <li><strong>名称与目录不一致。</strong> 本地宽松客户端能加载，换环境或校验时失败。</li>
+  <li><strong>描述为空或纯口号。</strong> “A powerful tool for documents.” 无法触发任何具体任务。</li>
+</ul>
+
+<h2 id="submission">提交前检查</h2>
+
+<ul>
+  <li>目录名 = <code>name</code>，符合字符与长度规则。</li>
+  <li><code>description</code> 1–1024 字符，写清做什么与何时用。</li>
+  <li>SKILL.md 少于 500 行；每个支持文件都有加载触发。</li>
+  <li>脚本非交互，有 <code>--help</code>、可操作错误与非零退出码。</li>
+  <li>至少 3 个输出用例、6 条触发查询（建议 20）、3 次运行记录。</li>
+  <li>有/无技能的通过率对照，以及 token/耗时说明。</li>
+  <li>设计说明能用 400–600 字讲清三个取舍。</li>
+  <li>校验通过：<code>skills-ref validate</code> 或本课程脚本。</li>
+  <li>自评 ≥80，反模式清单逐项排除。</li>
+</ul>
+
+<h2 id="peer">同行评审协议（30 分钟）</h2>
+
+<ol>
+  <li><strong>5 分钟：</strong>只读 SKILL.md 与描述，写下你认为它何时会触发、解决什么问题。</li>
+  <li><strong>10 分钟：</strong>按提交说明复现一次验证；记录哪一步无法复现。</li>
+  <li><strong>10 分钟：</strong>用评分表独立打分，标出与作者自评差距最大的两个维度。</li>
+  <li><strong>5 分钟：</strong>给出一条“如果只改一处，改哪里”的建议，必须具体到文件与句子。</li>
+</ol>
+
+<p>评审者不应只给分数。最有价值的反馈是：<strong>我按你的说明操作时，在哪里卡住了。</strong></p>
+
+<h2 id="after">完成之后</h2>
+
+<p>把技能放进项目的 <code>.agents/skills/</code>，在至少一个真实任务中使用一周。记录每次需要纠正的地方，按<a href="03-authoring/a2-refine.html">用真实执行打磨</a>的方法迭代。毕业项目不是终点，而是你开始维护一套团队技能库的起点。</p>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="06-cases/case3-csv-analysis.html"><span>上一页</span><strong>案例 3：运营 CSV 分析（数据分析）</strong></a>
+      <a class="pager-next" href="glossary.html"><span>下一页</span><strong>术语表</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="path.html">学习路径</a>
+        <a href="checklist.html">检查清单</a>
+        <a href="index-all.html">全站索引</a>
+        <a href="sources.html">来源与检索日期</a>
+        <a href="about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

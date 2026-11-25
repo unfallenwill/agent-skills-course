@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>工具调用：Agent 如何真正执行动作 · Agent Skills 课程</title>
+  <meta name="description" content="模型只产生文本，真正让 Agent 动手的是工具调用（tool use）。理解调用、执行、回传的闭环，以及它与 Skill 的分工。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html" class="current" aria-current="page">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#text-only">模型只产出文本，执行发生在模型之外</a></li>
+        <li><a href="#permissions">权限、确认与非交互环境</a></li>
+        <li><a href="#tool-types">Agent 常见能用到哪些工具</a></li>
+        <li><a href="#reliability">工具使用并不可靠，这会影响你的写法</a></li>
+        <li><a href="#skills-vs-tools">Skill 与工具的分工</a></li>
+        <li><a href="#authoring-implications">对写 Skill 的三个直接影响</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>预备知识</span></p>
+      <p class="stage-badge">S1 认知准备</p>
+      <h1>工具调用：Agent 如何真正执行动作</h1>
+      <p class="lead">模型只产生文本，真正让 Agent 动手的是工具调用（tool use）。理解调用、执行、回传的闭环，以及它与 Skill 的分工。</p>
+      <p class="page-meta">阶段：S1 认知准备 · 建议 25 分钟 · 先修：什么是 Agent</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> Agent 之所以能“动手”，靠的不是模型偷偷执行了代码，而是工具调用（tool use）：模型提出请求，运行环境执行，再把结果交还模型。理解这个分工，才能理解 Skill 应该写什么、不该假设什么。</p>
+
+<h2 id="text-only">模型只产出文本，执行发生在模型之外</h2>
+
+<p>无论界面看起来多像一个会自己干活的助手，模型本身仍然只生成 token。所谓“调用工具”，是模型输出一段结构化内容，表达“我想调用某个工具，并传入这些参数”。客户端（例如编辑器里的 Agent 模式、命令行工具或云端代理）解析这段内容，真正去读文件、执行命令或访问网络，然后把结果作为新消息放回上下文。<span class="prov-mark prov-ext">[外部: https://developers.openai.com/api/docs/guides/function-calling]</span> OpenAI 的函数调用文档把这一过程描述为多步交换：模型请求一个已定义的函数及参数，应用执行它，再把结果送回模型继续。<a href="https://developers.openai.com/api/docs/guides/function-calling">Function calling</a>（检索于 2026-11-25）。</p>
+
+<p><span class="prov-mark prov-ext">[外部: https://developers.openai.com/api/docs/guides/function-calling]</span> <strong>工具调用</strong>（tool use，也叫 function calling）因此包含四个角色：</p>
+
+<ol>
+  <li><strong>工具定义</strong>：名字、用途说明、参数结构。说明写得含糊，模型就容易传错参数。</li>
+  <li><strong>模型决策</strong>：根据任务选择工具并生成参数。</li>
+  <li><strong>运行环境</strong>：校验参数、申请权限、执行，捕获输出与错误。</li>
+  <li><strong>结果回灌</strong>：把 stdout、stderr、退出码或结构化结果放回上下文。</li>
+</ol>
+
+
+<p><span class="prov-mark prov-ext">[外部: https://developers.openai.com/api/docs/guides/function-calling]</span> 把四个角色分开看，排错会容易很多。参数传错，通常是工具定义不清晰；工具根本没被调用，可能是模型判断不需要，也可能是客户端没有注册；执行失败但模型不知道，往往是结果没有回灌或错误信息太模糊。写 Skill 时你能控制的主要是第一条和第四条：把工具用途、参数和失败语义写清楚，并要求 Agent 在行动后读取结果再决定下一步。不要把“模型应该会调用”当作设计前提。</p>
+<h2 id="permissions">权限、确认与非交互环境</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 执行动作意味着风险，所以大多数客户端会在关键操作前请求确认：写文件、运行命令、访问网络、删除内容。你在教程里让 Agent 掷骰子时，它也可能先问“可以运行这条命令吗”。这是正常的安全边界，不是故障。</p>
+
+<p>对 Skill 作者更重要的是另一件事：<strong>Agent 运行脚本的环境通常是非交互的。</strong>它无法回答 TTY 提示、密码对话框或“按任意键继续”。来源文档把“避免交互式提示”称为 Agent 执行环境的硬性要求：脚本如果阻塞在等待输入上，会一直挂起。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/using-scripts.md">using-scripts.md</a>）</p>
+
+<div class="callout callout-warn">
+  <div class="callout-title">常见误区</div>
+  <p><span class="prov-mark prov-src">[源站]</span> “我本地运行没问题”不等于“Agent 能运行”。本地你可能在终端里输入了路径、确认了覆盖；Agent 只会照指令执行。凡是需要人现场回答的步骤，都要改成命令行参数、环境变量或明确的默认值。</p>
+</div>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 权限确认不是干扰，而是执行系统的一部分。一个好的 Skill 会提前告诉使用者需要哪些权限、哪些步骤会写入文件、哪些命令可能不可逆。这样用户在确认时能做出有依据的判断，而不是机械地点“允许”。反过来，如果一个技能需要频繁请求权限才能完成一次普通任务，通常说明它的流程设计有问题：要么用了过重的工具，要么把本可以一次性完成的操作拆成了多次高风险调用。</p>
+<h2 id="tool-types">Agent 常见能用到哪些工具</h2>
+
+<ul>
+  <li><strong>文件读取与写入</strong>：查看目录、读 SKILL.md、读 references、写输出文件。</li>
+  <li><strong>终端命令</strong>：运行 <code>git</code>、<code>python</code>、<code>jq</code>、构建工具；这也是 Skill 里脚本最常见的执行方式。</li>
+  <li><strong>搜索与网页访问</strong>：查文档、抓取页面；是否可用取决于客户端与网络策略。</li>
+  <li><strong>专用集成</strong>：数据库、工单系统、设计工具。通常通过 MCP（Model Context Protocol）之类的协议接入。</li>
+  <li><strong>子任务</strong>（subtask）：把一段工作交给子代理（subagent），拿回摘要。</li>
+</ul>
+
+<p><span class="prov-mark prov-ext">[外部: https://modelcontextprotocol.io/]</span> MCP 被描述为“连接 AI 应用与外部系统的开源标准”，可以类比为 AI 应用的 USB-C 接口：统一连接数据源、工具与工作流。<a href="https://modelcontextprotocol.io/">modelcontextprotocol.io</a>（检索于 2026-11-25）。本课程不展开 MCP 的实现，只需要知道：<strong>Skill 负责“怎么做”，MCP 负责“能连到什么”。</strong></p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 工具清单会直接影响技能的可移植性。一个依赖浏览器自动化的技能，在只有终端的环境里无法运行；一个假设有图形界面的脚本，在云端沙箱里会失败。写作时不要把“我的电脑上有”当成“运行环境有”。先列出技能真正需要的三类能力：读文件、执行命令、访问外部系统，再在 compatibility 或正文前置检查中写明。缺少能力时应该停止并说明，而不是换一种看起来相似但结果不同的做法。</p>
+<h2 id="reliability">工具使用并不可靠，这会影响你的写法</h2>
+
+<p>来源的快速入门明确提醒：不同模型的工具使用可靠性不同，有些模型会稳定遵循 Skill 指令并运行命令，有些则可能自己编一个答案。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/quickstart.md">quickstart.md</a>）这不是规范缺陷，而是当前模型能力的现实。</p>
+
+<p><span class="prov-mark prov-src">[源站]</span> 因此，一个负责任的 Skill 不应该假设“模型一定会执行”。它应该：</p>
+
+<ul>
+  <li>把必须执行的动作写成明确的命令，而不是“你可以考虑运行……”。</li>
+  <li>给出执行后的验证方法，让模型或人能发现“没执行却声称执行了”。</li>
+  <li>在关键结果上要求引用证据，例如命令输出、文件路径、行号。</li>
+  <li>对无法执行的场景给出降级路径，而不是静默跳过。</li>
+</ul>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 可靠性差异会改变你的验证策略。如果模型倾向于直接回答而不执行命令，单靠“请运行脚本”不够，还要在技能里要求给出执行证据，例如命令、退出码或输出片段。评审时也应把这些证据当作交付的一部分。另一种情况是模型执行了命令但误读了输出；这时结构化的 JSON 比自然语言日志更可靠。你不必假设模型一定会犯错，但要假设“没有证据就无法区分做对与说对”。</p>
+<h2 id="skills-vs-tools">Skill 与工具的分工</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th></th><th>工具（tool）</th><th>Skill</th></tr></thead>
+  <tbody>
+    <tr><td>提供什么</td><td>可执行的能力：读文件、跑命令、查数据库</td><td>专门知识与流程：先做什么、注意什么、如何判断完成</td></tr>
+    <tr><td>由谁定义</td><td>客户端或 MCP 服务器</td><td>Skill 作者，通常是领域从业者</td></tr>
+    <tr><td>加载方式</td><td>通常始终可用，或在会话中注册</td><td>按描述匹配后加载全文</td></tr>
+    <tr><td>失败表现</td><td>报错、权限拒绝、超时</td><td>不触发、触发错、触发后照做但做错</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>一个 Skill 可以声明它预期使用哪些工具。规范中的 <code>allowed-tools</code> 字段是一个空格分隔的字符串，用于列出预先批准的工具；它是<strong>实验性</strong>字段，不同客户端的支持程度不一。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/specification.md#allowed-tools-field">specification.md</a>）不要把它当成权限系统的替代品。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 实践中最常见的边界错误，是把工具本身当成技能。例如写一个“运行 pytest”的技能，内容只有一条命令；这不需要专门的知识包，模型本来就会。真正值得写的是“在这个仓库里运行测试要注意什么”：要激活哪个虚拟环境、哪些测试依赖外部服务、失败时先看哪个日志。换句话说，技能应该围绕判断与流程，而不是围绕某一次工具调用。工具是能力，技能是使用能力的经验。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="authoring-implications">对写 Skill 的三个直接影响</h2>
+
+<ol>
+  <li><strong>不要解释工具怎么用，除非有坑。</strong> 模型通常知道怎么读文件、怎么运行 <code>python</code>。你要写的是“用哪个库”“哪个参数不能省”“失败时看哪个字段”。</li>
+  <li><strong>脚本要按“无人值守”设计。</strong> 参数全部从命令行来，错误信息要能指导下一步，退出码要区分失败类型。教程 3 会完整练一遍。</li>
+  <li><strong>把“执行证据”写进流程。</strong> 例如要求保存命令输出、汇报实际读取的文件数、在最终答复中附上验证命令的结果。这样“声称做了”和“真的做了”才有区别。</li>
+</ol>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这三条可以变成写作时的三次自查。第一遍查“我是不是在教模型用工具”，删掉通用说明；第二遍查“脚本会不会卡住”，把所有交互改成参数并补上错误信息；第三遍查“怎么知道真的做了”，给关键步骤加验证命令或证据要求。三遍都不需要增加篇幅，反而常常让技能更短。短而可验证的技能，比长而自信的技能更容易维护。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>模型生成工具调用请求，运行环境负责执行并把结果送回；模型本身不直接操作你的系统。</li>
+    <li>Agent 的执行环境通常非交互，脚本不能等待人工输入。</li>
+    <li>Skill 补的是领域知识与流程，不是工具能力；工具不可靠时，用验证步骤和证据要求兜底。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 下面哪一句更适合写进 Skill：“使用 Python 读取 CSV 文件”，还是“用 <code>csv</code> 标准库读取，编码优先尝试 UTF-8-SIG，失败再试 GBK”？说明理由。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 后者。前者是模型已经知道的通用能力；后者是环境相关的具体决策（编码坑），没有它模型可能默认 UTF-8 并在中文 CSV 上失败。判断标准仍是“没有这句会不会做错”。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 写一个会被 Agent 调用的脚本接口（只写用法，不写实现）：输入一个目录，输出每个文件的类型统计。要求：非交互、可脚本化、失败可诊断。列出参数、stdout 格式、stderr 内容与至少两个退出码。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 示例：<code>profile.py DIR [--format json|csv]</code>；stdout 只输出结构化统计；stderr 输出进度与警告；退出码 0 成功、2 参数错误、3 目录不存在、4 存在不可读文件。若你的设计里有“请输入目录：”这类提示，回看非交互要求。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 找一个你常用的 Agent 客户端，列出它默认提供的工具。然后指出：如果你的 Skill 依赖其中一个工具而该客户端没有，会发生什么？你会如何在 SKILL.md 中处理这种不确定性？</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../01-background/b1-agent.html"><span>上一页</span><strong>什么是 Agent：从模型到会动手的系统</strong></a>
+      <a class="pager-next" href="../01-background/b3-context.html"><span>下一页</span><strong>上下文窗口与 Token：为什么上下文是稀缺资源</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>校验、兼容性与常见坑 · Agent Skills 课程</title>
+  <meta name="description" content="用 skills-ref 校验、理解严格规范与宽松实现的差别，并逐项排查 name 不匹配、描述缺失、YAML 解析失败等高频问题。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html" class="current" aria-current="page">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#skills-ref">用参考库校验</a></li>
+        <li><a href="#local">本课程的零依赖校验脚本</a></li>
+        <li><a href="#strict-lenient">严格规范与宽松实现</a></li>
+        <li><a href="#common">常见错误排查表</a></li>
+        <li><a href="#compat">跨客户端兼容性</a></li>
+        <li><a href="#preflight">提交前预检清单</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><a href="../02-core/c1-anatomy.html">规范与机制</a><span aria-hidden="true">/</span><span>规范</span></p>
+      <p class="stage-badge">S2 读懂规范</p>
+      <h1>校验、兼容性与常见坑</h1>
+      <p class="lead">用 skills-ref 校验、理解严格规范与宽松实现的差别，并逐项排查 name 不匹配、描述缺失、YAML 解析失败等高频问题。</p>
+      <p class="page-meta">阶段：S2 读懂规范 · 建议 25 分钟 · 先修：生命周期</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> 规范只有六个字段，但失败往往发生在这几行里：名字少了一个连字符、描述为空、YAML 里多了一个冒号。这一页把校验做成可执行的动作，并列出一张排查表。</p>
+
+<h2 id="skills-ref">用参考库校验</h2>
+
+<p><span class="prov-mark prov-norm">[规范]</span> 来源推荐 <code>skills-ref</code>：</p>
+
+<pre><code>skills-ref validate ./my-skill
+</code></pre>
+
+<p>它会检查 frontmatter 是否合法、是否符合命名约定。<span class="prov-mark prov-norm">[规范]</span>（<a href="https://agentskills.io/specification.md#validation">specification.md</a>）参考库位于 <a href="https://github.com/agentskills/agentskills/tree/main/skills-ref">github.com/agentskills/agentskills/tree/main/skills-ref</a>。按参考库的安装说明使用；本课程不要求你联网安装，下面的本地脚本覆盖了规范中的硬性字段检查。</p>
+
+
+<p><span class="prov-mark prov-norm">[规范]</span> 校验的价值在于把“看起来对”变成“解析器认可”。它会按规范检查 frontmatter 的字段、name 的字符与长度、name 与父目录是否一致等硬性条件。它不会判断描述是否覆盖了正确的场景，也不会判断正文是否有效，因此校验通过不能代替评估。反过来，校验失败必须先修，因为格式不合法的技能可能在发现阶段就被跳过，后面所有评估都无从谈起。把校验放在每次提交前，成本很低，收益很直接。</p><p><span class="prov-mark prov-norm">[规范]</span> 如果团队使用多个客户端，还要做一次跨客户端冒烟测试：在目标客户端里确认技能出现在列表中、能被激活、能读到支持文件。校验器只认识格式，不认识客户端的扫描路径与权限模型。两者都通过，才能说“这个技能在目标环境里可用”。</p>
+<h2 id="local">本课程的零依赖校验脚本</h2>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 仓库 <code>tools/validate-skills.js</code> 用 Node.js 写成，无第三方依赖。它解析每个 SKILL.md 的 frontmatter，检查 <code>name</code> 与 <code>description</code> 是否存在、类型是否为字符串，校验 name 的字符集、长度、连字符规则与父目录一致性，并检查 description 长度。用法：</p>
+
+<pre><code>node tools/validate-skills.js examples
+</code></pre>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 输出形如：</p>
+
+<pre><code>PASS  pdf-form-filler        name_ok  description=286 chars  fields=name,description,license,compatibility,metadata
+PASS  code-review            name_ok  description=241 chars  fields=name,description
+...
+SUMMARY  skills=7  passed=7  failed=0
+</code></pre>
+
+<p>脚本不是官方工具，也不替代 <code>skills-ref</code>；它只覆盖本课程用到的字段与硬性规则。遇到它没覆盖的字段（例如 <code>allowed-tools</code> 的语义），仍以规范和参考库为准。<span class="prov-mark prov-course">[本课程观点]</span></p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 本地脚本覆盖的是本课程用到的字段与常见 YAML 错误，它故意保持零依赖，方便在离线环境和 CI 中运行。它不是官方工具的替代品：官方工具会跟随规范更新，本地脚本则需要手动维护。一个实用的组合是：日常迭代用本地脚本快速反馈，提交前跑官方工具做最终门禁。脚本报错时，先看它指出的具体行号与字段，再决定是修内容还是修脚本；不要为了让脚本通过而修改期望值。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="strict-lenient">严格规范与宽松实现</h2>
+
+<p><span class="prov-mark prov-norm">[规范]</span> 规范采用严格校验（strict validation），客户端实现往往宽松。来源明确描述了两者的差异：</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>情况</th><th>规范要求</th><th>宽松实现的常见行为</th></tr></thead>
+  <tbody>
+    <tr><td>name 与父目录不一致</td><td>不合法</td><td>警告，仍加载</td></tr>
+    <tr><td>name 超过 64 字符</td><td>不合法</td><td>警告，仍加载</td></tr>
+    <tr><td>description 缺失或为空</td><td>不合法</td><td>跳过该技能，记录错误</td></tr>
+    <tr><td>YAML 完全无法解析</td><td>不合法</td><td>跳过该技能，记录错误</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-norm">[规范]</span> 实现指南称这种做法为宽松校验（lenient validation）：对不影响功能的问题警告但仍加载，对无法披露的技能则跳过。它还建议对“未加引号但包含冒号”的 YAML 做兜底重试，以提高跨客户端兼容性。（来源：<a href="https://agentskills.io/client-implementation/adding-skills-support.md#lenient-validation">adding-skills-support.md</a>）</p>
+
+<div class="callout callout-warn">
+  <div class="callout-title">不要把“能加载”当成“正确”</div>
+  <p><span class="prov-mark prov-norm">[规范]</span> 宽松实现会掩盖问题，直到你换一个客户端或上传到技能市场才暴露。把 <code>skills-ref validate</code> 当作提交前的必跑步骤，就像提交代码前跑测试。</p>
+</div>
+
+
+<p><span class="prov-mark prov-norm">[规范]</span> 宽松实现的好处是兼容旧技能，坏处是掩盖问题。一个 name 与目录不一致的技能，在本地可能照常加载，换一个客户端或上传到市场时才失败；一个 description 为空的技能，在某个实现里可能被跳过，用户只会看到“技能不见了”。因此，不要用“我的客户端能用”作为合格标准。把规范当作下限，把客户端行为当作运行时差异，二者分开判断，排查会清晰很多。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="common">常见错误排查表</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>症状</th><th>可能原因</th><th>检查方法</th><th>修复</th></tr></thead>
+  <tbody>
+    <tr><td>客户端列表里没有技能</td><td>目录层级不对；文件名不是精确的 <code>SKILL.md</code></td><td>确认路径是 <code>.agents/skills/&lt;name&gt;/SKILL.md</code>；注意大小写</td><td>移动/重命名；不要用 <code>skill.md</code></td></tr>
+    <tr><td>技能被警告但仍加载</td><td>name 与目录不一致、超长、含大写</td><td><code>node tools/validate-skills.js</code></td><td>同时改目录名与 name</td></tr>
+    <tr><td>技能完全不出现</td><td>description 为空；YAML 解析失败</td><td>看客户端日志；用校验脚本解析</td><td>补描述；修冒号、Tab、缩进</td></tr>
+    <tr><td>描述被截断或值不对</td><td>未加引号的 <code>:</code>、<code>#</code>；块标量缩进错误</td><td>打印解析后的字符串长度与内容</td><td>加引号或改用 <code>&gt;</code> 块标量</td></tr>
+    <tr><td>compatibility 报长度错误</td><td>超过 500 字符</td><td><code>wc -m</code> 或脚本</td><td>删掉营销性描述，只留真实要求</td></tr>
+    <tr><td>metadata 值类型错误</td><td>数字、布尔未加引号</td><td>检查冒号后的原始文本</td><td>给版本号等值加引号</td></tr>
+    <tr><td>allowed-tools 无效</td><td>客户端不支持该实验字段</td><td>查阅客户端文档；观察是否被忽略</td><td>不要依赖它做权限控制</td></tr>
+    <tr><td>引用文件找不到</td><td>路径基准理解错误；大小写不一致</td><td>从技能根目录逐级确认</td><td>用相对路径；统一大小写</td></tr>
+  </tbody>
+</table>
+</div>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 排查这张表时，先按“技能有没有出现”分层，而不是逐条试。列表里完全没有：优先查目录层级、文件名大小写、客户端扫描路径。列表里有但带警告：查 name 与目录是否一致、是否超长或含非法字符。列表里没有且日志报解析错误：查 YAML 的冒号、井号、Tab 与缩进。列表里有、能激活，但行为不对：问题已经不在格式，转到描述与正文评估。把问题分到正确的层，能避免在错误的地方反复修改。</p><p><span class="prov-mark prov-course">[本课程观点]</span> 第二层是“出现了但不好用”。这时要区分触发问题和执行问题：该触发没触发，回到描述评估；触发了但输出不对，回到正文与脚本。第三层是“能跑但不可移植”，通常与路径、编码、依赖和客户端差异有关。每一层都有不同的证据来源：客户端日志、校验输出、触发记录、执行轨迹。先确定层级，再选证据，排查效率会高很多。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="compat">跨客户端兼容性</h2>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 同一个 Skill 目录在支持该格式的客户端之间通常可以复用，但以下方面可能不同：</p>
+
+<ul>
+  <li><strong>扫描位置。</strong> 有的客户端读 <code>.agents/skills/</code>，有的优先自己的目录，有的还读 <code>.claude/skills/</code>。以目标客户端文档为准。</li>
+  <li><strong>用户显式调用语法。</strong> <code>/skills</code>、<code>/&lt;skill-name&gt;</code>、<code>$skill-name</code> 都可能出现。</li>
+  <li><strong>frontmatter 处理。</strong> 有的激活后把整份文件交给模型（含 frontmatter），有的剥离 frontmatter 只留正文。</li>
+  <li><strong>工具可靠性。</strong> 来源快速入门提醒，不同模型遵循指令、执行命令的稳定性不同，必要时切换模型。<span class="prov-mark prov-norm">[规范]</span></li>
+  <li><strong>实验字段。</strong> <code>allowed-tools</code> 的支持程度因实现而异。</li>
+</ul>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 提高兼容性的做法：只用必选字段承担关键语义；把环境要求写进 <code>compatibility</code>；不依赖某个客户端特有的路径或 UI；脚本只使用常见运行时与标准库。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 兼容性不是“一次写好，到处运行”，而是“知道哪些差异可以接受”。如果技能只在团队的一个客户端里使用，可以针对该客户端优化；如果要共享给外部用户，就要避开客户端特有路径、UI 和实验字段，把环境要求写进 compatibility。最容易被忽略的是 frontmatter 处理：有的客户端把整份文件交给模型，有的剥离 frontmatter。不要把关键指令只写在 frontmatter 里，正文必须自足。</p>
+<h2 id="preflight">提交前预检清单</h2>
+
+<ul>
+  <li>目录名 = <code>name</code>，字符集与长度合法。</li>
+  <li><code>description</code> 非空、≤1024 字符，包含“做什么”和“何时用”。</li>
+  <li>YAML 无 Tab、无未加引号的多余冒号、块标量缩进一致。</li>
+  <li>正文引用的每个文件都存在，路径相对技能根目录且大小写一致。</li>
+  <li>脚本可执行、不等待输入、失败返回非零退出码。</li>
+  <li><code>skills-ref validate</code> 与本地脚本均通过。</li>
+  <li>在至少一个真实客户端中能看到技能并被激活一次。</li>
+</ul>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-course">[本课程观点]</span> 预检清单的作用不是增加流程，而是把“我记得检查”变成“每次都检查”。建议把它接进 CI：格式校验、引用文件存在性、脚本 --help 与失败路径、示例数据上的期望输出，都可以自动跑。人工只保留两类检查：目标客户端里的实际激活，以及输出是否符合业务预期。自动化的部分越稳定，人工评审就越能聚焦在判断上，而不是重复发现同一个格式错误。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节的每条要求对应到一个失败场景：如果不这样做，会出现什么可观察的错误？写不出错误的条目，要么删掉，要么补上具体字段、阈值或命令。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>规范是严格的，客户端可能宽松；提交前用校验工具，而不是靠“能加载”。</li>
+    <li>最高频的失败是 name 与目录不一致、描述为空、YAML 冒号/缩进错误。</li>
+    <li>跨客户端复用要避开客户端特有路径、UI 与实验字段，关键要求写进 compatibility。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 运行 <code>node tools/validate-skills.js examples</code>，记录 SUMMARY 行。然后复制一个示例目录，故意把 name 改成大写，再运行一次，观察输出差异。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 应看到 FAIL 与具体原因（如 name 不匹配目录或含非法字符），且 SUMMARY 的 failed 增加。完成后删除副本，避免污染 examples。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 给出一条命令，统计某个 SKILL.md 中 <code>description</code> 的字符数（不依赖校验脚本）。再说明为什么“字符数”和“token 数”不是一回事。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 可用 <code>awk</code>/<code>sed</code> 截取描述段落再 <code>wc -m</code>，或直接看你所用编辑器。字符数对应规范上限 1024；token 数取决于分词器，且中文与英文比例不同。规范限制的是字符数。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 构造一个“能通过宽松客户端加载、但违反规范”的 SKILL.md，列出它违反的条款，并说明它在哪些场景下会真正出问题（而不是仅仅不优雅）。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../02-core/c4-lifecycle.html"><span>上一页</span><strong>生命周期：发现、激活、执行</strong></a>
+      <a class="pager-next" href="../03-authoring/a1-expertise.html"><span>下一页</span><strong>从真实专长出发，而不是让模型凭空编</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

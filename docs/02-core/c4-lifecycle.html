@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>生命周期：发现、激活、执行 · Agent Skills 课程</title>
+  <meta name="description" content="从会话启动扫描目录，到模型判断相关并加载全文，再到按需读取资源。同时说明目录约定、冲突覆盖与信任边界。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html" class="current" aria-current="page">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#lifecycle">五个步骤</a></li>
+        <li><a href="#paths">技能放在哪里</a></li>
+        <li><a href="#scan">扫描规则与冲突</a></li>
+        <li><a href="#disclose">披露：模型看到的“目录”</a></li>
+        <li><a href="#activate">激活：模型判断与用户指定</a></li>
+        <li><a href="#context">会话中的上下文管理</a></li>
+        <li><a href="#cloud">云端与沙箱环境</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><a href="../02-core/c1-anatomy.html">规范与机制</a><span aria-hidden="true">/</span><span>规范</span></p>
+      <p class="stage-badge">S2 读懂规范</p>
+      <h1>生命周期：发现、激活、执行</h1>
+      <p class="lead">从会话启动扫描目录，到模型判断相关并加载全文，再到按需读取资源。同时说明目录约定、冲突覆盖与信任边界。</p>
+      <p class="page-meta">阶段：S2 读懂规范 · 建议 35 分钟 · 先修：渐进披露的工程实现</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> 一个 Skill 从磁盘上的文件，到真正影响模型行为，要经过五个步骤：发现、解析、披露、激活、上下文管理。理解这条链路，你就能解释“为什么我的 Skill 没被用上”这类问题。</p>
+
+<h2 id="lifecycle">五个步骤</h2>
+
+<div class="prov prov-src">
+  <p><span class="prov-mark prov-src">[源站]</span> 客户端实现指南把技能生命周期分为：发现技能、解析 <code>SKILL.md</code>、向模型披露可用技能、激活技能、在会话过程中管理技能上下文。核心原则始终是渐进披露。（来源：<a href="https://agentskills.io/client-implementation/adding-skills-support.md">adding-skills-support.md</a>）</p>
+</div>
+
+<ol>
+  <li><strong>发现</strong>：会话启动时扫描约定目录，找到含 <code>SKILL.md</code> 的子目录。</li>
+  <li><strong>解析</strong>：读取 frontmatter，取出 <code>name</code>、<code>description</code>，可选解析其他字段；正文暂存或按路径延迟读取。</li>
+  <li><strong>披露</strong>：把技能目录（名字 + 描述，可能含位置）放进系统提示词或激活工具的描述中。</li>
+  <li><strong>激活</strong>：模型判断相关，或用户显式调用，最终把完整指令读入上下文。</li>
+  <li><strong>管理</strong>：在长会话中保护技能内容不被截断、避免重复注入、必要时在子代理中隔离执行。</li>
+</ol>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 这五步也能当作排错顺序。技能没生效时，先确认发现，再确认解析，再确认披露，最后才怀疑描述和内容。很多“描述写得不好”的问题，其实是文件没被扫描到，或者 description 为空被跳过了。把链路拆开，每一步都有可观察的证据：目录是否存在、frontmatter 能否解析、目录里是否出现该技能、激活时是否读取了 SKILL.md。按顺序排查，比反复改描述更快。</p>
+<h2 id="paths">技能放在哪里</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 规范只定义“目录里有什么”，不规定“目录放在哪”。客户端实现指南给出一组常见约定：</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>范围</th><th>路径</th><th>用途</th></tr></thead>
+  <tbody>
+    <tr><td>项目级</td><td><code>&lt;project&gt;/.&lt;your-client&gt;/skills/</code></td><td>客户端原生位置</td></tr>
+    <tr><td>项目级</td><td><code>&lt;project&gt;/.agents/skills/</code></td><td>跨客户端互操作</td></tr>
+    <tr><td>用户级</td><td><code>~/.&lt;your-client&gt;/skills/</code></td><td>客户端原生位置</td></tr>
+    <tr><td>用户级</td><td><code>~/.agents/skills/</code></td><td>跨客户端互操作</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-src">[源站]</span> <code>.agents/skills/</code> 已成为跨客户端共享的广泛约定；部分实现还会扫描 <code>.claude/skills/</code> 以兼容既有技能。其他可能位置包括 git 根目录之前的祖先目录、XDG 配置目录与用户自定义路径。（来源：<a href="https://agentskills.io/client-implementation/adding-skills-support.md#where-to-scan">adding-skills-support.md</a>）</p>
+
+<p>来源的快速入门使用 VS Code，默认扫描 <code>.agents/skills/</code>，并给出验证方法：在 Copilot Chat 的 Agent 模式输入 <code>/skills</code>，确认技能出现在列表中。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/quickstart.md#try-it-out">quickstart.md</a>）如果你在别的客户端里，手册通常会说明自己的目录与查看方式；技能格式相同，位置可能不同。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 路径不是规范的一部分，而是客户端约定，这一点最容易踩坑。规范只规定目录里有什么，不规定它放在哪；因此同一个技能在 A 客户端能发现，在 B 客户端可能需要换目录。写教程或团队文档时，最好同时写明目标客户端与扫描路径，不要假设“放在 .agents/skills 就一定行”。如果技能要跨客户端共享，.agents/skills/ 是更稳妥的起点，但仍应以各客户端文档为准。</p>
+<h2 id="scan">扫描规则与冲突</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 实现者在扫描时通常遵循以下规则，写技能的人也应了解：</p>
+
+<ul>
+  <li>只把“包含名为 <code>SKILL.md</code> 的子目录”视为技能；普通 README 不算。</li>
+  <li>跳过 <code>.git/</code>、<code>node_modules/</code> 等不可能包含技能的大目录，并设置深度与数量上限，防止在大仓库中失控。</li>
+  <li>同名技能冲突时，<strong>项目级覆盖用户级</strong>；同一范围内选“先找到”或“后找到”均可，但要一致，并记录警告。</li>
+  <li>项目级技能来自正在处理的仓库，可能不可信；实现指南建议根据“项目是否被用户标记为可信”决定是否加载。</li>
+</ul>
+
+<div class="callout callout-warn">
+  <div class="callout-title">对技能作者的含义</div>
+  <p><span class="prov-mark prov-src">[源站]</span> 如果你在项目里放了一个与用户级技能同名的技能，它会覆盖后者。这可以是刻意行为（项目专属版本），也可能是事故（名字撞车）。给技能取一个足够具体的名字，既有利于触发，也能减少冲突。</p>
+</div>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 冲突规则对团队尤其重要。项目级覆盖用户级，意味着项目里的同名技能会悄悄替换你个人安装的版本。这可以是好事：项目自带更适合当前代码库的评审规则；也可能是事故：两个技能名字相同，行为却完全不同。团队应该给技能起足够具体的名字，并在仓库里记录版本与负责人。发现同名时，至少要在日志里留下警告，而不是静默选择其中一个。</p>
+<h2 id="disclose">披露：模型看到的“目录”</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 披露不等于把正文塞进系统提示词，而是给出一个轻量目录。实现指南给出的结构示例是 XML，但 JSON、列表都可以：</p>
+
+<pre><code>&lt;available_skills&gt;
+  &lt;skill&gt;
+    &lt;name&gt;pdf-processing&lt;/name&gt;
+    &lt;description&gt;Extract PDF text, fill forms, merge files. Use when handling PDFs.&lt;/description&gt;
+    &lt;location&gt;/home/user/.agents/skills/pdf-processing/SKILL.md&lt;/location&gt;
+  &lt;/skill&gt;
+&lt;/available_skills&gt;
+</code></pre>
+
+<p><span class="prov-mark prov-src">[源站]</span> <code>location</code> 有两个作用：支持“读文件即激活”，以及给模型一个解析相对引用的基准路径。每个技能在目录中约占 50–100 token。被用户禁用或被权限系统拒绝的技能应直接从目录中隐藏，而不是列出来再在激活时拦截。（来源：<a href="https://agentskills.io/client-implementation/adding-skills-support.md#step-3-disclose-available-skills-to-the-model">adding-skills-support.md</a>）</p>
+
+<p><span class="prov-mark prov-src">[源站]</span> 如果没有任何技能，正确的做法是完全省略目录与使用说明，而不是显示一个空的技能块。空的可用列表只会让模型困惑。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 目录是模型做决策的全部依据，因此它的质量比很多人想象的重要。描述太短，模型无法判断相关性；描述太长，目录本身会膨胀。过滤也很关键：被禁用或无权限的技能应该从目录中完全隐藏，而不是列出来再在激活时拒绝，否则模型会浪费轮次尝试加载一个永远不可用的技能。没有技能时，正确的做法是省略整个目录，而不是展示一个空列表。</p>
+<h2 id="activate">激活：模型判断与用户指定</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 激活通常有两种方式：</p>
+
+<ol>
+  <li><strong>模型驱动</strong>（model-driven activation）：模型读目录，判断当前任务与某条描述匹配，然后加载全文。大多数实现依赖这种判断，而不是在客户端做关键词匹配。</li>
+  <li><strong>用户显式</strong>（user-explicit activation）：通过斜杠命令、<code>@</code> 提及或界面按钮直接调用，例如快速入门里的 <code>/skills</code> 查看列表。具体语法由客户端决定。</li>
+</ol>
+
+<p>模型驱动激活有两种实现：直接用文件读取工具读 <code>location</code>，或调用专用工具（如 <code>activate_skill</code>）。专用工具可以控制返回内容（是否剥离 frontmatter）、附加资源清单（resource listing）、执行权限检查、记录调用，并可用结构化包装（structured wrapping）把内容放进可识别标签。若使用专用工具，建议把 <code>name</code> 参数限制为合法技能名的枚举，防止模型编造不存在的技能。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/client-implementation/adding-skills-support.md#step-4-activate-skills">adding-skills-support.md</a>）</p>
+
+<div class="prov prov-src">
+  <p><span class="prov-mark prov-src">[源站]</span> 快速入门描述的实际过程：聊天会话启动时，Agent 扫描默认技能目录，只读 <code>name</code> 与 <code>description</code>；当你问“Roll a d20”时，Agent 把问题与描述匹配，加载完整正文；随后遵循指令，把终端命令适配为 20 面骰。整个过程使用渐进披露，让 Agent 能持有许多技能而不必预先加载全部指令。（来源：<a href="https://agentskills.io/skill-creation/quickstart.md#how-it-works">quickstart.md</a>）</p>
+</div>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 激活方式会影响你能写什么。文件读取式激活会把整份 SKILL.md（可能包含 frontmatter）交给模型；专用工具式激活则可以剥离 frontmatter、附加资源清单、做权限检查。对作者来说，最稳妥的写法是不依赖某一种激活细节：关键指令放正文，资源路径写相对路径，不假设 frontmatter 一定可见。这样无论客户端采用哪种方式，技能都能工作。</p>
+<h2 id="context">会话中的上下文管理</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 技能内容进入上下文后，还会面临两个问题：</p>
+
+<ul>
+  <li><strong>被压缩掉。</strong> 当窗口接近上限，客户端可能截断或摘要旧消息。技能指令是持续生效的行为约束，一旦被删，Agent 会“静默降级”——看起来还在工作，但已经不再遵守技能。实现指南建议对技能内容做上下文压缩保护（context compaction），或用结构标签让压缩算法识别并保留；客户端的权限系统也可以对技能目录做权限白名单（permission allowlisting），避免每次读取资源都弹窗。<span class="prov-mark prov-src">[源站]</span></li>
+  <li><strong>被重复注入。</strong> 同一会话中多次激活同一技能，会让相同指令出现多份。建议记录已激活技能，跳过重复注入，即去重（deduplication）。</li>
+</ul>
+
+<p>还有一个可选的进阶模式：<strong>子代理委派</strong>（subagent delegation）。把技能放进独立子会话执行，只把摘要返回主对话，避免长流程污染主上下文。只有部分客户端支持。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/client-implementation/adding-skills-support.md#step-5-manage-skill-context-over-time">adding-skills-support.md</a>）</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 长会话是技能最容易失效的场景。技能内容被压缩后，模型可能仍然“知道”自己在做某件事，却不再遵守技能里的具体约束。作者能做的，是让关键约束在流程中被重复或可验证，而不是只依赖开头的一段说明。例如在每一步要求核对检查清单，或要求输出必须包含某个字段。把“持续遵守”变成“每步可检查”，比希望上下文永不被裁剪更可靠。</p>
+<h2 id="cloud">云端与沙箱环境</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 本地客户端可以扫描用户文件系统；云端或沙箱代理不能。实现指南给出的应对：</p>
+
+<ul>
+  <li><strong>项目级技能</strong>最简单：它们随仓库一起进入沙箱，从代码目录扫描即可。</li>
+  <li><strong>用户级与组织级技能</strong>需要外部供给：克隆配置仓库、接受技能 URL 或包、让用户通过网页上传目录。</li>
+  <li><strong>内置技能</strong>（built-in skills）可以打包进部署产物，每个会话都可直接使用。</li>
+</ul>
+
+<p><span class="prov-mark prov-src">[源站]</span> 对作者而言，这意味着：不要假设技能一定存放在用户主目录；用相对路径引用资源，保持目录自包含，能显著提高跨环境可移植性。</p>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-src">[源站]</span> 云端环境还意味着文件系统可能是临时的。技能写入的中间文件、缓存和输出，可能在会话结束后消失；依赖用户主目录的路径也可能不存在。设计时尽量让技能自包含：输入通过显式路径传入，输出写到当前工作目录或指定目录，不假设某个全局缓存一定存在。如果确实需要外部资源，把它写进 compatibility，并在前置检查中验证，而不是运行到一半才失败。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>生命周期是发现 → 解析 → 披露 → 激活 → 管理；每一层都可能失败。</li>
+    <li>项目级覆盖用户级；<code>.agents/skills/</code> 是跨客户端约定，但具体扫描位置由客户端决定。</li>
+    <li>技能内容可能被上下文压缩掉；设计时要假设模型只可靠遵守“当前仍在上下文里”的指令。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 一个目录里只有 <code>README.md</code> 和 <code>notes/SKILL.md</code>。它会被识别为技能吗？技能名应该是什么？</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 会被识别：<code>notes/</code> 是包含 <code>SKILL.md</code> 的子目录。name 必须是 <code>notes</code>。父目录不是包含 README 的那一层，而是直接包含 SKILL.md 的目录。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 你在项目里放了 <code>.agents/skills/code-review/</code>，用户主目录也有同名技能。哪个生效？如果两个都有用，你会怎么处理命名与职责？</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 项目级生效，用户级被覆盖/遮蔽。处理方式：要么把项目版做成用户版的扩展并明确继承关系（但规范没有继承机制，实际上仍需复制或合并），要么改成不同名字并让描述划清边界，例如 <code>code-review-web</code> 与 <code>code-review-python</code>。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 设计一个排查流程：用户的技能“没有生效”。按生命周期五步，每步给出一个可观察的检查点与可能的失败原因。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../02-core/c3-budgets.html"><span>上一页</span><strong>渐进披露的工程实现：预算、拆分与加载触发</strong></a>
+      <a class="pager-next" href="../02-core/c5-validation.html"><span>下一页</span><strong>校验、兼容性与常见坑</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

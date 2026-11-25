@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>从真实专长出发，而不是让模型凭空编 · Agent Skills 课程</title>
+  <meta name="description" content="好 Skill 的共同点是“装着别人不知道的东西”。学习从亲手任务与项目材料中提炼可复用专长。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html" class="current" aria-current="page">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#pitfall">最大的坑：用通用模型生成通用技能</a></li>
+        <li><a href="#extract">方法一：从一次亲手任务中提取</a></li>
+        <li><a href="#artifacts">方法二：从项目材料中综合</a></li>
+        <li><a href="#contrast">坏与好：同一主题的两种写法</a></li>
+        <li><a href="#worksheet">一张提取工作表</a></li>
+        <li><a href="#anti">三种“伪专长”</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>设计方法</span></p>
+      <p class="stage-badge">S3 写出好内容</p>
+      <h1>从真实专长出发，而不是让模型凭空编</h1>
+      <p class="lead">好 Skill 的共同点是“装着别人不知道的东西”。学习从亲手任务与项目材料中提炼可复用专长。</p>
+      <p class="page-meta">阶段：S3 写出好内容 · 建议 30 分钟 · 先修：读懂规范</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> “帮我写一个代码评审的 Skill。”如果直接让模型生成，你会得到一份看起来专业、实际上谁都能写的清单：注意安全、注意性能、保持可读。它不会让 Agent 变强，只会让它多背一段正确的废话。</p>
+
+<h2 id="pitfall">最大的坑：用通用模型生成通用技能</h2>
+
+<p>来源把这一点列为技能创建中最常见的陷阱：只依赖模型的通用训练知识，不提供领域上下文，结果得到的是模糊、泛化的流程（“适当处理错误”“遵循认证最佳实践”），而不是让技能真正有价值的特定 API 模式、边界情况与项目约定。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#start-from-real-expertise">best-practices.md</a>）</p>
+
+<p><span class="prov-mark prov-src">[源站]</span> 为什么模型会这样写？因为它在没有额外信息时，只能输出“最大公约数”。最大公约数对读者无害，对执行无用。Skill 的价值不来自正确，而来自<strong>具体</strong>：具体的字段、具体的命令、具体的失败模式。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> “最大公约数”问题还有一个隐蔽版本：模型会把你的领域词替换成更通用的说法。你说“订单批次”，它写成“数据记录”；你说“对账失败”，它写成“处理异常”。结果是格式正确、语气专业，但执行时找不到真实字段。写作时要做一次“名词保真”检查：所有业务对象、字段、状态、命令是否保留了原样。宁可句子粗糙一点，也不要让关键名词被同义改写。</p>
+<h2 id="extract">方法一：从一次亲手任务中提取</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 最可靠的做法，是先和一个 Agent 完整做一次真实任务，过程中不断提供上下文、纠正偏差、表达偏好；做完之后，把可复用的模式提炼出来。来源建议特别关注四类信息：</p>
+
+<ol>
+  <li><strong>走通的步骤</strong>：最终导致成功的动作顺序。注意不是“我们讨论过的所有方案”，而是真正执行并有效的那条路径。</li>
+  <li><strong>你做过的纠正</strong>：你在哪里把 Agent 从错误方向拉回来，例如“用 X 库而不是 Y”“先检查 Z 边界”。这些纠正往往就是最高价值的 Gotchas。</li>
+  <li><strong>输入/输出格式</strong>：数据进来时长什么样，出去时长什么样。一个真实样例胜过一段格式描述。</li>
+  <li><strong>你提供的上下文</strong>：项目特有的事实、约定、限制。这些是模型原本不知道、必须写进 Skill 的内容。</li>
+</ol>
+
+<div class="callout">
+  <div class="callout-title">提取时的三个问题</div>
+  <p><span class="prov-mark prov-src">[源站]</span> 这次任务里，哪一步是“只有我们公司才这么做”的？<br>哪一步 Agent 第一次做错了，我纠正后它才做对？<br>如果换一个聪明但不了解业务的人来做，他会在哪里卡住？</p>
+</div>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 四类信息里，最容易被漏掉的是“纠正”。成功的步骤往往会被记住，纠正却随着对话结束而消失；但纠正恰恰是模型默认行为与你的要求之间的差。把纠正写成“现象—原因—做法”三句话，就能直接变成 Gotcha。另一个容易漏的是输入输出格式：不要只写“输入 CSV”，要写清列名、编码、空值表示和一行真实样例。格式越具体，模型越不需要猜。</p>
+<h2 id="artifacts">方法二：从项目材料中综合</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 如果你已经有一批现成材料，可以把它们交给模型，让它综合成 Skill。关键仍然是“项目特有”，而不是“行业通用”。来源给出的材料类型包括：</p>
+
+<ul>
+  <li>内部文档、运行手册（runbook）、风格指南。</li>
+  <li>API 规范、schema、配置文件。</li>
+  <li>代码评审意见与 issue 跟踪记录（能反映反复出现的关注点与评审者期待）。</li>
+  <li>版本控制历史，尤其是补丁与修复（通过“实际改了什么”揭示模式）。</li>
+  <li>真实故障案例及其处理过程。</li>
+</ul>
+
+<p><span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#synthesize-from-existing-project-artifacts">best-practices.md</a>）一个从团队真实事故报告与 runbook 综合出的数据管道技能，会比从“数据工程最佳实践”文章综合出的技能更有用，因为它包含你们的 schema、故障模式与恢复流程。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 使用项目材料时，先做一次筛选：哪些材料描述“应该怎样”，哪些记录“实际发生了什么”。规范文档告诉你期望，故障记录告诉你偏差；两者结合，技能才既有标准又有坑点。只有规范，容易写成通用清单；只有故障，容易过度防御。最理想的是同一任务的“规范 + 一次成功记录 + 一次失败复盘”，它们能覆盖正常路径与边界。</p>
+<h2 id="contrast">坏与好：同一主题的两种写法</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>坏（通用生成）</th><th>好（来自真实专长）</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><pre><code>## 错误处理
+
+请适当处理错误，确保系统稳定。
+遇到问题时，记录日志并通知相关人员。</code></pre></td>
+      <td><pre><code>## 错误处理
+
+- 上游超时（504）时重试 2 次，间隔 2 秒；
+  第 3 次失败则写入 dead_letter 表，不要抛给用户。
+- 429 必须读 Retry-After 头，禁止固定退避。
+- 任何重试都要带原 request_id，否则下游会重复扣款。</code></pre></td>
+    </tr>
+    <tr>
+      <td><pre><code>## 代码规范
+
+遵循团队代码规范，保持代码整洁。</code></pre></td>
+      <td><pre><code>## 代码规范
+
+- 所有金额用 Decimal，禁止 float；数据库列是 numeric(12,2)。
+- 查询必须带 tenant_id，即使当前用户只有一个租户。
+- 新增接口必须同时更新 docs/openapi.yaml，
+  否则 CI 的 schema 检查会失败。</code></pre></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 右边的每一行都满足两个条件：模型原本不知道；不写会导致具体错误。左边的每一行都不满足。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 对比这两列，差别不在语气，而在“可验证性”。左边说“适当处理错误”，读者无法判断什么时候算适当；右边给出状态码、重试次数、写入位置和禁止项，执行后可以直接检查。左边的“注意代码规范”同样无法执行；右边的金额类型、tenant_id、openapi 更新都是可检查的动作。写技能时，把每个形容词换成一个可观察的条件，内容自然会变具体。这个过程也会暴露你其实没想清楚的地方。</p><p><span class="prov-mark prov-course">[本课程观点]</span> 注意右边并不是“越长越好”。每一行都对应一个真实错误：浮点金额导致对账差异、漏 tenant_id 导致越权、忘记更新 schema 导致 CI 失败。如果某条规则没有对应的错误，它可能只是偏好，应该删掉或降级为建议。具体性来自经验，不是来自篇幅；没有经验支撑的具体，只是看起来专业的猜测。</p>
+<h2 id="worksheet">一张提取工作表</h2>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 在动手写 SKILL.md 之前，先用 15 分钟回答：</p>
+
+<ol>
+  <li>这个任务最近一次真实发生是什么时候？产出物是什么？</li>
+  <li>哪三个决定是“外行会做错、内行会做对”的？</li>
+  <li>哪些输入是脏的、不完整的、格式不稳定的？我们通常怎么处理？</li>
+  <li>什么情况必须停下来问人，而不是自行决定？</li>
+  <li>怎样判断这次做对了？有没有可运行的检查？</li>
+</ol>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 如果第 2、5 题答不出来，说明你还没有可写成 Skill 的专长，或者还没有想清楚验证方式。此时写出来的多半是通用清单。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 五个问题对应五种写作材料：真实案例给你情境，三个决定给你 Gotchas，脏输入给你边界处理，停止条件给你风险控制，验证方式给你检查点。答不出来时不要硬写，先回去做一次任务或找一份真实记录。技能的质量上限，往往在动笔前就由材料的真实程度决定了。用虚构场景写出来的技能，通常也只能在虚构场景里工作。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="anti">三种“伪专长”</h2>
+
+<ul>
+  <li><strong>把行业常识当项目知识。</strong> “SQL 要用参数化查询”是对的，但几乎所有模型都知道；你们团队特有的“所有查询必须带 tenant_id”才是知识。</li>
+  <li><strong>把流程名称当流程。</strong> 写“执行代码评审流程”没有信息量；写“先看 migration 是否可回滚，再看 API 是否破坏兼容”才是流程。</li>
+  <li><strong>把偏好写成硬规则。</strong> “命名要清晰”无法执行；“新增环境变量必须在 .env.example 中按字母序添加”可以执行。</li>
+</ul>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-course">[本课程观点]</span> 三种“伪专长”有一个共同特征：它们听起来都对，但无法改变执行结果。判断方法还是那个问题：删掉它，Agent 会不会做错？如果不会，它就不是专长。另一个检查是“可观察性”：这条内容能不能对应一个具体的文件、字段、命令或失败现象？不能对应的，多半是态度或背景，不属于技能的核心。把它们移到附录或删掉，正文会更像一份可执行的交接文档。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>通用模型生成的技能通常正确但无用；价值来自项目特有的、会导致具体错误的知识。</li>
+    <li>最可靠的来源是一次亲手完成并不断纠正的真实任务，其次是项目材料与故障记录。</li>
+    <li>写作前先回答“哪三个决定外行会做错”和“怎样判断做对了”；答不出就先别写。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 下面三条，哪一条最像“真实专长”？<br>（A）处理异常时要健壮。（B）上传文件大小上限是 8 MB，超过时前端先压缩，后端返回 413 而不是 500。（C）遵循 RESTful 设计原则。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> B。它有具体阈值、具体行为与具体状态码，不写就会做错。A 与 C 都是通用正确话，模型已知且无法直接执行。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 选一个你每周重复的任务，填写提取工作表五问。然后把第 2 题的三个决定改写成三条可直接执行的指令（每条不超过两行）。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格指令应包含具体对象与判断：字段名、阈值、命令、必须停下来问人的条件。若改写后仍是“注意”“确保”“合理”这类词，说明还没有提取到可执行的层面。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 找一份团队的内部文档（runbook、规范、事故复盘均可），标出其中“只有内部人知道”的句子。把它们改写成 Skill 的 Gotchas 小节，至少 4 条，并为每条注明“不写会导致什么错误”。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../02-core/c5-validation.html"><span>上一页</span><strong>校验、兼容性与常见坑</strong></a>
+      <a class="pager-next" href="../03-authoring/a2-refine.html"><span>下一页</span><strong>用真实执行打磨 Skill</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>来源、检索日期与溯源说明 · Agent Skills 课程</title>
+  <meta name="description" content="九个来源页面的确切 URL、检索日期、各自覆盖的内容，以及哪些内容来自来源、哪些来自外部资料、哪些是本课程的原创设计。">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+  <script>window.SITE_ROOT = "";</script>
+  <script src="assets/search-index.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="index.html">首页</a>
+        <a href="path.html">学习路径</a>
+        <a href="01-background/b1-agent.html">预备知识</a>
+        <a href="02-core/c1-anatomy.html">规范</a>
+        <a href="03-authoring/a1-expertise.html">设计方法</a>
+        <a href="04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="06-cases/case1-pdf-forms.html">案例</a>
+        <a href="07-capstone.html">毕业项目</a>
+        <a href="glossary.html">术语表</a>
+        <a href="index-all.html" class="current" aria-current="page">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#method">检索方法与日期</a></li>
+        <li><a href="#primary">主要来源：九个页面</a></li>
+        <li><a href="#external">外部补充资料</a></li>
+        <li><a href="#not-source">哪些不是来源内容</a></li>
+        <li><a href="#quotes">引用与措辞</a></li>
+        <li><a href="#attribution">归属与许可</a></li>
+        <li><a href="#integrity">完整性说明</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>参考资料</span><span aria-hidden="true">/</span><span>来源与日期</span></p>
+      <p class="stage-badge">参考</p>
+      <h1>来源、检索日期与溯源说明</h1>
+      <p class="lead">九个来源页面的确切 URL、检索日期、各自覆盖的内容，以及哪些内容来自来源、哪些来自外部资料、哪些是本课程的原创设计。</p>
+      <p class="page-meta">阶段：参考 · 建议 10 分钟</p>
+      <article class="content">
+<p class="lead">这一页让你能核对每一处说法。来源事实、规范、外部资料与本课程观点分开列出；没有取回的内容不会假装存在。</p>
+
+<h2 id="method">检索方法与日期</h2>
+
+<p>全部来源页面的检索日期为 <strong>2026-11-25</strong>。站点索引来自 <a href="https://agentskills.io/llms.txt">https://agentskills.io/llms.txt</a>（同日检索）。检索方式是直接请求各页面的 Markdown 版本（<code>.md</code> 地址），读取完整正文。九个页面均成功返回 HTTP 内容；其中 <code>clients.md</code> 的客户端列表由网页动态渲染，静态取回时只得到标题与排序控件，因此本课程<strong>没有</strong>据此列出具体客户端，也不声称覆盖其完整名单。</p>
+
+<p>规范与事实以检索当日的内容为准。Agent Skills 是开放标准，页面可能更新；如果你的版本与课程不一致，以官方页面为准，并欢迎把差异视为学习材料。</p>
+
+<h2 id="primary">主要来源：九个页面</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>#</th><th>页面</th><th>URL</th><th>主要内容</th><th>本课程使用于</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>1</td><td>Agent Skills Overview</td>
+      <td><a href="https://agentskills.io/home.md">https://agentskills.io/home.md</a></td>
+      <td>Skill 的定义、目录结构、为什么需要、三阶段加载、开放标准与来源</td>
+      <td><a href="index.html">首页</a>、<a href="01-background/b1-agent.html">b1</a>、<a href="01-background/b5-progressive.html">b5</a></td>
+    </tr>
+    <tr>
+      <td>2</td><td>Specification</td>
+      <td><a href="https://agentskills.io/specification.md">https://agentskills.io/specification.md</a></td>
+      <td>目录、frontmatter 六字段及约束、正文建议、三个可选目录、渐进披露、文件引用、校验</td>
+      <td><a href="02-core/c1-anatomy.html">c1</a>、<a href="02-core/c2-frontmatter.html">c2</a>、<a href="02-core/c3-budgets.html">c3</a>、<a href="02-core/c5-validation.html">c5</a></td>
+    </tr>
+    <tr>
+      <td>3</td><td>Client Showcase</td>
+      <td><a href="https://agentskills.io/clients.md">https://agentskills.io/clients.md</a></td>
+      <td>支持 Agent Skills 格式的客户端展示（动态列表）</td>
+      <td>仅作为“生态存在”的旁证；未用于具体客户端名单。<a href="02-core/c5-validation.html">c5</a> 说明了跨客户端差异</td>
+    </tr>
+    <tr>
+      <td>4</td><td>Quickstart</td>
+      <td><a href="https://agentskills.io/skill-creation/quickstart.md">https://agentskills.io/skill-creation/quickstart.md</a></td>
+      <td>在 VS Code 中创建 roll-dice 技能、<code>/skills</code>、发现—激活—执行、工具可靠性差异</td>
+      <td><a href="05-tutorials/t1-roll-dice.html">教程 1</a>、<a href="02-core/c4-lifecycle.html">c4</a></td>
+    </tr>
+    <tr>
+      <td>5</td><td>Best practices for skill creators</td>
+      <td><a href="https://agentskills.io/skill-creation/best-practices.md">https://agentskills.io/skill-creation/best-practices.md</a></td>
+      <td>真实专长、执行打磨、上下文经济、范围、细节程度、控制校准、默认值、程序优先、六种模式</td>
+      <td><a href="03-authoring/a1-expertise.html">a1</a>–<a href="03-authoring/a6-patterns.html">a6</a>、<a href="07-capstone.html">毕业项目</a></td>
+    </tr>
+    <tr>
+      <td>6</td><td>Optimizing skill descriptions</td>
+      <td><a href="https://agentskills.io/skill-creation/optimizing-descriptions.md">https://agentskills.io/skill-creation/optimizing-descriptions.md</a></td>
+      <td>描述写作原则、触发查询设计、多次运行与触发率、训练/验证划分、优化循环</td>
+      <td><a href="04-trigger-eval/e1-description.html">e1</a>、<a href="04-trigger-eval/e2-trigger-eval.html">e2</a>、<a href="05-tutorials/t4-description-eval.html">教程 4</a></td>
+    </tr>
+    <tr>
+      <td>7</td><td>Evaluating skill output quality</td>
+      <td><a href="https://agentskills.io/skill-creation/evaluating-skills.md">https://agentskills.io/skill-creation/evaluating-skills.md</a></td>
+      <td>评估用例、有无技能对照、工作区结构、断言、评分与证据、基准、模式分析、人工评审、迭代</td>
+      <td><a href="04-trigger-eval/e3-output-eval.html">e3</a>、<a href="05-tutorials/t4-description-eval.html">教程 4</a></td>
+    </tr>
+    <tr>
+      <td>8</td><td>Using scripts in skills</td>
+      <td><a href="https://agentskills.io/skill-creation/using-scripts.md">https://agentskills.io/skill-creation/using-scripts.md</a></td>
+      <td>一次性命令、版本固定、脚本引用路径、自包含依赖、代理友好设计（非交互、帮助、错误、结构化输出、退出码、幂等、试运行）</td>
+      <td><a href="03-authoring/a6-patterns.html">a6</a>、<a href="05-tutorials/t3-scripts.html">教程 3</a></td>
+    </tr>
+    <tr>
+      <td>9</td><td>How to add skills support to your agent</td>
+      <td><a href="https://agentskills.io/client-implementation/adding-skills-support.md">https://agentskills.io/client-implementation/adding-skills-support.md</a></td>
+      <td>发现、解析、披露、激活、上下文管理；目录约定、冲突与信任、宽松校验、目录 token 成本</td>
+      <td><a href="02-core/c4-lifecycle.html">c4</a>、<a href="02-core/c5-validation.html">c5</a>、<a href="01-background/b5-progressive.html">b5</a></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="external">外部补充资料</h2>
+
+<p>以下资料用于补齐零基础读者缺少的背景，不属于 Agent Skills 官方规范。正文中以 <span class="prov-mark prov-course">[本课程观点]</span> 标注。</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>资料</th><th>URL</th><th>用于说明</th><th>使用页面</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Building effective agents（Anthropic）</td>
+      <td><a href="https://www.anthropic.com/research/building-effective-agents">anthropic.com/research/building-effective-agents</a></td>
+      <td>工作流与 Agent 的区别；Agent 动态指导流程与工具使用</td>
+      <td><a href="01-background/b1-agent.html">b1</a></td>
+    </tr>
+    <tr>
+      <td>Lost in the Middle: How Language Models Use Long Contexts</td>
+      <td><a href="https://arxiv.org/abs/2307.03172">arxiv.org/abs/2307.03172</a></td>
+      <td>长上下文中位置对信息利用的影响</td>
+      <td><a href="01-background/b3-context.html">b3</a></td>
+    </tr>
+    <tr>
+      <td>Function calling（OpenAI）</td>
+      <td><a href="https://developers.openai.com/api/docs/guides/function-calling">developers.openai.com/api/docs/guides/function-calling</a></td>
+      <td>工具/函数调用的请求—执行—回传过程</td>
+      <td><a href="01-background/b2-tools.html">b2</a></td>
+    </tr>
+    <tr>
+      <td>Understanding and counting tokens（OpenAI Help）</td>
+      <td><a href="https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them">help.openai.com/.../what-are-tokens</a></td>
+      <td>token 的定义与切分方式</td>
+      <td><a href="01-background/b3-context.html">b3</a></td>
+    </tr>
+    <tr>
+      <td>Model Context Protocol</td>
+      <td><a href="https://modelcontextprotocol.io/">modelcontextprotocol.io</a></td>
+      <td>连接 AI 应用与外部系统的开放标准</td>
+      <td><a href="01-background/b2-tools.html">b2</a></td>
+    </tr>
+    <tr>
+      <td>YAML 1.2.2 Specification</td>
+      <td><a href="https://yaml.org/spec/1.2.2/">yaml.org/spec/1.2.2</a></td>
+      <td>YAML 格式定义</td>
+      <td><a href="01-background/b4-prompt-config.html">b4</a>、<a href="02-core/c2-frontmatter.html">c2</a></td>
+    </tr>
+    <tr>
+      <td>Configuring a publishing source for your GitHub Pages site</td>
+      <td><a href="https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site">docs.github.com/.../configuring-a-publishing-source</a></td>
+      <td>从分支的 <code>/docs</code> 目录发布静态站点</td>
+      <td><a href="about.html">关于</a>、README</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="not-source">哪些不是来源内容</h2>
+
+<p>以下内容由本课程原创，不代表 agentskills.io 或任何客户端的官方立场：</p>
+
+<ul>
+  <li>全部中文表述与翻译；来源为英文。</li>
+  <li>五阶段学习路径、时间估计、先修要求与毕业门禁。</li>
+  <li>“交接文档”“图书馆目录”“外行会做错”等类比与教学方法。</li>
+  <li>所有练习、提示、参考答案要点与自检标准。</li>
+  <li>三个实战案例的情境、需求、被否决方案与验证设计。</li>
+  <li>毕业项目的权重分配、1/3/5 分描述与反模式清单。</li>
+  <li>示例技能中的具体业务流程、脚本与虚构数据（如 <code>example-org</code>、样例 CSV）。</li>
+  <li>本站的视觉设计、导航、搜索与链接检查工具。</li>
+</ul>
+
+<p>背景页中的 LLM、上下文窗口等基础定义，部分采用本课程的简化表述，已用 <span class="prov-mark prov-course">[本课程观点]</span> 标注；外部可核实的事实另以 <span class="prov-mark prov-course">[本课程观点]</span> 标注并给出链接。</p>
+
+<h2 id="quotes">引用与措辞</h2>
+
+<p>课程对来源内容以<strong>转述</strong>为主，少量短句引用用于说明关键定义（例如“补上 Agent 缺的，省掉它已经知道的”）。没有大段复制来源原文，也没有虚构引文、章节名或规范字段。若你发现某处表述与官方页面不一致，请以官方页面为准。</p>
+
+<p>来源中的表格、字段名、限制值（64 字符、1024 字符、500 字符、500 行、5000 token、约 100 token、50–100 token）均按检索当日内容转述。规范把这些称为“建议”的地方，课程也保留“建议”的限定，没有写成硬性校验。</p>
+
+<h2 id="attribution">归属与许可</h2>
+
+<p>Agent Skills 格式最初由 <a href="https://www.anthropic.com/">Anthropic</a> 开发，作为开放标准发布，并由越来越多的 Agent 产品采用。<span class="prov-mark prov-src">[源站]</span> 官方仓库与讨论入口：<a href="https://github.com/agentskills/agentskills">github.com/agentskills/agentskills</a>。参考校验库位于该仓库的 <code>skills-ref</code> 目录。</p>
+
+<p>本课程是独立的学习材料，与 agentskills.io、Anthropic 或任何客户端厂商无隶属关系，也未获得其背书。课程文本与示例代码可自由用于学习与内部培训；转载或再发布时请注明来源链接与本课程名称。来源页面本身的版权归其各自作者所有。</p>
+
+<h2 id="integrity">完整性说明</h2>
+
+<ul>
+  <li>九个来源页面均已尝试并成功取回正文；无因失败而编造内容的页面。</li>
+  <li><code>clients.md</code> 的动态列表无法静态取回，已在正文与上表中明确说明，未虚构客户端名称。</li>
+  <li>来源未提供的内容（例如具体时间估计、评分权重、练习答案）均标为 [本课程观点]。</li>
+  <li>外部链接在撰写时逐一访问确认可打开；链接内容可能随时间变化。</li>
+</ul>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="index-all.html"><span>上一页</span><strong>全站索引</strong></a>
+      <a class="pager-next" href="about.html"><span>下一页</span><strong>关于本课程</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="path.html">学习路径</a>
+        <a href="checklist.html">检查清单</a>
+        <a href="index-all.html">全站索引</a>
+        <a href="sources.html">来源与检索日期</a>
+        <a href="about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

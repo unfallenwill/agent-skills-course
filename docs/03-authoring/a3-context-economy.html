@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>上下文经济：加该加的，删该删的 · Agent Skills 课程</title>
+  <meta name="description" content="每一句指令都在和对话历史、其他 Skill 争夺注意力。用“没有它 Agent 会做错吗”这条准则做减法，并划出连贯的能力边界。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html" class="current" aria-current="page">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#compete">激活之后，每一句都在竞争</a></li>
+        <li><a href="#rule">准则一：补上缺的，省掉已知的</a></li>
+        <li><a href="#unit">准则二：划出连贯的能力单元</a></li>
+        <li><a href="#detail">准则三：追求“适中细节”，而不是“完整文档”</a></li>
+        <li><a href="#contrast">坏与好：范围与细节</a></li>
+        <li><a href="#checklist">删减自检</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>设计方法</span></p>
+      <p class="stage-badge">S3 写出好内容</p>
+      <h1>上下文经济：加该加的，删该删的</h1>
+      <p class="lead">每一句指令都在和对话历史、其他 Skill 争夺注意力。用“没有它 Agent 会做错吗”这条准则做减法，并划出连贯的能力边界。</p>
+      <p class="page-meta">阶段：S3 写出好内容 · 建议 30 分钟 · 先修：用真实执行打磨</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> 写 Skill 时，最难的通常不是“加什么”，而是“删什么”。每多一句废话，就少一分注意力给真正重要的约束。这一页给出三条可操作的取舍准则。</p>
+
+<h2 id="compete">激活之后，每一句都在竞争</h2>
+
+<p>技能一旦激活，完整正文会进入上下文，与对话历史、系统上下文、其他已激活技能共享同一个窗口。来源的表述是：你技能里的每一个 token，都在和窗口里其他一切争夺模型的注意力。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#spending-context-wisely">best-practices.md</a>）</p>
+
+<p><span class="prov-mark prov-src">[源站]</span> 这意味着“写全”不是中性行为。它至少带来三种风险：</p>
+
+<ul>
+  <li><strong>稀释</strong>：关键约束淹没在背景介绍里，模型没抓住。</li>
+  <li><strong>误导</strong>：适用于其他场景的指令被无条件执行，产生错误动作。</li>
+  <li><strong>冲突</strong>：同一文件里两段规则在不同条件下都“看起来适用”，模型只能猜。</li>
+</ul>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 三种风险里，“误导”最隐蔽。背景介绍不会直接让模型做错，但它会占据注意力，让真正的约束变得不显眼；适用于其他场景的规则则会被无条件执行，产生看似有依据的错误动作。比如一段“如果用户要求导出，就使用 CSV”的说明，被放进一个只处理 PDF 的技能里，模型可能在 PDF 任务中也尝试导出 CSV。删掉不适用的分支，比增加更多“仅限本场景”的限定更有效。</p>
+<h2 id="rule">准则一：补上缺的，省掉已知的</h2>
+
+<p>来源给出的核心准则是“Add what the agent lacks, omit what it knows”。并且提供了一个具体的判断问题：<strong>没有这条指令，Agent 会做错吗？</strong>如果不会，删掉；如果不确定，去测试。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#add-what-the-agent-lacks-omit-what-it-knows">best-practices.md</a>）</p>
+
+<p><span class="prov-mark prov-src">[源站]</span> 来源的 PDF 示例几乎可以直接背下来：</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>太啰嗦</th><th>更好</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><pre><code>## 提取 PDF 文本
+
+PDF（Portable Document Format）是一种常见
+文件格式，包含文本、图片和其他内容。
+要提取文本，需要使用一个库。
+推荐 pdfplumber，因为它能处理大多数情况。</code></pre></td>
+      <td><pre><code>## 提取 PDF 文本
+
+用 pdfplumber 提取文本。扫描件回退到
+pdf2image + pytesseract。
+
+```python
+import pdfplumber
+with pdfplumber.open("file.pdf") as pdf:
+    text = pdf.pages[0].extract_text()
+```</code></pre></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-src">[源站]</span> 左边第一段解释了模型早已知道的常识；右边直接给出选择、回退方案和可运行片段。右边更短，但信息密度更高。</p>
+
+<div class="callout">
+  <div class="callout-title">三问删减法</div>
+  <p><span class="prov-mark prov-src">[源站]</span> 1. 模型是否已经知道这个事实？（是→删）<br>2. 不知道这个事实，会不会导致具体错误？（否→删）<br>3. 这段内容只在少数情况下需要吗？（是→移到 references，并写加载条件）</p>
+</div>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 这条准则对“解释型内容”尤其严格。模型已经知道 PDF 是什么、HTTP 如何工作、数据库迁移大概做什么；这些解释不会改变它的动作，只会增加篇幅。真正需要解释的是“为什么这里的做法反直觉”，例如“不要用默认的 UTF-8 读取，因为导出系统使用 GBK”。解释原因可以帮助模型在边界情况下做判断，但解释常识不会。把“是什么”留给模型，把“为什么这里不同”留给自己。</p>
+<h2 id="unit">准则二：划出连贯的能力单元</h2>
+
+<p>决定一个 Skill 覆盖什么，类似决定一个函数做什么：应该封装一个连贯的工作单元，并能与其他技能良好组合。来源的比喻是：范围太窄，一个任务要加载多个技能，带来开销与指令冲突；范围太宽，又难以精确激活。查询数据库并格式化结果可以是一个连贯单元；如果再加上数据库管理，很可能就太多了。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#design-coherent-units">best-practices.md</a>）</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>范围</th><th>例子</th><th>问题</th></tr></thead>
+  <tbody>
+    <tr><td>太窄</td><td>“把 CSV 第一列转成大写”</td><td>几乎任何数据处理任务都要额外加载别的技能；描述难以写清边界</td></tr>
+    <tr><td>连贯</td><td>“分析 CSV：概要统计、派生列、图表、清洗”</td><td>无；一次分析任务通常同时需要这些能力</td></tr>
+    <tr><td>太宽</td><td>“处理所有数据：CSV、数据库、ETL、建模、部署”</td><td>描述无法精确触发；正文必然臃肿；不同子任务互相干扰</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 一个实用的边界测试：<strong>这个技能的所有能力，是否经常在同一次任务里一起被需要？</strong>如果某部分一年只用一次，它可能属于另一个技能，或一份 references。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 连贯单元的判断还可以看“失败是否相关”。如果两个能力共享同一套输入、同一组权限、同一类错误处理，它们通常属于同一个技能；如果它们的失败模式完全不同，拆开更合适。例如“分析 CSV”和“把 CSV 上传到数据库”都涉及 CSV，但一个关心统计口径，一个关心事务与幂等，失败后果也不同。把它们放在一个技能里，描述会变宽，正文会出现两套互不相关的规则。</p>
+<h2 id="detail">准则三：追求“适中细节”，而不是“完整文档”</h2>
+
+<p>来源提醒：过度全面的技能可能弊大于利。模型难以提取相关内容，还可能被不适用于当前任务的指令带向无效路径。简洁、分步、带一个可运行示例的指导，通常胜过穷举式文档。当你开始覆盖每一个边界情况时，先想想其中大多数是否交给模型自己的判断更好。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#aim-for-moderate-detail">best-practices.md</a>）</p>
+
+<p><span class="prov-mark prov-src">[源站]</span> “适中”不是靠字数衡量，而是靠<strong>决策覆盖率</strong>：</p>
+
+<ul>
+  <li>高频路径：必须写，且写到可直接执行。</li>
+  <li>低频但高风险路径：写触发条件与停止规则，细节放 references。</li>
+  <li>低频低风险路径：交给模型判断，最多给一句原则。</li>
+  <li>模型已知的通用知识：不写。</li>
+</ul>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> “适中细节”不是凭字数决定的，而是凭“决策覆盖率”。高频路径必须写到可直接执行；低频高风险路径要写触发条件与停止规则；低频低风险路径可以交给模型判断；模型已知的通用知识不写。用这个分层检查一段内容，你会发现很多“完整文档”里的章节其实属于最后一类：它们让文档看起来全面，却不改变任何决策。删掉它们，技能不会变弱，只会变清楚。</p>
+<h2 id="contrast">坏与好：范围与细节</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>坏</th><th>好</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><pre><code>name: data-tools
+description: 处理各种数据相关任务。</code></pre>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 范围无边，描述无法触发任何具体任务。</p></td>
+      <td><pre><code>name: csv-analyzer
+description: 分析 CSV/TSV 表格数据，计算概要统计、
+派生列、图表与缺失值清洗。当用户提供表格文件
+并想探索、转换或可视化数据时使用，即使没有
+明确说“CSV”或“分析”。</code></pre>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 范围可判断，描述覆盖意图与说法。</p></td>
+    </tr>
+    <tr>
+      <td><pre><code>## 数据清洗
+
+处理缺失值、重复值、异常值、格式不一致、
+编码问题、单位不统一、时区问题、空字符串、
+NULL、NaN、inf、全角半角、前后空格……
+（共 40 行）</code></pre></td>
+      <td><pre><code>## 数据清洗
+
+默认：删除完全重复行；数值列缺失值填 0 并在
+报告中列明；文本列去首尾空格。
+遇到编码错误时，按 utf-8-sig → gbk 顺序重试。
+其他异常值不要自动修改，列在报告里交给用户判断。</code></pre></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 右边并不是“更少做事”，而是把无限展开的清单变成一组可执行默认值，并明确哪些事不该做。这既省上下文，也降低了模型自作主张的风险。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 第一组对比说明“范围”如何影响触发：data-tools 的描述没有任何可判断的边界，模型只能凭名字猜；csv-analyzer 的描述给出能力清单、输入类型和用户意图，还主动覆盖“没有说 CSV”的情况。第二组对比说明“细节”如何影响执行：左边列出四十种清洗可能，模型仍需自己决定这一次用哪一种；右边给出默认动作、重试顺序和“不要自动修改”的边界。右边不是做得更少，而是把无限选择变成了可执行策略。</p><p><span class="prov-mark prov-course">[本课程观点]</span> 注意右边的默认值并不是随意的。“删除完全重复行、数值缺失不填 0、文本去首尾空格”都来自真实分析场景：重复行通常是导出重复，填 0 会扭曲均值，首尾空格会导致分组错误。写默认值时，最好在括号里或 Gotchas 中说明原因；这样模型在遇到例外时，能判断是否应该偏离默认，而不是机械执行。</p>
+<h2 id="checklist">删减自检</h2>
+
+<ul>
+  <li>每一段都能对应一个“不写会错”的具体场景吗？</li>
+  <li>有没有解释模型显然知道的概念？</li>
+  <li>有没有把只在 5% 情况下需要的细节放进主文件？</li>
+  <li>有没有给出互相矛盾、却没有说明适用条件的规则？</li>
+  <li>范围是否能用一句话说清，并且与相邻技能区分开？</li>
+</ul>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这五个问题可以按顺序做，也可以作为评审他人的检查表。第一、二个问题处理“废话”，第三个处理“分层”，第四个处理“内部冲突”，第五个处理“范围”。如果一份技能同时存在废话和范围过宽，先修范围：范围决定了哪些内容该存在，删减才有依据。范围修好后，再逐段做“没有它会不会做错”的测试的。最后检查是否能用一句话说清边界，并与相邻技能区分开。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>上下文是竞争资源；写全不是中性行为，会稀释、误导、制造冲突。</li>
+    <li>用“没有它会不会做错”删内容，用“是否总一起出现”划范围。</li>
+    <li>目标是适中细节与可执行默认值，不是穷举所有边界。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 用三问删减法判断：“JSON 是一种轻量级数据交换格式，使用键值对表示数据。”应不应该出现在 SKILL.md 里？</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 不应该。模型已知；不写也不会导致错误。例外：如果你们的“JSON”有特殊约束（例如禁止 null、必须保留字段顺序），那要写，但写的是约束而不是定义。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 下面这个技能范围是否连贯？给出拆分或合并建议。<br>“读取 PDF、填写表单、合并文件、把 PDF 转成 PPT、管理 PDF 权限、搭建 PDF 服务。” </p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 不连贯。读取/填写/合并属于文档操作，可保留；转 PPT 是格式转换（可独立）；权限管理偏运维；搭建服务偏部署。建议拆成“PDF 文档操作”和“PDF 服务部署”两个，或把低频能力移出。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 拿一段 60 行的 Skill 正文，把它压到 25 行以内，同时保留所有“不写会错”的信息。记录你删掉的每一类内容及理由。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../03-authoring/a2-refine.html"><span>上一页</span><strong>用真实执行打磨 Skill</strong></a>
+      <a class="pager-next" href="../03-authoring/a4-structure.html"><span>下一页</span><strong>结构设计：渐进披露与文件组织</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

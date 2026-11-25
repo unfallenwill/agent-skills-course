@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>用真实执行打磨 Skill · Agent Skills 课程</title>
+  <meta name="description" content="第一稿几乎总是不够好。用执行轨迹而不只是最终输出来定位三类浪费：指令太虚、指令不适用、选项太多没有默认。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html" class="current" aria-current="page">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#run">跑真实任务，收集全部结果</a></li>
+        <li><a href="#trace">读执行轨迹，而不只是最终输出</a></li>
+        <li><a href="#signals">从轨迹里读什么</a></li>
+        <li><a href="#corrections">把每次纠正变成 Gotcha</a></li>
+        <li><a href="#contrast">一段轨迹的前后对比</a></li>
+        <li><a href="#loop">一个可重复的修订循环</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>设计方法</span></p>
+      <p class="stage-badge">S3 写出好内容</p>
+      <h1>用真实执行打磨 Skill</h1>
+      <p class="lead">第一稿几乎总是不够好。用执行轨迹而不只是最终输出来定位三类浪费：指令太虚、指令不适用、选项太多没有默认。</p>
+      <p class="page-meta">阶段：S3 写出好内容 · 建议 30 分钟 · 先修：从真实专长出发</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> 第一稿几乎总是不对的。这不是写作能力问题，而是你无法在没有执行证据的情况下预判模型会怎么误解你。打磨的方式不是再读一遍，而是让它跑，然后看它怎么跑偏。</p>
+
+<h2 id="run">跑真实任务，收集全部结果</h2>
+
+<p>来源的建议很明确：把技能放到真实任务上运行，然后把结果——<strong>全部结果，不只是失败</strong>——反馈回创建过程。问三个问题：什么被误触发了？什么被漏掉了？什么可以删？即使只做一轮“执行后再修订”，质量也会有明显提升；复杂领域通常需要多轮。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#refine-with-real-execution">best-practices.md</a>）</p>
+
+<p><span class="prov-mark prov-src">[源站]</span> 为什么成功的结果也要看？因为成功可能来自模型自身的通用能力，而不是你的 Skill。如果一个任务不用 Skill 也能做对，那部分指令可能没有价值；如果一个任务用了 Skill 反而更慢，你需要知道代价在哪里。<a href="../04-trigger-eval/e3-output-eval.html">输出评估</a>会把这个直觉变成“有/无 Skill”的对照。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 收集结果时，最好同时保留三类证据：最终输出、完整执行轨迹、以及运行成本。只看输出，你会知道“对不对”；看轨迹，你会知道“为什么”；看成本，你会知道“值不值”。三者都保存，后续比较才有基线。如果只保存最后一次成功的结果，你无法判断是技能变好了，还是模型这次状态好。把每次运行的版本、模型、输入和输出放在一起，迭代才可信。</p>
+<h2 id="trace">读执行轨迹，而不只是最终输出</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 最终输出只告诉你“结果对不对”，执行轨迹（trace）告诉你“为什么”。来源列出的三类典型浪费，几乎都能在轨迹里直接看到：</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>轨迹中的现象</th><th>可能原因</th><th>修改方向</th></tr></thead>
+  <tbody>
+    <tr><td>Agent 连续尝试三四种方法才找到可行的</td><td>指令太模糊，没有给默认方案</td><td>指定默认工具/库，把备选写成“遇到 X 时改用 Y”</td></tr>
+    <tr><td>Agent 执行了明显不适用的步骤</td><td>指令没有写适用条件，被无条件执行</td><td>加前置判断，或把该步骤移入带条件的 references</td></tr>
+    <tr><td>Agent 在多个选项间反复权衡</td><td>给了菜单，没有默认值</td><td>选一个默认，其余降级为逃生路径</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-src">[源站]</span> 来源原文把这三类原因总结为：指令太模糊、指令不适用于当前任务、给了太多选项而没有清晰默认。（来源：<a href="https://agentskills.io/skill-creation/best-practices.md#refine-with-real-execution">best-practices.md</a>）</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 读轨迹时，不要从头到尾逐行看，先找“决策点”：它在哪里选了工具、在哪里改了计划、在哪里停下来问人。决策点最能暴露指令的歧义。然后再看“重复”：同一文件读了两遍、同一命令跑了两遍、同一段解释写了两次，通常意味着上下文或指令有问题。最后看“恢复”：出错后它有没有读错误信息、有没有换方法、有没有在失败三次后停止。一个不会恢复的 Agent，比一个会犯错的 Agent 更难用。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="signals">从轨迹里读什么</h2>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 建议按下面的顺序扫一遍轨迹：</p>
+
+<ol>
+  <li><strong>第几次工具调用才出现“有效动作”？</strong> 如果前五次都在探索，说明前置信息不足。</li>
+  <li><strong>有没有重复读取同一个文件？</strong> 可能是引用路径写错，或模型没记住已读内容。</li>
+  <li><strong>有没有执行与任务无关的步骤？</strong> 典型是“先做一遍完整校验”但当前只是草稿。</li>
+  <li><strong>错误发生后，它有没有自己恢复？</strong> 如果没有，错误信息可能不够可操作。</li>
+  <li><strong>它在哪一步停下来问你？</strong> 如果频繁询问本可默认的事情，说明缺少默认值；如果从不询问高风险操作，说明缺少停止条件。</li>
+</ol>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这五个问题可以做成一张固定表格，每次迭代都填。第一列写观察到的现象，第二列写你猜测的原因，第三列写准备改哪一句。不要在同一轮改多个原因，否则重跑后无法归因。如果某一行连续两轮没有改善，可能不是指令问题，而是模型能力、工具限制或输入质量的问题。区分“技能能修的”和“技能修不了的”，能避免无效迭代。</p>
+<h2 id="corrections">把每次纠正变成 Gotcha</h2>
+
+<p>来源给了一个非常直接的习惯：当 Agent 犯了错、你不得不纠正时，把这条纠正加到 Gotchas 小节。这是迭代改进技能最直接的途径之一。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#gotchas-sections">best-practices.md</a>）</p>
+
+<p><span class="prov-mark prov-src">[源站]</span> 一个有效的 Gotcha 通常包含三部分：</p>
+
+<pre><code>- 现象：查询用户列表时结果包含已注销账号。
+  原因：users 表使用软删除。
+  做法：所有查询加 WHERE deleted_at IS NULL。</code></pre>
+
+<p><span class="prov-mark prov-src">[源站]</span> “注意软删除”是提醒；“所有查询加 <code>WHERE deleted_at IS NULL</code>”是可执行指令。前者依赖模型理解上下文，后者不依赖。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> Gotcha 的写法要抵制“总结经验”的冲动。不要写“注意数据质量”，要写“导出文件的 amount 列可能带千分位逗号，直接求和会得到字符串拼接；先用正则去掉逗号再转数值”。不要写“小心权限”，要写“查询必须带 tenant_id，否则会返回其他租户的数据”。判断标准是：一个不了解背景的人读完，能否知道自己具体该做什么、不该做什么。如果只能点头说“有道理”，它还不是 Gotcha。</p><p><span class="prov-mark prov-src">[源站]</span> Gotchas 应该随着使用增长。每次你纠正 Agent，先问这条纠正是否具有普遍性：如果只对这次输入有效，写进评估用例；如果同类任务都会遇到，写进 Gotchas；如果只在某个分支出现，写进对应 references 并加触发。分类之后，主文件不会无限膨胀，重要经验也不会丢。</p>
+<h2 id="contrast">一段轨迹的前后对比</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>修订前</th><th>修订后</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><pre><code>## 生成报告
+
+选择合适的库读取数据，
+必要时清洗，然后生成报告。</code></pre>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 轨迹：Agent 先试 pandas，再试 csv，
+      又试 openpyxl，最后才读 CSV；
+      因编码错误失败两次。</p></td>
+      <td><pre><code>## 生成报告
+
+1. 用 Python 标准库 csv 读取，编码先试
+   utf-8-sig，失败再试 gbk。
+2. 若首行不是表头，停止并询问用户，
+   不要猜测列名。
+3. 用 assets/report-template.md 输出。
+
+（不要使用 pandas；环境中未安装，
+安装耗时且可能失败。）</code></pre>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 轨迹：第一次即读 CSV；
+      编码失败一次后按指令切换成功。</p></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 修订后的版本并没有变长很多，但它消除了“选择库”和“处理编码”两个探索分支。它不是更全面地描述世界，而是更准确地消除了特定环境里的不确定性。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 对比左右两边的轨迹，修订前的问题是“选择太多且没有默认”：模型不知道环境里有没有 pandas，只能逐个尝试；编码失败后也没有明确的重试顺序。修订后，默认库、编码顺序、停止条件和输出模板都被写死，探索分支消失。注意修订后的版本并没有解释 pandas 是什么，也没有教模型怎么读 CSV；它只补了环境事实与决策顺序。这正是“经验”与“通用知识”的差别。</p><p><span class="prov-mark prov-course">[本课程观点]</span> 另一个值得注意的点是“不要猜列名”。这是一条停止规则，而不是技术方案；它把不确定性交回给人，避免模型用看似合理的列名继续执行。很多高质量技能的价值，不在于让 Agent 做更多，而在于让它在该停的时候停。停止规则通常比操作步骤更难写，因为它要求作者明确“什么情况我不接受自动处理”。</p>
+<h2 id="loop">一个可重复的修订循环</h2>
+
+<ol>
+  <li>选 3 个真实任务（至少一个边界情况）。</li>
+  <li>用当前 Skill 各跑一次，保存输出与轨迹。</li>
+  <li>标出浪费步骤、错误恢复失败、该问却没问的地方。</li>
+  <li>只改一类问题（例如“缺少默认值”），避免一次改太多无法归因。</li>
+  <li>重跑同样三个任务，对比步骤数与结果。</li>
+  <li>把稳定的纠正写进 Gotchas，把偶发的细节移入 references。</li>
+</ol>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这种“小步改、固定用例复跑”的方式，比反复通读文本更接近工程实践。到第 4 模块，我们会把它升级为带断言与通过率的正式评估。</p>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这个循环的关键是“固定用例、单一变量”。固定用例让你比较的是同一件事；单一变量让你知道哪一处改动起了作用。现实中很容易一次改五处，然后看到结果变好就归功于其中某一处，下一次又失效。把改动拆小，虽然看起来慢，但总比反复回到原点快。复杂领域可以同时维护多个用例集，但每一轮只针对一个主题修改，例如这一轮只修默认值，下一轮只修错误恢复。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>第一稿必须用真实任务检验；成功与失败的结果都要看。</li>
+    <li>读轨迹，不只看输出；重点找探索、无关步骤、无法恢复的错误与缺失的默认值。</li>
+    <li>每次人工纠正都是一条 Gotcha 的素材；写成可执行指令，而不是提醒。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 列出执行轨迹里三种“浪费”的信号，各配一句可能的修改方向。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 反复试错→给默认方案；执行无关步骤→加适用条件或移入 references；在选项间摇摆→给默认值、把备选写成条件分支。答“让指令更清晰”太泛，不能算。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把“Agent 读取 Excel 时先用了 openpyxl，失败后才改用 csv”这一轨迹现象，改写成两条具体的 SKILL.md 指令。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 示例：“用标准库 csv 读取 .csv 文件，不要使用 openpyxl（它只处理 .xlsx）”“若文件扩展名是 .xlsx，先运行 scripts/xlsx_to_csv.py 转换，再继续”。关键是把“选择”变成确定规则。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 为你自己的一个 Skill 设计一轮修订：选 3 个任务、定义要观察的轨迹指标、规定只改一类问题，并写出重跑后的对比表头。说明你如何避免“改了很多但不知道哪条起作用”。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../03-authoring/a1-expertise.html"><span>上一页</span><strong>从真实专长出发，而不是让模型凭空编</strong></a>
+      <a class="pager-next" href="../03-authoring/a3-context-economy.html"><span>下一页</span><strong>上下文经济：加该加的，删该删的</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

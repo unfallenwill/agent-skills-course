@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>高效指令模式：坑点、模板、清单、验证循环 · Agent Skills 课程</title>
+  <meta name="description" content="六种可直接套用的结构：Gotchas、输出模板、多步清单、验证循环、计划-校验-执行、打包脚本，以及脚本的代理友好设计。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html" class="current" aria-current="page">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#gotchas">模式一：Gotchas（坑点）</a></li>
+        <li><a href="#templates">模式二：输出模板</a></li>
+        <li><a href="#checklists">模式三：多步清单</a></li>
+        <li><a href="#validation">模式四：验证循环</a></li>
+        <li><a href="#pve">模式五：计划—校验—执行</a></li>
+        <li><a href="#scripts">模式六：打包可复用脚本</a></li>
+        <li><a href="#choose">怎么选模式</a></li>
+        <li><a href="#contrast">坏与好：同一句指令的两种写法</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>设计方法</span></p>
+      <p class="stage-badge">S3 写出好内容</p>
+      <h1>高效指令模式：坑点、模板、清单、验证循环</h1>
+      <p class="lead">六种可直接套用的结构：Gotchas、输出模板、多步清单、验证循环、计划-校验-执行、打包脚本，以及脚本的代理友好设计。</p>
+      <p class="page-meta">阶段：S3 写出好内容 · 建议 40 分钟 · 先修：控制校准</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> 这一页是六种可以直接套进 SKILL.md 的结构。它们不是规范要求，而是来源总结的高价值模式；每一种都对应一类常见的失败。</p>
+
+<h2 id="gotchas">模式一：Gotchas（坑点）</h2>
+
+<p>许多技能里价值最高的内容，是一组“违反合理假设”的环境事实。它们不是“妥善处理错误”这类通用建议，而是具体纠正模型在不被告知时一定会犯的错误。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#gotchas-sections">best-practices.md</a>）</p>
+
+<pre><code>## Gotchas
+
+- users 表使用软删除。查询必须带 `WHERE deleted_at IS NULL`，
+  否则会把已停用账号算进结果。
+- 用户 ID 在数据库里叫 user_id，认证服务里叫 uid，
+  计费 API 里叫 accountId。三者是同一个值。
+- /health 只要 Web 服务器在运行就返回 200，
+  即使数据库断开。检查完整健康状态要用 /ready。
+</code></pre>
+
+<p>来源特别建议把 Gotchas 放在 SKILL.md 里，让模型在遇到问题之前就读到。只有当你明确告诉模型何时加载时，才适合放进独立参考文件；对于不显眼的问题，模型可能意识不到该去读。<span class="prov-mark prov-src">[源站]</span></p>
+
+<div class="callout">
+  <div class="callout-title">维护方式</div>
+  <p><span class="prov-mark prov-src">[源站]</span> 每次你纠正 Agent 的一个错误，就往 Gotchas 里加一条。它是技能里最“活”的部分，应该随着真实使用不断增长。</p>
+</div>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> Gotchas 的位置也有讲究。来源建议放在 SKILL.md 里，让模型在遇到问题前就读到；如果放进独立参考文件，就必须写清何时加载，否则模型可能意识不到自己正处在坑里。对于不显眼的问题，例如“健康检查返回 200 但数据库已断开”，模型很难主动想到去查参考；把它放在正文显眼位置，成本更低。随着经验增长，Gotchas 会变成技能里最独特、最难被通用模型替代的部分。</p>
+<h2 id="templates">模式二：输出模板</h2>
+
+<p>需要固定输出格式时，给模板比用散文描述格式更可靠，因为模型对具体结构有很强的模式匹配能力。短模板可以直接内联；长模板或只在特定情况下使用的模板，放进 <code>assets/</code> 并按条件引用。<span class="prov-mark prov-src">[源站]</span></p>
+
+<pre><code>## 报告结构
+
+使用下面的模板，按分析内容调整章节：
+
+# [分析标题]
+
+## 执行摘要
+[一段话概述关键发现]
+
+## 关键发现
+- 发现 1，附支撑数据
+- 发现 2，附支撑数据
+
+## 建议
+1. 具体、可执行的建议
+2. 具体、可执行的建议
+</code></pre>
+
+<p><span class="prov-mark prov-src">[源站]</span> 对比“报告应包含摘要、发现和建议，结构清晰”这种写法：模板直接规定了标题层级与每节写什么，不需要模型猜测“清晰”的标准。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 模板的价值在于“结构可匹配”。模型对具体结构的遵循度通常高于对形容词的理解；给它一个带标题层级的骨架，比写“报告应结构清晰”更可靠。短模板可以直接内联，长模板放 assets 并在生成前引用。模板不是越细越好：如果每个句子都规定死，输出会僵化；更好的做法是规定章节、每节必须回答的问题和禁用内容，把措辞留给模型。模板负责形状，指令负责判断。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 用一个你熟悉的真实材料照这一节做一遍：先保留必须的字段与判断，再删掉模型已知的解释，最后补一个别人能执行的验证。完成后让同事只看结构，判断他能否说出何时该读哪个文件。</p>
+<h2 id="checklists">模式三：多步清单</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 当步骤有依赖或验证门禁时，显式清单能帮模型跟踪进度、避免跳步。来源的例子：</p>
+
+<pre><code>## 表单处理流程
+
+进度：
+- [ ] 步骤 1：分析表单（运行 scripts/analyze_form.py）
+- [ ] 步骤 2：建立字段映射（编辑 fields.json）
+- [ ] 步骤 3：校验映射（运行 scripts/validate_fields.py）
+- [ ] 步骤 4：填写表单（运行 scripts/fill_form.py）
+- [ ] 步骤 5：验证输出（运行 scripts/verify_output.py）
+</code></pre>
+
+<p><span class="prov-mark prov-src">[源站]</span> 清单的价值不只是“备忘”，还在于每一步都有一个可执行动作。如果某一步写不出动作，它可能只是愿望，不是步骤。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 清单的每一步最好都有一个可执行动作，而不是一个抽象状态。“分析表单”不如“运行 analyze_form.py”；“确保映射正确”不如“运行 validate_fields.py”。可执行动作让进度可观察，也让失败可定位。对于有依赖的步骤，清单还能防止跳步：模型看到未勾选的前置步骤，会先完成它。清单不是给人类看的装饰，而是给 Agent 的状态机；写的时候要假设每一步都会被检查。</p><p><span class="prov-mark prov-src">[源站]</span> 清单还可以和验证循环结合：每一步完成后运行一个检查，失败就停在该步修复。这样错误不会传播到后续步骤，排查范围也更小。不要把清单写成“建议顺序”，除非顺序真的可以变；如果顺序有依赖，就用明确的编号和门禁，而不是一个可以随意跳过的列表。</p>
+<h2 id="validation">模式四：验证循环</h2>
+
+<p>让 Agent 在继续之前验证自己的工作。基本结构是：执行 → 运行校验器 → 失败则读错误、修复、重跑 → 通过才继续。<span class="prov-mark prov-src">[源站]</span></p>
+
+<pre><code>## 编辑流程
+
+1. 完成修改。
+2. 运行校验：`python scripts/validate.py output/`
+3. 如果失败：
+   - 阅读错误信息；
+   - 修复问题；
+   - 再次运行校验。
+4. 只有校验通过才继续。
+</code></pre>
+
+<p><span class="prov-mark prov-src">[源站]</span> 参考文档也可以充当“校验器”：要求模型在定稿前对照一份检查表逐项确认。关键是把“验证”写成必须执行的动作，而不是“请确保质量”。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 验证循环的核心是“失败可操作”。如果校验器只返回“失败”，模型不知道改什么；如果它返回“第 3 行缺少 amount，期望数值，实际为空”，模型就能定位并修复。因此，写技能时不仅要写“运行验证”，还要写“验证失败时读哪条错误、回到哪一步、最多重试几次”。没有重试上限，模型可能在同一个错误上循环；没有停止条件，它可能带着错误继续执行。验证循环既是质量控制，也是预算控制。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="pve">模式五：计划—校验—执行</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 对批量或破坏性操作，先让 Agent 生成一个结构化的中间计划，对照事实源校验，再执行。来源的 PDF 表单例子：</p>
+
+<pre><code>## PDF 表单填写
+
+1. 提取表单字段：`python scripts/analyze_form.py input.pdf` → `form_fields.json`
+   （列出每个字段名、类型、是否必填）
+2. 创建 `field_values.json`，把每个字段名映射到预期值
+3. 校验：`python scripts/validate_fields.py form_fields.json field_values.json`
+   （检查字段名存在、类型兼容、必填项未缺失）
+4. 校验失败则修改 `field_values.json` 并重新校验
+5. 填写：`python scripts/fill_form.py input.pdf field_values.json output.pdf`
+</code></pre>
+
+<p>第 3 步是关键：一个校验脚本把“计划”与“事实源”对照。错误信息如果能给出可用字段列表，模型就有足够信息自我纠正。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#plan-validate-execute">best-practices.md</a>）</p>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这个模式适用于：批量导入、批量改名、数据库迁移、批量发送、任何“做错后难以撤销”的操作。它把风险从“执行后发现”前移到“执行前校验”。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 计划—校验—执行的关键是“事实源”独立于计划。表单字段来自 PDF，计划来自用户值表；校验脚本比较两者，而不是让模型自己判断“看起来对”。如果事实源也由模型生成，校验就变成了自我确认，失去了意义。写这类技能时，要明确哪个文件是事实源、哪个文件是计划、校验脚本检查哪些不变量（字段存在、类型兼容、必填不缺失）。不变量越具体，错误越早暴露。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="scripts">模式六：打包可复用脚本</h2>
+
+<p>什么时候该写脚本？来源给出的信号很明确：在评估迭代时比较多次执行轨迹，如果发现 Agent 每次都在重新发明同一段逻辑——画图、解析某种格式、校验输出——就说明应该把它写成经过测试的脚本放进 <code>scripts/</code>。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#bundling-reusable-scripts">best-practices.md</a>）</p>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 脚本适合“确定性高、重复、易错”的逻辑；不适合需要临场判断的步骤。判断标准：<strong>你希望的是一模一样的结果，还是因情况而异的结果？</strong>前者写脚本，后者写指令。</p>
+
+<h3 id="script-design">脚本要按“Agent 会用”来设计</h3>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 来源用一整页讲脚本设计，核心要求可以压缩成八条：</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>要求</th><th>做法</th><th>反面例子</th></tr></thead>
+  <tbody>
+    <tr><td>非交互</td><td>所有输入走参数、环境变量或 stdin</td><td>运行后提示“请输入目标环境：”</td></tr>
+    <tr><td>帮助信息</td><td><code>--help</code> 给出用途、参数、示例</td><td>只有源码可读</td></tr>
+    <tr><td>可操作的错误</td><td>说明错在哪、期望什么、下一步怎么做</td><td><code>Error: invalid input</code></td></tr>
+    <tr><td>结构化输出</td><td>stdout 输出 JSON/CSV/TSV；诊断走 stderr</td><td>用空格对齐的表格混着日志</td></tr>
+    <tr><td>幂等</td><td>“不存在则创建”，可安全重跑</td><td>重复运行就报重复错误</td></tr>
+    <tr><td>输入约束</td><td>用枚举与闭集，模糊输入直接拒绝</td><td>猜用户想要哪个环境</td></tr>
+    <tr><td>试运行</td><td>破坏性操作支持 <code>--dry-run</code></td><td>直接删/覆盖</td></tr>
+    <tr><td>有意义的退出码</td><td>不同失败类型不同码，并写进 <code>--help</code></td><td>一律返回 1</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/using-scripts.md#designing-scripts-for-agentic-use">using-scripts.md</a>）另外两条容易忽略：输出体积要有可预期上限（许多运行环境会截断超长输出，例如 10–30K 字符），以及高风险操作考虑要求显式 <code>--confirm</code> 或 <code>--force</code>。</p>
+
+<h3 id="one-off">一次性命令：能用现成工具就别写脚本</h3>
+
+<p>如果已有工具能完成，直接引用命令即可，不必建 <code>scripts/</code>。例如用 <code>uvx</code>、<code>npx</code>、<code>pipx</code> 运行带版本的包。来源建议：固定版本、在 SKILL.md 中写明前置要求、把复杂命令移入脚本。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/using-scripts.md#one-off-commands">using-scripts.md</a>）</p>
+
+<pre><code>## 检查代码
+
+运行（需要 Node.js 18+）：
+npx eslint@9 --fix .
+</code></pre>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 固定版本（<code>eslint@9</code>）而不是裸 <code>eslint</code>，是为了让行为随时间保持稳定；把“需要 Node.js 18+”写出来，是为了让客户端能判断环境是否满足。</p>
+
+<h2 id="choose">怎么选模式</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>你遇到的症状</th><th>优先模式</th></tr></thead>
+  <tbody>
+    <tr><td>模型反复踩同一个环境坑</td><td>Gotchas</td></tr>
+    <tr><td>输出格式每次都不一样</td><td>模板</td></tr>
+    <tr><td>多步流程总是跳步</td><td>清单</td></tr>
+    <tr><td>输出看似完成但实际不可用</td><td>验证循环</td></tr>
+    <tr><td>批量操作做错后难恢复</td><td>计划-校验-执行</td></tr>
+    <tr><td>每次都在重写同一段逻辑</td><td>打包脚本</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 不必全用。一个 80 行的技能通常只需要 Gotchas 加一个模板或验证步骤；堆满模式反而会让模型抓不住重点。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这张表可以当作写作前的“症状诊断”。先找最痛的症状，再选一个模式，不要一次套用多个。比如“输出格式每次不一样”优先用模板；“批量操作做错难恢复”优先用计划—校验—执行；两者同时存在时，先用模板稳定输出，再加校验门禁。模式之间可以组合，但每增加一个，就多一层需要维护的指令。一个 80 行的技能通常一两个模式就够，剩下的篇幅应该留给具体领域知识。</p><p><span class="prov-mark prov-course">[本课程观点]</span> 选择模式时还要考虑验证成本。验证循环需要可运行的校验器，计划—校验—执行需要事实源和计划文件，脚本需要维护依赖；如果团队没有相应基础设施，硬套模式会增加失败点。更务实的做法是先从 Gotchas 和模板开始，等真实执行暴露问题，再逐步引入更重的模式。模式是解决问题的工具，不是成熟度的象征。</p>
+<h2 id="contrast">坏与好：同一句指令的两种写法</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>坏（只有愿望）</th><th>好（可执行 + 可验证）</th><th>用到的模式</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><pre><code>## 输出
+
+请生成一份清晰、专业的报告。</code></pre></td>
+      <td><pre><code>## 输出
+
+套用 assets/report-template.md，按顺序填写：
+执行摘要、关键发现、建议。
+每条建议必须包含负责人和截止日期。</code></pre></td>
+      <td>模板 + 具体约束</td>
+    </tr>
+    <tr>
+      <td><pre><code>## 验证
+
+完成后请确认结果正确。</code></pre></td>
+      <td><pre><code>## 验证
+
+运行 `node scripts/validate.js output/`。
+退出码非 0 时读 stderr，修复后重跑；
+不得修改期望值来让检查通过。</code></pre></td>
+      <td>验证循环 + 停止规则</td>
+    </tr>
+    <tr>
+      <td><pre><code>## 注意
+
+处理数据时要注意各种边界情况。</code></pre></td>
+      <td><pre><code>## Gotchas
+
+- 金额列可能包含 `$` 与千分位逗号，
+  先清洗再求和，否则会变成字符串拼接。
+- 日期列同时存在 `2025-03-01` 与
+  `01/03/2025`；后者为日/月/年。</code></pre></td>
+      <td>Gotchas</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 左边的每一句都无法判断“做到没有”；右边把判断变成了具体动作、具体字段或具体命令。这就是模式的价值：不是让技能更长，而是让“完成”可被识别。</p>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-course">[本课程观点]</span> 三组对比的共同点是：左边只有愿望，右边有可观察的动作。报告“清晰专业”无法判断，模板加必填字段可以判断；验证“确认正确”无法执行，运行脚本加退出码可以执行；注意“各种边界”无法枚举，具体字段和日期格式可以枚举。把左边改写成右边，不需要更多领域知识，只需要问：读者看到这句话，知道下一步做什么吗？如果不知道，就继续具体化，直到它能对应一个动作或一个检查。</p><p><span class="prov-mark prov-course">[本课程观点]</span> 也要避免把“具体”误解为“冗长”。右边的内容并不比左边多很多，它只是把形容词换成了条件。一个好用的练习是：删掉所有形容词，看看剩下的句子是否还能指导行动；如果不能，说明原来的内容主要靠语气支撑。技能的可维护性来自可执行性，而不是篇幅或措辞的正式程度。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>Gotchas 是最高价值内容：写具体错误与正确做法，不写通用提醒。</li>
+    <li>验证循环与计划-校验-执行把“事后返工”变成“事前拦截”，适合高风险操作。</li>
+    <li>脚本用于确定性、重复、易错的逻辑；按非交互、可诊断、结构化输出设计。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把“请注意数据可能有问题”改写成一条 Gotcha，主题是日期格式混乱。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 示例：“导出文件的 date 列同时存在 <code>2025/03/04</code> 与 <code>04-03-2025</code>；后者是日-月-年。解析前先检查分隔符与首段长度，不要直接交给通用日期解析器。”含现象、原因、做法。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 为“批量重命名 300 个文件”设计计划-校验-执行流程：列出中间文件、校验内容与执行命令。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 步骤：扫描生成 <code>rename_plan.json</code>（旧名、新名、冲突标记）→ 校验脚本检查目标名唯一、扩展名不变、路径存在 → 预览 <code>--dry-run</code> → 执行 → 复核数量与抽样。若没有“校验目标名唯一”这一步，重名会覆盖文件。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 写一个脚本接口规范（不实现）：输入一个目录，输出其中每个 SKILL.md 的校验结果。要求覆盖非交互、--help、stdout/stderr 分离、至少三个退出码、输出上限与 --dry-run（如适用）。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../03-authoring/a5-control.html"><span>上一页</span><strong>控制校准：自由度与规定性的取舍</strong></a>
+      <a class="pager-next" href="../04-trigger-eval/e1-description.html"><span>下一页</span><strong>描述字段：Skill 触发的唯一入口</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

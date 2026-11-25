@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>术语表 · Agent Skills 课程</title>
+  <meta name="description" content="课程中出现的技术术语，按主题分组：中文名、英文原文、一两句定义，并链接到首次系统讲解它的页面。">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+  <script>window.SITE_ROOT = "";</script>
+  <script src="assets/search-index.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="index.html">首页</a>
+        <a href="path.html">学习路径</a>
+        <a href="01-background/b1-agent.html">预备知识</a>
+        <a href="02-core/c1-anatomy.html">规范</a>
+        <a href="03-authoring/a1-expertise.html">设计方法</a>
+        <a href="04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="06-cases/case1-pdf-forms.html">案例</a>
+        <a href="07-capstone.html">毕业项目</a>
+        <a href="glossary.html" class="current" aria-current="page">术语表</a>
+        <a href="index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#basics">基础概念</a></li>
+        <li><a href="#format">格式与结构</a></li>
+        <li><a href="#loading">加载与触发</a></li>
+        <li><a href="#design">设计与评估</a></li>
+        <li><a href="#engineering">工具与发布</a></li>
+        <li><a href="#data-engineering">数据与工程术语</a></li>
+        <li><a href="#loading-validation">加载、校验与上下文管理</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>参考资料</span><span aria-hidden="true">/</span><span>术语表</span></p>
+      <p class="stage-badge">参考</p>
+      <h1>术语表</h1>
+      <p class="lead">课程中出现的技术术语，按主题分组：中文名、英文原文、一两句定义，并链接到首次系统讲解它的页面。</p>
+      <p class="page-meta">阶段：参考 · 建议 10 分钟</p>
+      <article class="content">
+<p class="lead">按主题分组。每条给出中文、英文原文、一两句定义，以及系统讲解它的页面。第一次遇到某个词时，可以先回到这里建立最小理解，再顺着链接深入。</p>
+
+<h2 id="basics">基础概念</h2>
+
+<dl class="glossary">
+  <dt id="llm">大语言模型（Large Language Model, LLM）</dt>
+  <dd>经过海量文本训练、根据上下文预测下一个 token 的模型。它生成文本，但不直接操作文件或系统。<a href="01-background/b1-agent.html">见</a></dd>
+
+  <dt id="agent">智能体（Agent）</dt>
+  <dd>让模型在“观察—决策—行动”的循环中调用工具、读取结果并继续决策的系统结构。<a href="01-background/b1-agent.html">见</a></dd>
+
+  <dt id="agent-loop">Agent 循环（Agent loop）</dt>
+  <dd>读取环境信息、决定下一步、调用工具、观察结果，直到完成或停止的重复过程。<a href="01-background/b1-agent.html">见</a></dd>
+
+  <dt id="workflow">工作流（Workflow）</dt>
+  <dd>沿预定义代码路径执行的多步流程；与由模型动态决定下一步的 Agent 相对。<a href="01-background/b1-agent.html">见</a></dd>
+
+  <dt id="prompt">提示词（Prompt）</dt>
+  <dd>本次发给模型的内容，可以是一句话或一大段；天然是临时的。<a href="01-background/b4-prompt-config.html">见</a></dd>
+
+  <dt id="instruction">指令（Instruction）</dt>
+  <dd>告诉模型“应该怎样做”的稳定内容，通常比单次问题更可复用。<a href="01-background/b4-prompt-config.html">见</a></dd>
+
+  <dt id="system-prompt">系统提示词（System prompt）</dt>
+  <dd>由客户端在对话开始前注入的高优先级指令，用于设定角色、边界与输出规范。<a href="01-background/b4-prompt-config.html">见</a></dd>
+
+  <dt id="token">词元（Token）</dt>
+  <dd>模型处理文本的最小计量单位；可能对应字符、词片段或单词，具体由分词器决定。<a href="01-background/b3-context.html">见</a></dd>
+
+  <dt id="context-window">上下文窗口（Context window）</dt>
+  <dd>模型一次请求中能处理的 token 总量，包含输入与输出；具体上限因模型而异。<a href="01-background/b3-context.html">见</a></dd>
+
+  <dt id="context-economy">上下文经济（Context economy）</dt>
+  <dd>把有限的上下文预算用于 Agent 真正缺少的信息，省略它已经知道的内容。<a href="03-authoring/a3-context-economy.html">见</a></dd>
+
+  <dt id="tool-use">工具调用（Tool use / Function calling）</dt>
+  <dd>模型输出结构化的调用请求，由运行环境执行，再把结果回传给模型。<a href="01-background/b2-tools.html">见</a></dd>
+
+  <dt id="mcp">模型上下文协议（Model Context Protocol, MCP）</dt>
+  <dd>连接 AI 应用与外部数据源、工具、工作流的开放标准；Skill 负责“怎么做”，MCP 负责“能连到什么”。<a href="01-background/b2-tools.html">见</a></dd>
+
+  <dt id="subagent">子代理（Subagent）</dt>
+  <dd>由主会话派生的独立会话，执行任务后只把摘要返回主对话，用于隔离长流程。<a href="02-core/c4-lifecycle.html">见</a></dd>
+
+  <dt id="pii">个人身份信息（Personally Identifiable Information, PII）</dt>
+  <dd>能直接或间接识别个人的信息，例如姓名、证件号、联系方式；技能常需明确禁止输出。<a href="02-core/c2-frontmatter.html">见</a></dd>
+</dl>
+
+<h2 id="format">格式与结构</h2>
+
+<dl class="glossary">
+  <dt id="skill">技能（Skill）</dt>
+  <dd>一个包含 <code>SKILL.md</code> 的目录，用于向 Agent 提供专门知识、流程与资源。<a href="02-core/c1-anatomy.html">见</a></dd>
+
+  <dt id="skill-md">SKILL.md</dt>
+  <dd>技能的核心文件，由 YAML frontmatter 与 Markdown 正文组成。<a href="02-core/c1-anatomy.html">见</a></dd>
+
+  <dt id="frontmatter">前置元数据（Frontmatter）</dt>
+  <dd>文件开头由两行 <code>---</code> 包围的 YAML 键值块，提供机器可读的元数据。<a href="02-core/c2-frontmatter.html">见</a></dd>
+
+  <dt id="name-field">名称字段（name）</dt>
+  <dd>必选字段；最长 64 字符，仅小写字母、数字与连字符，必须与父目录名一致。<a href="02-core/c2-frontmatter.html#name">见</a></dd>
+
+  <dt id="description-field">描述字段（description）</dt>
+  <dd>必选字段；1–1024 字符，说明技能做什么与何时使用，是触发判断的主要依据。<a href="04-trigger-eval/e1-description.html">见</a></dd>
+
+  <dt id="metadata-field">元数据字段（metadata）</dt>
+  <dd>可选的字符串键值映射，用于存放规范之外的附加属性。<a href="02-core/c2-frontmatter.html#metadata">见</a></dd>
+
+  <dt id="license-field">许可证字段（license）</dt>
+  <dd>可选字段，指定许可证名称或指向捆绑的许可证文件。<a href="02-core/c2-frontmatter.html#license">见</a></dd>
+
+  <dt id="compatibility-field">兼容性字段（compatibility）</dt>
+  <dd>可选字段，最长 500 字符，说明目标产品、系统包、网络访问等环境要求。<a href="02-core/c2-frontmatter.html#compatibility">见</a></dd>
+
+  <dt id="allowed-tools">允许工具字段（allowed-tools）</dt>
+  <dd>可选的空格分隔工具列表，用于预先批准工具；实验性，支持程度因实现而异。<a href="02-core/c2-frontmatter.html#allowed-tools">见</a></dd>
+
+  <dt id="yaml">YAML</dt>
+  <dd>一种人类可读的数据序列化格式，用缩进表示层级；Agent Skills 用它编写 frontmatter。<a href="01-background/b4-prompt-config.html">见</a></dd>
+
+  <dt id="markdown">Markdown</dt>
+  <dd>轻量标记语言，用 <code>#</code> 表示标题、<code>-</code> 表示列表、反引号表示代码；用于技能正文。<a href="01-background/b4-prompt-config.html">见</a></dd>
+
+  <dt id="body">正文（Body）</dt>
+  <dd>frontmatter 之后的 Markdown 内容，用于写流程、示例与边界情况；无格式限制。<a href="02-core/c1-anatomy.html">见</a></dd>
+
+  <dt id="reference-file">参考文件（Reference file）</dt>
+  <dd>放在 <code>references/</code> 中、由 Agent 按需读取的文档，用来承载低频细节。<a href="02-core/c3-budgets.html">见</a></dd>
+
+  <dt id="asset">静态资源（Asset）</dt>
+  <dd>放在 <code>assets/</code> 中的模板、图片、查找表或 schema，通常在执行某一步时使用。<a href="02-core/c1-anatomy.html">见</a></dd>
+
+  <dt id="script">脚本（Script）</dt>
+  <dd>放在 <code>scripts/</code> 中、由 Agent 调用的可执行代码，适合确定性、重复、易错的逻辑。<a href="05-tutorials/t3-scripts.html">见</a></dd>
+
+  <dt id="relative-path">相对路径（Relative path）</dt>
+  <dd>相对于技能根目录的路径，例如 <code>references/fields.md</code>；不应使用绝对路径。<a href="02-core/c1-anatomy.html#refs">见</a></dd>
+
+  <dt id="parent-dir">父目录（Parent directory）</dt>
+  <dd>直接包含 <code>SKILL.md</code> 的目录；其名称必须与 <code>name</code> 字段完全一致。<a href="02-core/c2-frontmatter.html#name">见</a></dd>
+</dl>
+
+<h2 id="loading">加载与触发</h2>
+
+<dl class="glossary">
+  <dt id="progressive-disclosure">渐进披露（Progressive disclosure）</dt>
+  <dd>分三层加载技能：元数据常驻、指令在激活时加载、资源按需加载。<a href="01-background/b5-progressive.html">见</a></dd>
+
+  <dt id="discovery">发现（Discovery）</dt>
+  <dd>会话启动时扫描技能目录，只读取各技能的 name 与 description。<a href="02-core/c4-lifecycle.html">见</a></dd>
+
+  <dt id="activation">激活（Activation）</dt>
+  <dd>任务与描述匹配后，把完整的 SKILL.md 正文读入上下文。<a href="02-core/c4-lifecycle.html">见</a></dd>
+
+  <dt id="execution">执行（Execution）</dt>
+  <dd>Agent 遵循技能指令，按需运行脚本或读取被引用的文件。<a href="02-core/c4-lifecycle.html">见</a></dd>
+
+  <dt id="catalog">技能目录（Skill catalog）</dt>
+  <dd>客户端向模型披露的可用技能清单，通常包含 name、description 与位置；每项约 50–100 token。<a href="02-core/c4-lifecycle.html#disclose">见</a></dd>
+
+  <dt id="trigger">触发（Trigger）</dt>
+  <dd>Agent 判断某个技能与当前任务相关并决定加载它的过程，主要由 description 驱动。<a href="04-trigger-eval/e1-description.html">见</a></dd>
+
+  <dt id="load-trigger">加载触发（Load trigger）</dt>
+  <dd>主文件中写明的条件，告诉 Agent 何时读取某个支持文件；应包含条件、路径与用途。<a href="02-core/c3-budgets.html#trigger">见</a></dd>
+
+  <dt id="near-miss">近邻负例（Near-miss）</dt>
+  <dd>与技能共享关键词或概念、但实际需要其他能力的查询，用于测试描述是否足够精确。<a href="04-trigger-eval/e2-trigger-eval.html#negative">见</a></dd>
+
+  <dt id="agents-skills-dir">.agents/skills 目录</dt>
+  <dd>跨客户端共享技能的广泛约定路径；规范不规定存放位置，但多数实现会扫描它。<a href="02-core/c4-lifecycle.html#paths">见</a></dd>
+
+  <dt id="project-skill">项目级技能（Project-level skill）</dt>
+  <dd>位于项目目录中的技能，通常优先于用户级同名技能。<a href="02-core/c4-lifecycle.html#scan">见</a></dd>
+
+  <dt id="user-skill">用户级技能（User-level skill）</dt>
+  <dd>位于用户主目录中的技能，对该用户的所有项目可用，但会被项目级同名技能覆盖。<a href="02-core/c4-lifecycle.html#scan">见</a></dd>
+</dl>
+
+<h2 id="design">设计与评估</h2>
+
+<dl class="glossary">
+  <dt id="expertise">真实专长（Real expertise）</dt>
+  <dd>来自亲手任务、项目材料或故障记录的领域知识，而非模型的通用训练知识。<a href="03-authoring/a1-expertise.html">见</a></dd>
+
+  <dt id="gotcha">坑点（Gotcha）</dt>
+  <dd>违反合理假设的具体环境事实，不写就会导致错误，例如软删除、字段改名、健康检查误报。<a href="03-authoring/a6-patterns.html#gotchas">见</a></dd>
+
+  <dt id="template">模板（Template）</dt>
+  <dd>规定输出结构的样例，比用散文描述格式更可靠；可内联或放入 assets。<a href="03-authoring/a6-patterns.html#templates">见</a></dd>
+
+  <dt id="checklist">清单（Checklist）</dt>
+  <dd>多步流程中的逐项勾选列表，帮助 Agent 跟踪进度、避免跳步。<a href="03-authoring/a6-patterns.html#checklists">见</a></dd>
+
+  <dt id="validation-loop">验证循环（Validation loop）</dt>
+  <dd>执行后运行校验器，失败则读错误、修复、重跑，直到通过才继续。<a href="03-authoring/a6-patterns.html#validation">见</a></dd>
+
+  <dt id="plan-validate-execute">计划—校验—执行（Plan-validate-execute）</dt>
+  <dd>先产出结构化计划，对照事实源校验，通过后再执行；适合批量或破坏性操作。<a href="03-authoring/a6-patterns.html#pve">见</a></dd>
+
+  <dt id="control-calibration">控制校准（Control calibration）</dt>
+  <dd>按任务脆弱程度决定指令的具体程度：可逆、可变给自由；不可逆、需一致给规定。<a href="03-authoring/a5-control.html">见</a></dd>
+
+  <dt id="default">默认值（Default）</dt>
+  <dd>在多种方案中预先选定的一种，替代把所有选项平等列出的菜单。<a href="03-authoring/a5-control.html#defaults">见</a></dd>
+
+  <dt id="coherent-unit">连贯单元（Coherent unit）</dt>
+  <dd>经常在同一次任务中一起被需要的一组能力，是划分技能范围的依据。<a href="03-authoring/a3-context-economy.html#unit">见</a></dd>
+
+  <dt id="eval">评估（Eval / Evaluation）</dt>
+  <dd>用可重复的用例与检查，判断技能是否触发、输出是否更好，而不是凭印象。<a href="04-trigger-eval/e3-output-eval.html">见</a></dd>
+
+  <dt id="eval-case">评估用例（Eval case）</dt>
+  <dd>一组提示、预期输出与可选输入文件，用于运行一次可比较的测试。<a href="04-trigger-eval/e3-output-eval.html#case">见</a></dd>
+
+  <dt id="assertion">断言（Assertion）</dt>
+  <dd>对输出应包含或达成什么的可验证陈述，例如“坐标轴有标签”“至少 3 条建议”。<a href="04-trigger-eval/e3-output-eval.html#assertions">见</a></dd>
+
+  <dt id="baseline">基线（Baseline）</dt>
+  <dd>不用技能或使用上一版本时的结果，用于与当前版本比较。<a href="04-trigger-eval/e3-output-eval.html#baseline">见</a></dd>
+
+  <dt id="pass-rate">通过率（Pass rate）</dt>
+  <dd>通过的断言或查询占全部的比例，用于比较配置与轮次。<a href="04-trigger-eval/e3-output-eval.html#grading">见</a></dd>
+
+  <dt id="trigger-rate">触发率（Trigger rate）</dt>
+  <dd>同一查询多次运行中技能被调用的比例；用于处理模型行为的随机性。<a href="04-trigger-eval/e2-trigger-eval.html#rate">见</a></dd>
+
+  <dt id="split">训练/验证划分（Train/validation split）</dt>
+  <dd>把查询分为调参用与检验用两组；验证集不参与修改决定，用来检测过拟合。<a href="04-trigger-eval/e2-trigger-eval.html#split">见</a></dd>
+
+  <dt id="overfitting">过拟合（Overfitting）</dt>
+  <dd>针对具体测试样例调得过细，换一种说法或新用例就失效。<a href="04-trigger-eval/e2-trigger-eval.html#split">见</a></dd>
+
+  <dt id="benchmark">基准汇总（Benchmark）</dt>
+  <dd>按配置汇总通过率、耗时与 token，并计算差值的记录文件。<a href="04-trigger-eval/e3-output-eval.html#benchmark">见</a></dd>
+
+  <dt id="trace">执行轨迹（Execution trace）</dt>
+  <dd>Agent 一次运行的完整步骤记录，包括读取、调用、错误与重试；用于定位浪费。<a href="03-authoring/a2-refine.html#trace">见</a></dd>
+</dl>
+
+<h2 id="engineering">工具与发布</h2>
+
+<dl class="glossary">
+  <dt id="token-budget">Token 预算（Token budget）</dt>
+  <dd>为某一层内容设定的 token 上限；规范建议正文少于 5000 token、主文件少于 500 行。<a href="02-core/c3-budgets.html">见</a></dd>
+
+  <dt id="skills-ref">skills-ref</dt>
+  <dd>Agent Skills 的参考实现与校验工具，命令为 <code>skills-ref validate ./my-skill</code>。<a href="02-core/c5-validation.html#skills-ref">见</a></dd>
+
+  <dt id="idempotency">幂等性（Idempotency）</dt>
+  <dd>同一操作重复执行不会产生额外副作用；Agent 可能重试，脚本应尽量幂等。<a href="03-authoring/a6-patterns.html#script-design">见</a></dd>
+
+  <dt id="dry-run">试运行（Dry run）</dt>
+  <dd>只预览将要发生的操作而不实际修改，用于破坏性或批量任务。<a href="03-authoring/a6-patterns.html#script-design">见</a></dd>
+
+  <dt id="exit-code">退出码（Exit code）</dt>
+  <dd>进程结束时返回的数字，用来区分成功与不同失败类型；Agent 据此决定下一步。<a href="05-tutorials/t3-scripts.html#step5">见</a></dd>
+
+  <dt id="stdout">标准输出（stdout）</dt>
+  <dd>程序输出主要数据的位置；技能脚本应把结构化结果写到这里。<a href="03-authoring/a6-patterns.html#script-design">见</a></dd>
+
+  <dt id="stderr">标准错误（stderr）</dt>
+  <dd>程序输出诊断、进度与错误信息的位置；与 stdout 分离，便于 Agent 解析数据。<a href="03-authoring/a6-patterns.html#script-design">见</a></dd>
+
+  <dt id="json-schema">JSON Schema</dt>
+  <dd>描述 JSON 数据结构的规范；工具定义常用它声明参数类型与约束。<a href="01-background/b2-tools.html">见</a></dd>
+
+  <dt id="ocr">光学字符识别（Optical Character Recognition, OCR）</dt>
+  <dd>把图片中的文字转换为可编辑文本；扫描版 PDF 提取文本失败时需要，但结果需校验。<a href="06-cases/case1-pdf-forms.html">见</a></dd>
+
+  <dt id="static-site">静态站点（Static site）</dt>
+  <dd>由预先写好的 HTML、CSS、JS 组成、无需服务端渲染的网站；可直接打开或托管。<a href="about.html">见</a></dd>
+
+  <dt id="relative-link">相对链接（Relative link）</dt>
+  <dd>相对于当前页面位置的链接，例如 <code>../glossary.html</code>；项目子路径部署时必须使用。<a href="about.html">见</a></dd>
+
+  <dt id="github-pages">GitHub Pages</dt>
+  <dd>GitHub 提供的静态站点托管服务，可从仓库分支的根目录或 <code>/docs</code> 目录发布。<a href="https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site">外部文档</a></dd>
+
+  <dt id="subpath">项目子路径（Project subpath）</dt>
+  <dd>项目站点位于 <code>https://用户.github.io/仓库名/</code> 下；根绝对路径会指向错误位置。<a href="about.html">见</a></dd>
+
+  <dt id="toc">页内目录（Table of contents, TOC）</dt>
+  <dd>列出本页章节并跳转到对应锚点的导航块。<a href="about.html">见</a></dd>
+
+  <dt id="responsive">响应式（Responsive）</dt>
+  <dd>布局随屏幕宽度调整，保证窄屏（如 360px）仍可阅读与操作。<a href="about.html">见</a></dd>
+
+  <dt id="accessibility">无障碍（Accessibility）</dt>
+  <dd>让屏幕阅读器、键盘用户等也能使用站点：语义标签、跳转链接、可见焦点等。<a href="about.html">见</a></dd>
+
+  <dt id="cdn">内容分发网络（Content Delivery Network, CDN）</dt>
+  <dd>从远程服务器加载脚本、样式或字体的方式；本站不使用，以保证离线可读。<a href="about.html">见</a></dd>
+
+  <dt id="offline">离线（Offline）</dt>
+  <dd>不依赖网络即可打开和阅读；本站所有资源都在本地。<a href="about.html">见</a></dd>
+</dl>
+
+<h2 id="data-engineering">数据与工程术语</h2>
+
+<dl class="glossary">
+  <dt id="csv">逗号分隔值（Comma-Separated Values, CSV）</dt>
+  <dd>用逗号分隔字段的纯文本表格格式；字段含逗号时需用引号包裹。<a href="05-tutorials/t3-scripts.html">见</a></dd>
+
+  <dt id="tsv">制表符分隔值（Tab-Separated Values, TSV）</dt>
+  <dd>用制表符分隔字段的表格文本格式，常见于导出数据。<a href="03-authoring/a3-context-economy.html">见</a></dd>
+
+  <dt id="json">JSON（JavaScript Object Notation）</dt>
+  <dd>用键值对与数组表示结构化数据的文本格式；技能脚本常以它输出结果。<a href="05-tutorials/t3-scripts.html">见</a></dd>
+
+  <dt id="encoding">字符编码（Character encoding）</dt>
+  <dd>把字符映射为字节的规则；编码不一致会导致中文乱码或列名异常。<a href="06-cases/case3-csv-analysis.html">见</a></dd>
+
+  <dt id="utf8">UTF-8</dt>
+  <dd>一种兼容 ASCII 的 Unicode 编码，是跨平台文本的默认选择。<a href="06-cases/case3-csv-analysis.html">见</a></dd>
+
+  <dt id="bom">字节顺序标记（Byte Order Mark, BOM）</dt>
+  <dd>文件开头用于标识编码的不可见字节；UTF-8 BOM 会让首个列名带上隐藏字符，读取时应剥离。<a href="06-cases/case3-csv-analysis.html">见</a></dd>
+
+  <dt id="gbk">GBK / GB18030</dt>
+  <dd>中文环境常见的字符编码；读取 GBK 文件需显式转码，否则按 UTF-8 读取会乱码。<a href="06-cases/case3-csv-analysis.html">见</a></dd>
+
+  <dt id="stdin">标准输入（Standard input, stdin）</dt>
+  <dd>程序默认的输入流；脚本可通过它接收数据，但不应等待人工键盘输入。<a href="03-authoring/a6-patterns.html#script-design">见</a></dd>
+
+  <dt id="tty">终端（TTY）</dt>
+  <dd>交互式终端设备；Agent 运行脚本时通常没有 TTY，因此不能依赖交互提示。<a href="01-background/b2-tools.html">见</a></dd>
+
+  <dt id="ci">持续集成（Continuous Integration, CI）</dt>
+  <dd>每次提交自动运行构建、测试或校验的流程；技能校验通常也接入 CI。<a href="02-core/c5-validation.html">见</a></dd>
+
+  <dt id="pr">拉取请求（Pull request, PR）</dt>
+  <dd>请求把一组代码变更合并进目标分支的机制；评审技能通常以 PR/diff 为输入。<a href="06-cases/case2-code-review.html">见</a></dd>
+
+  <dt id="diff">差异（Diff）</dt>
+  <dd>两组代码或文件之间的逐行变化；评审范围通常限定在本次 diff。<a href="06-cases/case2-code-review.html">见</a></dd>
+
+  <dt id="sql-injection">SQL 注入（SQL injection）</dt>
+  <dd>把用户输入拼进 SQL 导致执行非预期语句的攻击；防御方式是参数化查询。<a href="06-cases/case2-code-review.html">见</a></dd>
+
+  <dt id="xss">跨站脚本（Cross-Site Scripting, XSS）</dt>
+  <dd>把恶意脚本注入页面并在他人浏览器执行的漏洞；前端评审的重点之一。<a href="06-cases/case2-code-review.html">见</a></dd>
+
+  <dt id="csrf">跨站请求伪造（Cross-Site Request Forgery, CSRF）</dt>
+  <dd>诱导已登录用户在不知情下发出请求的攻击；常通过令牌与同源策略防御。<a href="06-cases/case2-code-review.html">见</a></dd>
+
+  <dt id="sast">静态应用安全测试（Static Application Security Testing, SAST）</dt>
+  <dd>不运行程序、通过分析源码发现安全问题的工具；技能应避免重复它已覆盖的问题。<a href="06-cases/case2-code-review.html">见</a></dd>
+
+  <dt id="rag">检索增强生成（Retrieval-Augmented Generation, RAG）</dt>
+  <dd>先检索相关文档再交给模型生成的方案；渐进披露不是 RAG，它没有向量检索。<a href="01-background/b5-progressive.html#not">见</a></dd>
+
+  <dt id="jq">jq</dt>
+  <dd>命令行 JSON 处理工具，常用于读取脚本输出、筛选字段与统计。<a href="04-trigger-eval/e2-trigger-eval.html#rate">见</a></dd>
+
+  <dt id="pep723">PEP 723</dt>
+  <dd>Python 的脚本内联依赖声明规范，用 TOML 块声明依赖，便于自包含脚本。<a href="03-authoring/a6-patterns.html#scripts">见</a></dd>
+
+  <dt id="wcag">WCAG</dt>
+  <dd>Web 内容无障碍指南；本站实现基础无障碍项，但未做完整 WCAG 审计。<a href="about.html#limitations">见</a></dd>
+</dl>
+
+<h2 id="loading-validation">加载、校验与上下文管理</h2>
+
+<dl class="glossary">
+  <dt id="load-condition">加载条件（load condition）</dt>
+  <dd>主文件中写明的“什么情况下读取哪个支持文件”的判断条件；应包含可观察条件、路径与用途。<a href="02-core/c3-budgets.html#trigger">见</a></dd>
+
+  <dt id="model-driven">模型驱动（model-driven activation）</dt>
+  <dd>由模型读取技能目录并根据任务与描述判断是否加载，而不是由客户端做关键词匹配。<a href="02-core/c4-lifecycle.html#activate">见</a></dd>
+
+  <dt id="user-explicit">用户显式（user-explicit activation）</dt>
+  <dd>用户通过斜杠命令、提及或界面按钮直接调用技能，跳过模型的相关性判断。<a href="02-core/c4-lifecycle.html#activate">见</a></dd>
+
+  <dt id="built-in-skill">内置技能（built-in skills）</dt>
+  <dd>随客户端部署产物一起打包、每个会话都可直接使用的技能，通常不依赖用户目录。<a href="02-core/c4-lifecycle.html#cloud">见</a></dd>
+
+  <dt id="strict-validation">严格校验（strict validation）</dt>
+  <dd>按规范逐条检查字段、字符集、长度与目录一致性，不符合即拒绝的校验方式。<a href="02-core/c5-validation.html#strict-lenient">见</a></dd>
+
+  <dt id="lenient-validation">宽松校验（lenient validation）</dt>
+  <dd>对不影响功能的问题只警告但仍加载、对无法披露的技能才跳过的实现策略。<a href="02-core/c5-validation.html#strict-lenient">见</a></dd>
+
+  <dt id="permission-allowlisting">权限白名单（permission allowlisting）</dt>
+  <dd>把技能目录加入客户端的允许读取列表，避免每次读取支持文件都触发权限确认。<a href="02-core/c4-lifecycle.html#context">见</a></dd>
+
+  <dt id="structured-wrapping">结构化包装（structured wrapping）</dt>
+  <dd>用可识别的标签或字段包裹技能内容与资源清单，便于模型区分并便于上下文管理。<a href="02-core/c4-lifecycle.html#activate">见</a></dd>
+
+  <dt id="resource-listing">资源清单（resource listing）</dt>
+  <dd>激活技能时列出可用的 scripts、references、assets 文件，但不预先读取其内容。<a href="02-core/c4-lifecycle.html#activate">见</a></dd>
+
+  <dt id="context-compaction">上下文压缩（context compaction）</dt>
+  <dd>窗口接近上限时客户端对旧消息做截断或摘要；技能内容应被保护以免静默丢失。<a href="02-core/c4-lifecycle.html#context">见</a></dd>
+
+  <dt id="deduplication">去重（deduplication）</dt>
+  <dd>同一会话中重复激活同一技能时跳过重复注入，避免相同指令在上下文中出现多份。<a href="02-core/c4-lifecycle.html#context">见</a></dd>
+
+  <dt id="subtask">子任务（subtask）</dt>
+  <dd>交给子代理执行的一段工作；子代理只把结果摘要返回主会话，用于隔离长流程。<a href="01-background/b2-tools.html">见</a></dd>
+</dl>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="07-capstone.html"><span>上一页</span><strong>毕业项目：设计并发布你自己的高质量 Skill</strong></a>
+      <a class="pager-next" href="checklist.html"><span>下一页</span><strong>可打印检查清单</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="path.html">学习路径</a>
+        <a href="checklist.html">检查清单</a>
+        <a href="index-all.html">全站索引</a>
+        <a href="sources.html">来源与检索日期</a>
+        <a href="about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>描述字段：Skill 触发的唯一入口 · Agent Skills 课程</title>
+  <meta name="description" content="description 承担了全部触发判断。掌握四条写作原则，并用“改前/改后”对比看清窄与宽的边界。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html" class="current" aria-current="page">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#burden">全部触发负担都在描述上</a></li>
+        <li><a href="#nuance">一个重要的细节：模型只在对它“不容易”时求助</a></li>
+        <li><a href="#principles">四条写作原则</a></li>
+        <li><a href="#before-after">改前与改后</a></li>
+        <li><a href="#failure">两种典型失败</a></li>
+        <li><a href="#length">长度与格式</a></li>
+        <li><a href="#worksheet">写作检查表</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>触发与评估</span></p>
+      <p class="stage-badge">S4 触发与评估</p>
+      <h1>描述字段：Skill 触发的唯一入口</h1>
+      <p class="lead">description 承担了全部触发判断。掌握四条写作原则，并用“改前/改后”对比看清窄与宽的边界。</p>
+      <p class="page-meta">阶段：S4 触发与评估 · 建议 30 分钟 · 先修：S3 完成</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> 启动时，模型只知道每个技能的名字和一句描述。它没有读过你的正文，也不知道你写了多好的流程。描述说不到点上，技能就等于不存在。</p>
+
+<h2 id="burden">全部触发负担都在描述上</h2>
+
+<p>来源的原话大意是：描述字段是 Agent 决定是否为某个任务加载技能的主要机制。描述写得太窄，该触发时不触发；写得太宽，不该触发时乱触发。启动时只加载每个技能的 name 与 description，刚好够判断相关性；任务匹配描述时，才读取完整 SKILL.md。因此，<strong>描述承担了全部触发负担</strong>。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/optimizing-descriptions.md#how-skill-triggering-works">optimizing-descriptions.md</a>）</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> “承担全部触发负担”听起来夸张，但启动阶段模型确实只看到名字和描述。它不知道正文里写了多少细节，也不知道你为边界情况准备了多少示例。如果描述没有覆盖用户的说法，技能就不会被加载，正文再完美也没有机会发挥作用。因此，描述应该先于正文打磨：先用少量真实查询确认它能被想起，再投入时间写流程。反过来，先写 300 行正文、最后随手写一句描述，是性价比最低的顺序。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节的每条要求对应到一个失败场景：如果不这样做，会出现什么可观察的错误？写不出错误的条目，要么删掉，要么补上具体字段、阈值或命令。</p>
+<h2 id="nuance">一个重要的细节：模型只在对它“不容易”时求助</h2>
+
+<p>来源指出：Agent 通常只为那些超出自身能力、需要额外知识或能力的任务去查阅技能。一个简单的一步请求（例如“读一下这个 PDF”）即使描述完全匹配，也可能不触发 PDF 技能，因为模型用基础工具就能处理。真正让描述发挥作用的是专门知识场景：不熟悉的 API、领域特定流程、不常见的格式。<span class="prov-mark prov-src">[源站]</span></p>
+
+<p><span class="prov-mark prov-src">[源站]</span> 这对测试有直接影响：如果你的正例都是“读这个 PDF”这种简单请求，触发率低不一定是描述的问题，而是任务本身不需要技能。评估查询要选“技能确实能带来增量”的场景。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 这个细节对评估设计很重要。正例应该选“模型单靠自己容易做错、但技能能提供增量”的任务，而不是技能范围内最 trivial 的请求。简单请求触发率低，不一定是描述问题；它可能只是模型不需要帮助。构造查询集时，先问：如果没有这个技能，模型会怎么做？如果它本来就能做好，这条正例测不出描述的价值。</p>
+<h2 id="principles">四条写作原则</h2>
+
+<ol>
+  <li><strong>用祈使句。</strong> 把描述写成对 Agent 的指令：“当……时使用本技能”，而不是“本技能做了……”。Agent 正在决定是否行动，所以要告诉它何时行动。</li>
+  <li><strong>聚焦用户意图，而不是实现细节。</strong> 描述用户想达成什么，而不是技能内部用了什么库。Agent 匹配的是用户的说法。</li>
+  <li><strong>宁可“主动”一点。</strong> 明确列出适用场景，包括用户没有直接点出领域的情况：“即使他们没有明确提到 CSV 或分析”。</li>
+  <li><strong>保持简洁。</strong> 几句话到一小段通常合适：足够覆盖范围，又不至于在几十个技能中膨胀上下文。规范硬上限是 1024 字符。</li>
+</ol>
+
+<p><span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/optimizing-descriptions.md#writing-effective-descriptions">optimizing-descriptions.md</a>）</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 四条原则之间可能冲突，需要按任务调整。例如“宁可主动”会扩大触发范围，可能增加误触发；“保持简洁”又会限制你列出所有场景。解决方法是优先覆盖“用户意图”，而不是堆砌关键词：先写清用户想达成什么，再补充他们可能使用的说法。如果仍然误触发，用正向边界（“仅用于分析本地表格”）收窄，而不是简单加否定句。描述是判断依据，不是广告文案。</p>
+<h2 id="before-after">改前与改后</h2>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 来源给出的真实对比例子：</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>改前</th><th>改后</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><pre><code>description: Process CSV files.</code></pre></td>
+      <td><pre><code>description: &gt;
+  Analyze CSV and tabular data files — compute summary
+  statistics, add derived columns, generate charts, and
+  clean messy data. Use this skill when the user has a CSV,
+  TSV, or Excel file and wants to explore, transform, or
+  visualize the data, even if they don't explicitly mention
+  "CSV" or "analysis."</code></pre></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 改进后的版本在两方面同时变强：<strong>更具体地说清做什么</strong>（概要统计、派生列、图表、清洗），<strong>更宽地覆盖何时适用</strong>（CSV、TSV、Excel；即使没提关键词）。这不是简单的“加关键词”，而是扩大了意图覆盖，同时用能力清单划出边界。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 改后的描述做了三件事：把“Process CSV files”拆成具体能力（统计、派生列、图表、清洗）；把输入类型从 CSV 扩展到 TSV、Excel；主动覆盖“没有明确提到 CSV 或分析”的说法。它没有列出库名、函数名或实现步骤，因为用户不会用这些词提问。注意它仍然有边界：它说的是“分析、转换、可视化表格数据”，没有声称能编辑 Excel 公式或做数据库 ETL。更宽不等于无边。</p><p><span class="prov-mark prov-course">[本课程观点]</span> 改描述时，可以先把用户可能说的话列成两列：会触发、不应触发。然后检查描述是否覆盖第一列的主要意图，同时把第二列中最近的场景写进边界。不要直接抄失败查询里的词，那会过拟合；要找它们代表的一般类别。例如“改 Excel 公式”代表“表格编辑”，边界就应该写“仅分析，不编辑格式或公式”。</p>
+<h2 id="failure">两种典型失败</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>失败</th><th>表现</th><th>修法</th></tr></thead>
+  <tbody>
+    <tr><td>太窄</td><td>用户说“帮我看看这个表格”“老板要一张图”，技能不触发</td><td>补充用户会用的说法与未点明领域的场景；围绕意图而不是工具名</td></tr>
+    <tr><td>太宽</td><td>用户要改 Excel 公式、做数据库 ETL，也触发了“CSV 分析”</td><td>说明不做什么，或写清与相邻能力的边界；用具体能力清单收窄</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 解决“太宽”时，不要只加否定句（“不用于 Excel 编辑”），还要给出正向边界（“仅在需要读取、分析或可视化表格数据时使用；修改公式或格式请使用表格编辑工具”）。模型需要在几个相邻技能之间做选择，正向描述更容易匹配。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 两种失败的修法方向相反，所以先判断类型再改。太窄的典型信号是“只有非常正式的说法才触发”，说明描述缺少口语与未点明领域的场景；太宽的典型信号是“相邻任务也被拉进来”，说明描述缺少能力边界或否定条件。一个描述可能同时太窄和太宽：对某些意图覆盖不足，对另一些意图过于笼统。这时不要一次改所有问题，先修影响最大的那一类，再用查询集验证。</p><p><span class="prov-mark prov-course">[本课程观点]</span> 还有一个边界情况：两个技能描述高度重叠。此时不是改一个描述就能解决，可能需要重新划范围，或让其中一个技能明确“不处理 X，交给另一个技能”。描述里的边界应该与技能的实际范围一致；如果正文其实能处理 X，却在描述里否认，用户会得到错误预期。描述、范围、正文三者要一起校准。</p>
+<h2 id="length">长度与格式</h2>
+
+<ul>
+  <li>规范要求 1–1024 字符；超过会被校验拦下或截断。</li>
+  <li>优化过程中描述容易越写越长，每轮修改后都要检查长度。</li>
+  <li>用 YAML 块标量（<code>&gt;</code>）写多行描述，可读性好，也能避免未加引号冒号的问题。</li>
+  <li>不要在描述里放示例对话、命令或大段背景；这些属于正文。</li>
+</ul>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 长度限制不是写作目标，而是硬约束。一个好的描述通常几句话就够：一句做什么，一句何时用，一句边界或覆盖范围。超过这个长度，往往说明你在描述里塞了正文内容，或者试图用关键词覆盖所有可能说法。后者会过拟合，前者会浪费目录预算。写完先数字符，再读一遍：如果删掉一句仍然能判断何时使用，就删掉。描述的质量看“判断是否准确”，不看“信息是否齐全”。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="worksheet">写作检查表</h2>
+
+<ul>
+  <li>是否用“Use this skill when……”或等价的中文祈使句开头？</li>
+  <li>是否说清了“做什么”的具体能力，而不是“强大/专业/智能”？</li>
+  <li>是否覆盖了用户可能使用的 3–5 种说法？</li>
+  <li>是否包含至少一个“用户没有点名领域”的场景？</li>
+  <li>是否划出了至少一个不该触发的相邻场景？</li>
+  <li>长度是否在 1–1024 字符？</li>
+  <li>是否包含具体触发关键词，但没有堆砌无关词？</li>
+</ul>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 写完只是开始。下一节会用查询集和触发率，把这些判断变成数据。</p>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这七个问题可以按顺序过一遍，但不要把它们当成打分表。真正的标准是：一个不了解项目的人读完描述，能否判断“我现在该不该用这个技能”。如果能，描述基本合格；如果他只能复述功能名，或者觉得“什么都能用”，就还需要收窄或补充场景。最后再检查长度与关键词：关键词应该来自真实用户说法，而不是为了覆盖而堆砌。描述是入口，不是摘要。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>description 是触发的唯一入口；启动时模型只看到名字和描述。</li>
+    <li>写用户意图与适用场景，用祈使句，宁可主动覆盖未点明的说法。</li>
+    <li>同时防窄和防宽：具体能力清单收窄，意图覆盖放宽，边界写清。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把“Helps with PDFs.”改写成一条 60–120 字符的描述，要求包含能力与触发场景。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 示例：“提取 PDF 文本与表格、填写表单、合并文件。当用户处理 PDF、表单或需要文档提取时使用。”检查是否同时回答了“做什么”和“何时用”。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 为“会议纪要转行动项”技能写描述，覆盖三种用户说法（“整理会议记录”“会后跟进”“把讨论变成待办”），并划出一个不该触发的边界。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格描述应包含“从会议记录/转写中提取决策与行动项，标注负责人与截止时间”，并写明“当用户要求整理会议、提取待办或做会后跟进时使用”；边界可写“不用于安排日历或发送会议邀请”。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 给出一个过宽描述，列出它可能误触发的三个相邻任务，然后改写描述，使三者都不再触发，同时保留原本该触发的两类任务。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../03-authoring/a6-patterns.html"><span>上一页</span><strong>高效指令模式：坑点、模板、清单、验证循环</strong></a>
+      <a class="pager-next" href="../04-trigger-eval/e2-trigger-eval.html"><span>下一页</span><strong>触发评估：用查询集调准 description</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

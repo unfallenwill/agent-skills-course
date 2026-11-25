@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>案例 2：团队代码评审（代码工作流） · Agent Skills 课程</title>
+  <meta name="description" content="用 Skill 固化团队的评审关注点与输出格式，同时避免变成噪声制造机。重点在控制校准与历史 PR 验证。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html" class="current" aria-current="page">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#situation">情境</a></li>
+        <li><a href="#requirements">需求</a></li>
+        <li><a href="#design">设计与权衡</a></li>
+        <li><a href="#skill">完整 SKILL.md</a></li>
+        <li><a href="#validation">验证方法</a></li>
+        <li><a href="#failures">常见失败模式</a></li>
+        <li><a href="#transfer">可迁移的经验</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><a href="../06-cases/case1-pdf-forms.html">实战案例</a><span aria-hidden="true">/</span><span>案例 2</span></p>
+      <p class="stage-badge">S5 交付与迁移</p>
+      <h1>案例 2：团队代码评审（代码工作流）</h1>
+      <p class="lead">用 Skill 固化团队的评审关注点与输出格式，同时避免变成噪声制造机。重点在控制校准与历史 PR 验证。</p>
+      <p class="page-meta">阶段：S5 交付与迁移 · 建议 45 分钟 · 先修：S3、S4 完成</p>
+      <article class="content">
+<p class="lead">代码评审技能最容易变成“什么都提一句”的噪声机器。这个案例的重点是控制：只报能指出后果的问题，按风险排序，把风格偏好降级，并用历史 PR 检验召回与误报。</p>
+
+<h2 id="situation">情境</h2>
+
+<p>一个 12 人的后端团队，每周约 40 个 PR。过去半年发生三次生产事故：一次 SQL 注入、一次越权访问、一次并发扣款重复。复盘发现，三次问题在评审中都有人“隐约觉得不对”，但没有人明确指出触发条件与后果；评审意见更多集中在命名和格式上。</p>
+
+<p>团队已经启用了 linter、类型检查与 SAST（静态应用安全测试），但工具无法判断业务层面的授权边界与幂等性。他们希望用 Skill 把资深工程师的评审关注点固化下来，同时明确：<strong>不要重复工具能发现的问题，不要制造噪声。</strong></p>
+
+<h2 id="requirements">需求</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>类型</th><th>要求</th><th>可验证标准</th></tr></thead>
+  <tbody>
+    <tr><td>覆盖</td><td>优先检查授权、注入、并发、数据丢失、错误泄露</td><td>在 10 个历史 PR 上，已知问题被检出 ≥7 个</td></tr>
+    <tr><td>精确</td><td>每条发现必须能指出具体行与失败场景</td><td>随机抽 10 条发现，≥8 条能被资深工程师认可</td></tr>
+    <tr><td>分级</td><td>Blocker / Major / Minor / Nit，Nit 不超过 3 条</td><td>输出结构符合模板；Blocker 有触发条件</td></tr>
+    <tr><td>范围</td><td>只评审本次 diff 及直接影响</td><td>不出现“建议重构整个模块”这类无边界意见</td></tr>
+    <tr><td>效率</td><td>不重复 linter/typecheck 已覆盖的问题</td><td>输出中无纯格式/类型错误</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="design">设计与权衡</h2>
+
+<h3 id="rejected">被否决的方案</h3>
+
+<ol>
+  <li><strong>把 200 条规则的完整规范塞进 SKILL.md。</strong> 正文过长，模型抓不住重点；规则之间冲突时无法判断优先级。否决理由：上下文成本高、可执行性差。</li>
+  <li><strong>替代 linter，做全量静态检查。</strong> 模型不适合稳定执行机械规则，且会与现有 CI 重复。否决理由：不可靠、浪费。</li>
+  <li><strong>要求 Agent 阅读整个仓库后再评审。</strong> 成本高、范围失控，容易对未改动代码发表意见。否决理由：偏离 diff 范围。</li>
+  <li><strong>只给一份“最佳实践”清单。</strong> 得到的是通用建议，无法发现本项目的授权边界与幂等约定。否决理由：缺少真实专长。</li>
+  <li><strong>把所有发现都标为 Blocker，确保不漏。</strong> 噪声导致团队忽略评审；失去分级意义。否决理由：精确率崩塌。</li>
+</ol>
+
+<h3 id="chosen">采用的结构</h3>
+
+<ul>
+  <li><strong>风险优先的自由式检查</strong>：给关注点与判断标准，不规定逐行扫描顺序，适应不同代码结构。</li>
+  <li><strong>严格的范围与分级</strong>：只评审 diff；Blocker 必须能说出触发条件与后果。</li>
+  <li><strong>输出模板</strong>：位置、问题、证据、影响、建议五段式，强制可行动。</li>
+  <li><strong>Gotchas</strong>：行号来自新文件、跳过生成文件、测试密钥的级别、不重复工具发现。</li>
+</ul>
+
+<p>这是“分段校准”的典型：检查维度给自由，报告格式与分级给规定。来源建议按任务脆弱性匹配控制强度；评审路径因代码而异，但严重级别与输出结构必须一致。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#calibrating-control">best-practices.md</a>）</p>
+
+<h3 id="tradeoffs">取舍</h3>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>决定</th><th>代价</th><th>为什么接受</th></tr></thead>
+  <tbody>
+    <tr><td>不覆盖全部规则</td><td>可能漏掉低频问题</td><td>聚焦高损失类别；其余交给工具与人工</td></tr>
+    <tr><td>Nit 限 3 条</td><td>部分风格问题不提</td><td>保护信噪比；风格交给 formatter</td></tr>
+    <tr><td>要求失败场景</td><td>部分“感觉不对”的问题无法报告</td><td>无法说明后果的意见不可行动</td></tr>
+    <tr><td>不读整个仓库</td><td>跨模块影响可能漏看</td><td>通过“相关上下文”按需读取，而不是全量</td></tr>
+    <tr><td>保留人工评审</td><td>仍需资深工程师投入</td><td>技能做第一遍筛查，不替代判断</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="key-tradeoffs">三项关键取舍：决定、被否决的替代方案与理由</h3>
+<div class="table-wrap"><table><thead><tr><th>决定</th><th>被否决的替代方案</th><th>为什么</th></tr></thead><tbody><tr><td>按风险维度自由检查</td><td>把 200 条规则清单塞进正文</td><td>规则过长会稀释重点；判断维度能让模型按代码结构调整顺序</td></tr><tr><td>Blocker 必须能说出失败场景</td><td>所有发现都标 Blocker 以确保不漏</td><td>噪声会让团队忽略评审；分级必须以可复现后果为依据</td></tr><tr><td>用历史 PR 验证召回与误报</td><td>只用虚构样例验收</td><td>历史 PR 含真实缺陷与项目约定，能同时测召回和误报</td></tr></tbody></table></div>
+<p>第一个取舍把“检查顺序”交给模型，把“检查维度”留给作者。代价是不同 PR 的评审路径不一致；收益是模型能根据代码结构选择重点，而不是机械执行一份长清单。评审质量取决于维度是否覆盖高风险类别，而不是规则条数。</p>
+<p>第二个取舍直接牺牲“零漏报”的错觉。把一切标成 Blocker 看似安全，实际会让团队失去分级信号；要求每条 Blocker 给出触发条件与后果，才能让严重级别可复核。少数无法说明后果的问题，降级为 Major 或放入“待确认”。</p>
+<p>第三个取舍把验证建立在历史数据上。虚构样例往往过于干净，无法暴露权限边界、幂等和错误泄露；历史 PR 有真实上下文，也能测出误报。代价是需要人工标注种子问题，但这是获得可信召回率的必要成本。</p>
+<h2 id="skill">完整 SKILL.md</h2>
+
+<pre><code>---
+name: code-review
+description: Review a pull request or diff for security, authorization, concurrency, data-loss, and error-leak risks, and report findings with file, line, severity, and evidence. Use when the user asks for a code review, PR review, or a pre-merge check, even if they only say "look over these changes".
+---
+
+## 何时使用 / 不适用
+
+当用户要求评审 PR、diff 或合并前检查时使用。不适用于生成完整重构方案、替代 linter/typecheck，或评审未改动的历史代码。
+
+## 参考文件
+
+当需要判定严重级别，或 Blocker 与 Major 的边界不清时，读 `references/severity-guide.md`，按其中的触发条件与示例定级。
+
+# Code Review
+
+## 范围
+
+只评审本次变更及其直接影响。不要重写整个仓库，不要评论未改动的历史代码，除非变更使其变得不安全。
+
+## 流程
+
+1. 读取 diff 与相关上下文（调用方、schema、配置）。
+2. 按风险从高到低检查：
+   - 认证与授权：每个新入口是否校验身份与权限？
+   - 注入：SQL、命令、模板、路径拼接是否使用参数化/转义？
+   - 并发：共享状态、锁、幂等性、竞态。
+   - 数据丢失：删除、覆盖、迁移是否可回滚？
+   - 错误泄露：错误信息是否暴露内部路径、SQL、堆栈或 PII？
+3. 对照仓库约定（命名、分层、错误处理）检查一致性。
+4. 只报告能指向具体行、并能说明后果的问题。
+5. 按模板输出，按严重级别排序。
+
+## 严重级别
+
+- **Blocker**：会导致安全漏洞、数据丢失或生产故障，合并前必须修复。
+- **Major**：在常见条件下会产生错误行为，应有明确修复计划。
+- **Minor**：可维护性、可读性、边界防御；不阻塞合并。
+- **Nit**：风格偏好；最多 3 条，且必须标注为可选。
+
+## 输出模板
+
+```markdown
+## 结论
+&lt;Blocker 数量&gt; 个阻塞项，&lt;Major 数量&gt; 个主要问题。
+
+## 发现
+### [Blocker] &lt;标题&gt;
+- 位置：&lt;file&gt;:&lt;line&gt;
+- 问题：&lt;一句话说明缺陷&gt;
+- 证据：&lt;引用 diff 中的代码或调用链&gt;
+- 影响：&lt;具体失败场景&gt;
+- 建议：&lt;最小修复方向&gt;
+
+## 未覆盖
+- &lt;未检查的部分及原因&gt;
+```
+
+## Gotchas
+
+- 行号必须来自本次 diff 的新文件行号；不要引用旧版本行号。
+- 生成文件、锁文件、快照测试默认跳过；在“未覆盖”中说明。
+- 测试代码中的硬编码密钥也应报告，但级别通常为 Major，不是 Blocker。
+- 不要因为“可能有问题”就报 Blocker；必须能说出触发条件与后果。
+- 仓库已有 lint/typecheck 能发现的问题不要重复报告，除非它同时是安全或数据问题。
+
+## 自检
+
+- [ ] 每条发现都有文件与行号
+- [ ] 每条都有可复现的失败场景
+- [ ] 没有把风格偏好写成 Blocker
+- [ ] 明确列出未覆盖范围</code></pre>
+
+<h2 id="validation">验证方法</h2>
+
+<ol>
+  <li><strong>历史 PR 集。</strong> 选 10 个已合并的 PR，其中 5 个事后确认有缺陷（注入、越权、竞态、数据覆盖、错误泄露各一），5 个无已知问题。标注“应发现的问题”作为种子。</li>
+  <li><strong>召回率。</strong> 运行技能，统计检出的种子问题数 / 种子总数。目标 ≥70%。</li>
+  <li><strong>误报率。</strong> 对无问题 PR 的发现逐条人工判定；目标：每条发现至少 80% 被认可为“值得提出”。</li>
+  <li><strong>分级一致性。</strong> 两位工程师独立给发现分级，计算一致率；Blocker 的分歧必须复盘。</li>
+  <li><strong>噪声检查。</strong> 统计 Nit 数量、纯格式意见数量、对未改动代码的意见数量；任何一项超阈值都算失败。</li>
+  <li><strong>对照。</strong> 同一批 PR 跑一次“无技能”基线，比较召回与误报，确认技能确实带来增量而不是复述常识。</li>
+</ol>
+
+<div class="checkpoint">
+  <span class="cp-label">CHECKPOINT</span>
+  <p>合格标准示例：种子召回 ≥7/10；无问题 PR 上平均发现 ≤3 条且 ≥80% 被认可；Nit ≤3；无纯格式意见；每条 Blocker 都写明触发条件与后果。</p>
+</div>
+
+<h2 id="failures">常见失败模式</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>失败</th><th>表现</th><th>根因</th><th>预防</th></tr></thead>
+  <tbody>
+    <tr><td>Nit 洪水</td><td>20 条命名/格式意见淹没 2 条安全问题</td><td>没有数量上限与优先级排序</td><td>Nit 限 3 条；按严重级别排序</td></tr>
+    <tr><td>幻觉行号</td><td>发现指向不存在的行或旧版本行号</td><td>未约束行号来源</td><td>要求行号来自本次 diff；自检项</td></tr>
+    <tr><td>评审生成文件</td><td>对 lock 文件、快照、生成代码提意见</td><td>未声明跳过范围</td><td>Gotcha + “未覆盖”小节</td></tr>
+    <tr><td>忽略项目约定</td><td>建议引入团队未使用的框架</td><td>只依赖通用最佳实践</td><td>先读仓库约定；把项目规则写进技能</td></tr>
+    <tr><td>一切皆 Blocker</td><td>失去分级意义</td><td>用“可能”代替触发条件</td><td>Blocker 必须能说出具体失败场景</td></tr>
+    <tr><td>重复工具发现</td><td>报告类型错误、格式问题</td><td>技能范围未与 CI 划界</td><td>明确“工具已覆盖的不报”</td></tr>
+    <tr><td>越界重构建议</td><td>要求重写整个模块</td><td>缺少 diff 范围约束</td><td>只评审变更及直接影响</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="transfer">可迁移的经验</h2>
+
+<ul>
+  <li>评审类技能的价值由“精确率 × 召回率”决定，不是由“提了多少条”决定。</li>
+  <li>给判断维度自由，给输出结构与分级规定；两者分开校准。</li>
+  <li>用历史数据做验证，比用虚构样例更可信。</li>
+  <li>把“无法说明后果”的问题排除在 Blocker 之外，是控制噪声最有效的一条规则。</li>
+</ul>
+
+<p>验证评审技能时，召回和误报要一起看。只测“发现了多少已知问题”，会鼓励模型多报；只测“意见是否被认可”，又会忽略漏报。历史 PR 的价值在于同时提供正例与负例：有缺陷的 PR 用来测召回，无缺陷的 PR 用来测噪声。两者都达标，才能说明技能在真实评审中有用。</p><p>还要单独检查“范围”和“分级”。每条发现是否落在本次 diff 内，Blocker 是否能说出触发条件与后果，Nit 是否超过上限。这些检查可以脚本化，也可以人工抽样。把范围与分级做成硬门禁，比继续增加检查规则更能提升信噪比。</p>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p>给“测试文件里硬编码了一个测试密钥”定级，并说明理由。它应该是 Blocker 吗？</p>
+      <details><summary>提示与自检</summary><p>通常 Major，不是 Blocker：真实生产凭证才是 Blocker；测试密钥的影响范围有限，但仍应移除并轮换。若该密钥能访问真实环境，则升级为 Blocker。关键在于影响范围，而不是“密钥”这个词。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p>回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p>合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p>设计一条断言，用于检查“没有对未改动代码发表意见”。它能否被自动验证？需要什么输入？</p>
+      <details><summary>提示与自检</summary><p>需要 diff 的新增/修改行集合；断言为“每条发现的 file:line 都落在该集合内”。可脚本化：解析输出位置并与 diff 行号比对。人工评审可作为补充。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p>把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p>两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p>把该技能扩展到“前端 PR”，需要改哪些部分？哪些规则应保留，哪些应替换？给出修改后的关注点列表与两条新 Gotchas。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../06-cases/case1-pdf-forms.html"><span>上一页</span><strong>案例 1：PDF 表单批量填写（文档处理）</strong></a>
+      <a class="pager-next" href="../06-cases/case3-csv-analysis.html"><span>下一页</span><strong>案例 3：运营 CSV 分析（数据分析）</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

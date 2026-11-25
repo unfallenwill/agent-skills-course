@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>教程 4：写 3 个评估用例并调好 description · Agent Skills 课程</title>
+  <meta name="description" content="给 changelog-writer 建立最小触发评估：6 条查询、3 次运行、训练/验证划分，按失败类型改描述而不是堆关键词。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html" class="current" aria-current="page">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#goal">目标与前置</a></li>
+        <li><a href="#step1">步骤 1：建立技能与评估文件</a></li>
+        <li><a href="#step2">步骤 2：跑基线并记录</a></li>
+        <li><a href="#step3">步骤 3：划分训练集与验证集</a></li>
+        <li><a href="#step4">步骤 4：按失败类型修改描述</a></li>
+        <li><a href="#step5">步骤 5：重跑并选择版本</a></li>
+        <li><a href="#step6">步骤 6：写 3 个输出评估用例</a></li>
+        <li><a href="#expected">预期结果</a></li>
+        <li><a href="#checkpoint">检查点</a></li>
+        <li><a href="#errors">常见错误</a></li>
+        <li><a href="#if-error">如果出错了</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><a href="../05-tutorials/t1-roll-dice.html">动手教程</a><span aria-hidden="true">/</span><span>教程 4</span></p>
+      <p class="stage-badge">S4 触发与评估</p>
+      <h1>教程 4：写 3 个评估用例并调好 description</h1>
+      <p class="lead">给 changelog-writer 建立最小触发评估：6 条查询、3 次运行、训练/验证划分，按失败类型改描述而不是堆关键词。</p>
+      <p class="page-meta">阶段：S4 触发与评估 · 建议 50 分钟 · 先修：教程 3；S4 前两页</p>
+      <article class="content">
+<p class="lead">内容写好了，触发却不稳定：正式说法能触发，随口一问就不行；该忽略的提交请求反而被当成“写更新日志”。这一课用 6 条查询、3 个输出用例，把这个感觉变成一张可比较的表。</p>
+
+<h2 id="goal">目标与前置</h2>
+
+<p>我们给 <code>changelog-writer</code> 建立最小评估：6 条触发查询（3 正 3 负）、每条跑 3 次、训练/验证划分；再写 3 个输出评估用例与断言。你会亲手看到描述从“窄而漏”改成“覆盖意图但不越界”。</p>
+
+<ul>
+  <li><strong>前置：</strong>完成教程 3；读完<a href="../04-trigger-eval/e1-description.html">描述字段</a>、<a href="../04-trigger-eval/e2-trigger-eval.html">触发评估</a>、<a href="../04-trigger-eval/e3-output-eval.html">输出评估</a>。</li>
+  <li><strong>预计时间：</strong>50 分钟。</li>
+  <li><strong>预期结果：</strong>一张 6 行触发记录表；一个 ≤1024 字符的新描述；一套含 3 个用例与断言的 <code>evals/evals.json</code>。</li>
+</ul>
+
+<div class="callout">
+  <p class="callout-title">关于示例数字</p>
+  <p>下面的触发表是<strong>教学示例</strong>，数字用于说明如何判读，不代表任何真实模型的实测结果。你在自己环境中跑出的数字会不同。判断方法不变：正例看是否达标，负例看是否误触发。</p>
+</div>
+
+<h2 id="step1">步骤 1：建立技能与评估文件</h2>
+
+<pre><code>mkdir -p .agents/skills/changelog-writer/evals
+</code></pre>
+
+<p>创建 <code>.agents/skills/changelog-writer/SKILL.md</code>：</p>
+
+<pre><code>---
+name: changelog-writer
+description: 把一段 git 提交整理成面向用户的更新日志，按 Features、Improvements、Fixes 分组。当用户要求发布说明、更新日志、版本变更摘要，或只是问“上次发布以来改了什么”时使用，即使用户没有提到 changelog 或 release notes。
+---
+
+## 何时使用 / 不适用
+
+当用户要求发布说明、更新日志、版本变更摘要，或问“上次发布以来改了什么”时使用。不适用于解释单条提交、改写 commit message 或执行回滚。
+
+## 参考文件
+
+当提交类型不明确（chore、refactor、perf），或需要判断是否属于 Breaking 时，读 `references/commit-conventions.md`，按分类规则处理。
+
+# Changelog Writer
+
+## 流程
+
+1. 明确范围：两个 tag 之间、某个日期之后，或“上次发布以来”。用户没说清时先询问，不要猜。
+2. 获取提交：`git log --no-merges --pretty=format:'%h %s' &lt;range&gt;`。
+3. 逐条判断是否用户可见。内部重构、测试、依赖清理默认不写。
+4. 按下方规则分类，每条以动词开头，面向结果。
+5. 按模板输出；没有用户可见变更时，明确写“本次无用户可见变更”，不要编造。
+6. 自检后输出。
+
+## 分类
+
+- **Features**：用户能做以前做不到的事。
+- **Improvements**：能力不变，但更快、更顺或信息更清楚。
+- **Fixes**：以前是错的，现在对了。
+- **Breaking**：升级后用户的代码或流程可能失败；必须写迁移步骤。
+
+## 输出模板
+
+```markdown
+# Changelog
+
+## Features
+- ...
+
+## Improvements
+- ...
+
+## Fixes
+- ...
+
+## Breaking changes
+- ...（若无写 None）
+```
+
+## Gotchas
+
+- 不要根据提交信息猜测用户影响；看不出来就跳过或标注“需确认”。
+- 不要把 `chore:`、`test:`、`docs:` 提交直接当成用户可见变更，除非它们改变了用户行为。
+- 合并提交默认跳过（`--no-merges`）；否则会出现重复条目。
+- 不要写“若干修复”这类占位条目。
+
+## 自检
+
+- [ ] 每条都能对应至少一个提交或 PR
+- [ ] 没有内部工单号、人员姓名或未验证的数字
+- [ ] Breaking 条目包含迁移步骤
+- [ ] 无变更时明确说明，而不是留空或编造</code></pre>
+
+<p>先不要用这个描述做基线。我们从一个更常见的“窄描述”开始，观察它漏掉什么：</p>
+
+<pre><code>description: Generate changelog from git commits.
+</code></pre>
+
+<p>把 SKILL.md 的 description 临时替换成上面这句，保存。然后创建触发查询文件 <code>evals/trigger_queries.json</code>：</p>
+
+<pre><code>[
+  { "query": "帮我把 v2.4.0 自 v2.3.1 以来的提交写成更新日志", "should_trigger": true },
+  { "query": "what changed since the last release? our users keep asking", "should_trigger": true },
+  { "query": "这周的提交挺多的，整理一份给用户看的变更说明吧", "should_trigger": true },
+  { "query": "解释一下 3f2a1c 这个提交为什么会导致登录失败", "should_trigger": false },
+  { "query": "帮我把这五条 commit message 改写成更符合规范的英文", "should_trigger": false },
+  { "query": "revert 掉最近一次提交，它把首页弄坏了", "should_trigger": false }
+]</code></pre>
+
+<p>6 条查询里，3 条应触发（正式、英文随意、中文口语），3 条是近邻负例（解释提交、改写提交信息、回滚提交）。</p>
+
+<h2 id="step2">步骤 2：跑基线并记录</h2>
+
+<p>每条查询在干净会话中跑 3 次，记录技能是否被加载。能否自动检测取决于客户端；无法自动化时，用下面的表手工记录，并保留每次的工具调用截图或日志。</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>#</th><th>查询（摘要）</th><th>应触发</th><th>3 次中触发</th><th>触发率</th><th>判定</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>“把 v2.4.0 自 v2.3.1 以来的提交写成更新日志”</td><td>是</td><td>3</td><td>1.00</td><td>通过</td></tr>
+    <tr><td>2</td><td>“what changed since the last release?”</td><td>是</td><td>2</td><td>0.67</td><td>通过</td></tr>
+    <tr><td>3</td><td>“这周的提交挺多的，整理一份给用户看的变更说明”</td><td>是</td><td>1</td><td>0.33</td><td><strong>失败</strong></td></tr>
+    <tr><td>4</td><td>“解释 3f2a1c 为什么导致登录失败”</td><td>否</td><td>0</td><td>0.00</td><td>通过</td></tr>
+    <tr><td>5</td><td>“把这五条 commit message 改写成英文”</td><td>否</td><td>1</td><td>0.33</td><td><strong>失败</strong></td></tr>
+    <tr><td>6</td><td>“revert 最近一次提交”</td><td>否</td><td>0</td><td>0.00</td><td>通过</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>基线：6 条中 4 条达标（67%）。两个失败形态不同：</p>
+
+<ul>
+  <li><strong>#3 太窄</strong>：用户说的是“变更说明”，描述只写 “changelog from git commits”，没有覆盖“给用户看的变更总结”这个意图。</li>
+  <li><strong>#5 太宽</strong>：查询里出现 “commit”，描述里的 “git commits” 让模型误以为相关，但任务是改写提交信息，不是生成日志。</li>
+</ul>
+
+<h2 id="step3">步骤 3：划分训练集与验证集</h2>
+
+<p>6 条太少，按 4/2 划分：</p>
+
+<ul>
+  <li><strong>训练集：</strong>#1、#3、#4、#5（用来指导修改）。</li>
+  <li><strong>验证集：</strong>#2、#6（只看结果，不用来改描述）。</li>
+</ul>
+
+<p>真实项目应按来源建议准备约 20 条，训练 60%、验证 40%，并固定划分。这里缩小规模是为了在 50 分钟内走完流程。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/optimizing-descriptions.md#avoiding-overfitting-with-trainvalidation-splits">optimizing-descriptions.md</a>）</p>
+
+<h2 id="step4">步骤 4：按失败类型修改描述</h2>
+
+<p>只根据训练集 #3（太窄）与 #5（太宽）修改：</p>
+
+<ol>
+  <li><strong>补意图覆盖</strong>：加入“更新日志、版本变更摘要、给用户看的变更说明”，以及“即使没提到 changelog 或 release notes”。</li>
+  <li><strong>划边界</strong>：说明不用于解释单个提交、改写提交信息或回滚。</li>
+  <li><strong>用祈使句</strong>：“当用户要求……时使用”。</li>
+  <li><strong>不要堆词</strong>：不要直接把 “commit message 改写” 放进描述，那会扩大误触发；用正向的“整理成面向用户的日志”划清任务类型。</li>
+</ol>
+
+<p>修改后的描述：</p>
+
+<pre><code>description: 把一段 git 提交整理成面向用户的更新日志，按 Features、Improvements、Fixes 分组。当用户要求发布说明、更新日志、版本变更摘要，或只是问“上次发布以来改了什么”时使用，即使用户没有提到 changelog 或 release notes。
+</code></pre>
+
+<p>它没有写“不用于解释提交”，因为正向的“整理成面向用户的日志”已经足够划界；再加长会逼近字符上限。是否加否定句，要看验证集是否仍有误触发。</p>
+
+<h2 id="step5">步骤 5：重跑并选择版本</h2>
+
+<p>用同一批查询重跑（训练集用于确认修改有效，验证集用于判断是否泛化）：</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>#</th><th>集合</th><th>基线判定</th><th>新版判定</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>训练</td><td>通过</td><td>通过</td><td>正式说法稳定</td></tr>
+    <tr><td>2</td><td>验证</td><td>通过</td><td>通过</td><td>英文随意说法泛化良好</td></tr>
+    <tr><td>3</td><td>训练</td><td><strong>失败</strong></td><td>通过</td><td>“变更说明”被覆盖</td></tr>
+    <tr><td>4</td><td>训练</td><td>通过</td><td>通过</td><td>仍不误触发</td></tr>
+    <tr><td>5</td><td>训练</td><td><strong>失败</strong></td><td>通过</td><td>边界更清楚</td></tr>
+    <tr><td>6</td><td>验证</td><td>通过</td><td>通过</td><td>回滚请求不触发</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>示例结果：训练集 4/4、验证集 2/2。若验证集反而变差，应回到上一版，而不是继续调参——这正是把验证集独立出来的意义。</p>
+
+<p>最后检查长度：</p>
+
+<pre><code>node -e "const t=require('fs').readFileSync('.agents/skills/changelog-writer/SKILL.md','utf8');const m=t.match(/description:\s*(.+)/);console.log([...m[1]].length + ' chars')"
+</code></pre>
+
+<p>应小于 1024。描述在优化过程中容易膨胀，每次修改后都测一次。</p>
+
+<h2 id="step6">步骤 6：写 3 个输出评估用例</h2>
+
+<p>触发只回答“用不用”，输出评估回答“好不好”。创建 <code>evals/evals.json</code>：</p>
+
+<pre><code>{
+  "skill_name": "changelog-writer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "写 v2.4.0 的更新日志，范围是 v2.3.1..v2.4.0。里面有一个删除 /v1/users 接口的破坏性变更。",
+      "expected_output": "按 Features / Improvements / Fixes / Breaking changes 分组的更新日志；破坏性变更条目说明旧接口、新接口与迁移步骤。",
+      "assertions": [
+        "输出包含四个分组标题（无内容的组可写 None）",
+        "Breaking changes 条目提到 /v1/users 与 /v2/users",
+        "Breaking changes 条目包含迁移步骤",
+        "没有出现内部工单号或人员姓名"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "上次发布以来都改了啥？随便说说就行，不用太正式。",
+      "expected_output": "仍然按结构输出用户可见变更，而不是散乱的提交列表；范围不明确时询问上次发布的标签。",
+      "assertions": [
+        "输出按功能/改进/修复分类",
+        "每条以动词开头且面向用户结果",
+        "若无法确定范围，明确询问而不是编造版本号"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "这周只有 chore: 升级依赖、test: 补充用例、docs: 修错别字，帮我写更新日志。",
+      "expected_output": "明确说明本次没有用户可见变更，不编造功能条目。",
+      "assertions": [
+        "输出明确写“无用户可见变更”或等价表述",
+        "没有把 chore/test/docs 提交包装成 Features",
+        "没有编造不存在的功能或修复"
+      ]
+    }
+  ]
+}</code></pre>
+
+<p>三个用例分别覆盖：常规发布（含破坏性变更）、口语化请求、只有内部提交的边界。每个用例的断言都可由输出直接检查。</p>
+
+<p>接下来按<a href="../04-trigger-eval/e3-output-eval.html">输出评估</a>的方法，各跑一次“有技能 / 无技能”，记录通过率与 token/耗时。即使只有 3 个用例，也能看出技能是否真的改善了分组、迁移说明和“不编造”的行为。</p>
+
+<h2 id="expected">预期结果</h2>
+<p>预期结果是得到一张可复核的触发表，而不是“感觉描述变好了”。表里应有查询、应否触发、三次运行结果、触发率与判定，并明确训练集与验证集。</p>
+<h2 id="checkpoint">检查点</h2>
+<p>检查表是否完整、描述是否小于 1024 字符、训练/验证是否固定；再用一条从未参与优化的新查询做一次盲测。盲测明显变差，说明仍然过拟合。</p>
+<div class="checkpoint">
+  <span class="cp-label">CHECKPOINT</span>
+  <ol>
+    <li><code>node -e "console.log(JSON.parse(require('fs').readFileSync('.agents/skills/changelog-writer/evals/trigger_queries.json','utf8')).length)"</code> 输出 <code>6</code>（装有 jq 时也可用 <code>jq length ...</code>）。</li>
+    <li>触发记录表有 6 行，每行有 3 次运行记录与触发率；正例 ≥0.5、负例 &lt;0.5 才算通过。</li>
+    <li>训练集与验证集已标注并固定，修改描述时只参考训练集失败。</li>
+    <li>描述字符数 &lt;1024（见上方命令输出）。</li>
+    <li><code>node -e "console.log(JSON.parse(require('fs').readFileSync('.agents/skills/changelog-writer/evals/evals.json','utf8')).evals.length)"</code> 输出 <code>3</code>；每个用例至少 3 条断言。</li>
+    <li>用<a href="../02-core/c5-validation.html">校验脚本</a>运行，<code>changelog-writer</code> 报 PASS。</li>
+    <li>能说出两个失败查询各自属于“太窄”还是“太宽”，以及你改了哪一处。</li>
+  </ol>
+</div>
+
+<h2 id="errors">常见错误</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>错误</th><th>后果</th><th>修复</th></tr></thead>
+  <tbody>
+    <tr><td>把失败查询里的原词塞进描述</td><td>过拟合，换一种说法又失效</td><td>找它代表的一般意图，改写覆盖面</td></tr>
+    <tr><td>用验证集指导修改</td><td>验证集失去检验作用</td><td>只用训练集失败；验证集只用于选版本</td></tr>
+    <tr><td>全部正例、没有近邻负例</td><td>测不出“太宽”</td><td>加入共享关键词但任务不同的查询</td></tr>
+    <tr><td>每条只跑 1 次</td><td>把随机波动当结论</td><td>至少 3 次，算触发率</td></tr>
+    <tr><td>用例太简单</td><td>有/无技能都能通过，看不出价值</td><td>加入边界与歧义场景</td></tr>
+    <tr><td>断言依赖精确措辞</td><td>正确但换句话就 FAIL</td><td>改为可观察特征：分组数、是否含迁移步骤、是否编造</td></tr>
+    <tr><td>描述超过 1024 字符</td><td>校验失败或被截断</td><td>每轮修改后测长度，删掉重复场景</td></tr>
+  </table>
+</div>
+
+<h2 id="if-error">如果出错了</h2>
+<p>下面按“症状—原因—修复”列出最常见的三类问题。先定位症状，再检查原因，不要同时改多个地方；每次只改一处，重跑同一检查点。</p>
+<div class="table-wrap"><table><thead><tr><th>症状</th><th>可能原因</th><th>修复</th></tr></thead><tbody><tr><td>正例触发率低</td><td>描述太窄，或任务本来不需要技能</td><td>先排除任务因素；再补充用户意图与未点明的说法</td></tr><tr><td>负例频繁误触发</td><td>描述太宽，或与相邻技能共享关键词</td><td>加正向边界句；不要只堆否定词</td></tr><tr><td>改了描述后验证集变差</td><td>用验证集指导修改，或过拟合训练集</td><td>回到上一版；只用训练集失败改描述</td></tr></tbody></table></div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p>把查询 #5（“把这五条 commit message 改写成英文”）换成另一条近邻负例，要求仍然共享“commit”概念但任务不同。</p>
+      <details><summary>提示与自检</summary><p>示例：“帮我给这个 commit 打一个合适的 tag”或“解释这条 commit 的 diff”。共享概念但任务不是生成日志；若新负例与技能毫无关键词重叠，测不出边界。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p>回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p>合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p>为用例 3 增加两条断言，要求能检查“没有编造”和“没有把内部提交包装成功能”。</p>
+      <details><summary>提示与自检</summary><p>示例：“输出中不包含 Features 下的具体功能名（因为输入没有功能变更）”“输出明确说明仅包含内部维护变更，无用户可见更新”。断言必须能从输出直接判断。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p>把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p>两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p>把查询集扩展到 12 条，重新划分训练/验证（7/5），只根据训练集失败修改描述。记录两轮结果，并说明你如何确保验证集没有被污染。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../05-tutorials/t3-scripts.html"><span>上一页</span><strong>教程 3：打包 scripts/ 并建立验证循环</strong></a>
+      <a class="pager-next" href="../06-cases/case1-pdf-forms.html"><span>下一页</span><strong>案例 1：PDF 表单批量填写（文档处理）</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>提示词、指令与文件式配置 · Agent Skills 课程</title>
+  <meta name="description" content="从聊天里的提示词，到可版本控制、可审查、可按需加载的指令文件。理解 SKILL.md 这种“文件式配置”的价值。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html" class="current" aria-current="page">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#three-words">提示词、指令、系统提示词：三个常被混用的词</a></li>
+        <li><a href="#why-files">为什么把指令放进文件</a></li>
+        <li><a href="#formats">为什么是 Markdown 和 YAML</a></li>
+        <li><a href="#anatomy">一个最小例子</a></li>
+        <li><a href="#not-prompt">Skill 不是“更长的提示词”</a></li>
+        <li><a href="#mental-model">一个够用的心智模型</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>预备知识</span></p>
+      <p class="stage-badge">S1 认知准备</p>
+      <h1>提示词、指令与文件式配置</h1>
+      <p class="lead">从聊天里的提示词，到可版本控制、可审查、可按需加载的指令文件。理解 SKILL.md 这种“文件式配置”的价值。</p>
+      <p class="page-meta">阶段：S1 认知准备 · 建议 25 分钟 · 先修：什么是 Agent</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> 你可能已经在聊天里“教”过 Agent 怎么做某件事。问题是，那段对话结束后，教过的东西就散了。这一页解释为什么要把指令从聊天搬进文件，以及 SKILL.md 为什么长成“YAML 元数据 + Markdown 正文”这个样子。</p>
+
+<h2 id="three-words">提示词、指令、系统提示词：三个常被混用的词</h2>
+
+<ul>
+  <li><strong>提示词</strong>（prompt）：你这一次发给模型的内容。可以是一句话，也可以是一大段。它天然是临时的。</li>
+  <li><strong>指令</strong>（instructions）：告诉模型“应该怎样做”的内容，通常比单次问题更稳定，可被复用。</li>
+  <li><strong>系统提示词</strong>（system prompt）：由客户端或应用在对话开始前注入的高优先级指令，用来设定角色、边界与输出规范。普通用户通常看不到全部内容。</li>
+</ul>
+
+<p>三者的边界并不严格，不同产品叫法也不同。真正有意义的区分是：<strong>这段内容是只服务于当前这一轮，还是要长期、稳定、可审查地服务于一类任务？</strong>后者就应该落成文件。<span class="prov-mark prov-course">[本课程观点]</span></p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 另一个区分维度是“谁负责维护”。提示词由使用者临时写，系统提示词由产品团队维护，指令文件则由领域专家维护。Skill 把维护责任从写代码的人转移给了最懂业务的人，这是它最有价值的地方之一。因此，评价一个技能写得好不好，不能只看语言是否流畅，还要看它是否包含只有领域专家才知道的判断。一个由通用模型生成的技能，往往在这道题上失分。</p>
+<h2 id="why-files">为什么把指令放进文件</h2>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把说明写在聊天里，至少有三个问题：下次会话不保留；别人无法复用；改动没有历史记录。文件式配置分别给出对应解法：</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>需求</th><th>聊天里的说明</th><th>文件里的指令</th></tr></thead>
+  <tbody>
+    <tr><td>复用</td><td>每次重新粘贴</td><td>放在固定目录，客户端自动发现</td></tr>
+    <tr><td>协作</td><td>截图、口口相传</td><td>可以提交到仓库、走代码评审</td></tr>
+    <tr><td>追溯</td><td>找不到上次怎么改的</td><td>版本控制记录每次修改与原因</td></tr>
+    <tr><td>加载</td><td>一次性全部进入上下文</td><td>可按需加载，只读相关部分</td></tr>
+    <tr><td>测试</td><td>难以构造稳定用例</td><td>可以配评估用例、脚本与断言</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这五点里，最容易被低估的是“加载”。文件不仅是存储方式，也是<strong>调度单位</strong>：Agent 可以先只读目录，再决定读哪个文件。没有文件边界，就没有渐进披露。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 文件还有一个常被忽略的好处：它可以被测试。聊天里的说明只能靠人回忆“上次是怎么说的”，文件则可以固定下来，配上评估用例、版本记录和评审意见。你可以比较两个版本在同一批任务上的表现，也可以让同事在不打扰你的情况下复现问题。可测试性直接决定了技能能否持续改进。没有文件，改进只能靠模糊印象；有了文件，改进才有基线。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="formats">为什么是 Markdown 和 YAML</h2>
+
+<p><strong>Markdown</strong> 是一种轻量标记语言，用 <code>#</code> 表示标题、<code>-</code> 表示列表、反引号表示代码。它的优势是人和模型都容易读写，不需要复杂工具链。<span class="prov-mark prov-course">[本课程观点]</span></p>
+
+<p><strong>YAML</strong> 是一种人类可读的数据序列化格式，用缩进表示层级，用 <code>键: 值</code> 表示字段。Agent Skills 用 YAML 作为前置元数据（frontmatter）的格式，因为客户端需要<strong>机器可读</strong>地取出 <code>name</code> 与 <code>description</code>，而不必理解整篇自然语言。<span class="prov-mark prov-ext">[外部: https://yaml.org/spec/1.2.2/]</span> YAML 1.2.2 规范：<a href="https://yaml.org/spec/1.2.2/">yaml.org/spec/1.2.2</a>（检索于 2026-11-25）。</p>
+
+<div class="prov prov-src">
+  <p><span class="prov-mark prov-src">[源站]</span> <code>SKILL.md</code> 必须包含 YAML frontmatter，其后是 Markdown 正文。正文没有格式限制，写什么最有助于 Agent 完成任务就写什么。推荐包含：分步指令、输入输出示例、常见边界情况。Agent 在决定激活后会加载整个文件，因此较长的内容应考虑拆分到被引用的文件中。（来源：<a href="https://agentskills.io/specification.md#skillmd-format">specification.md</a>）</p>
+</div>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把机器可读与人类可读分开，是一种务实的设计。客户端不需要理解整篇中文，就能从 frontmatter 取出名字和描述；人也不需要读懂 YAML 解析器，就能修改流程。两者的边界应该清晰：凡是被程序用来做发现、路由或权限判断的信息，放 frontmatter；凡是指导模型行动的步骤、示例和边界，放正文。混用会导致两个问题：元数据变得臃肿，正文缺少关键约束。</p>
+<h2 id="anatomy">一个最小例子</h2>
+
+<pre><code>---
+name: weekly-report
+description: 把每周销售 CSV 汇总成固定格式的周报。当用户提到周报、销售汇总或需要按周比较数据时使用。
+---
+
+## 流程
+
+1. 读取用户提供的 CSV，确认包含 date、region、amount 三列。
+2. 按周聚合 amount，输出 markdown 表格。
+3. 与上周对比，标出变化超过 20% 的区域。
+
+## 输出格式
+
+| 周次 | 区域 | 金额 | 环比 |
+</code></pre>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这个文件只有十几行，但已经具备 Skill 的关键要素：机器可读的名字与触发描述、人类可读的流程、明确的输出形状。它没有解释“什么是 CSV”，因为模型知道；它写明了列名和阈值，因为这是模型不知道的项目事实。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 逐行看这个例子：name 与目录一致，description 同时覆盖“周报”和“销售汇总”两种说法，正文只写了列名、周区间和变化阈值这些项目事实。它没有解释 CSV 是什么，也没有教模型怎么画表格。这个取舍不是偷懒，而是假设模型具备通用能力，把篇幅留给真正会出错的地方。你可以用同样的方法检查自己的技能：把每一句问一遍“模型不知道这个吗”，答“知道”的就删掉。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 用一个你熟悉的真实材料照这一节做一遍：先保留必须的字段与判断，再删掉模型已知的解释，最后补一个别人能执行的验证。完成后让同事只看结构，判断他能否说出何时该读哪个文件。</p>
+<h2 id="not-prompt">Skill 不是“更长的提示词”</h2>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把 Skill 理解成提示词模板，会带来三个错误做法：</p>
+
+<ol>
+  <li><strong>把所有背景都写进去</strong>，因为它“反正也是提示词”。但 Skill 会被反复加载到不同会话，每一句都在消耗预算。</li>
+  <li><strong>只写一次，不再维护</strong>。文件一旦进入仓库，就会像代码一样过时；规范、字段、下游系统都会变。</li>
+  <li><strong>忽视触发描述</strong>。提示词是你主动发送的，Skill 却要自己争取被选中；描述写不好，内容再好也不会被加载。</li>
+</ol>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 更准确的理解是：Skill 是一个<strong>有元数据、有加载策略、可捆绑资源的能力包</strong>。提示词只是它的正文部分。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 判断一个文件是不是“更长的提示词”，可以看它有没有加载策略。真正的技能会区分元数据、正文和资源，会告诉 Agent 什么时候读哪个文件，会在描述里写清边界。更长的提示词则把所有内容平铺在一起，默认每次都要全部读入。前者是工程结构，后者是文档堆积。这个区别在技能少的时候不明显，技能一多、任务一复杂，就会变成成本与准确率的差距。</p>
+<h2 id="mental-model">一个够用的心智模型</h2>
+
+<div class="callout">
+  <div class="callout-title">把 Skill 想成一份“交接文档”</div>
+  <p><span class="prov-mark prov-course">[本课程观点]</span> 你要休假两周，把一项 recurring 工作交给一位很聪明、但完全不了解你们业务的新同事。你会写什么？不会写“Excel 是电子表格软件”；会写“每月 3 号前把 A 表第 D 列的数填进 B 系统，注意 B 系统把 0 当成空值”。Skill 就是这份交接文档的可执行版本。</p>
+</div>
+
+<p>这个类比也解释了为什么“真实专长”如此重要：交接文档的价值，等于你脑子里那些没写进任何手册的东西。<span class="prov-mark prov-course">[本课程观点]</span></p>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-course">[本课程观点]</span> 交接文档的类比还能帮你决定“不写什么”。你不会在交接文档里解释 Excel 怎么用，也不会把所有历史决策都抄一遍；你只会写接手人最可能踩的坑、必须遵守的规则、以及遇到异常时找谁。技能同理：它服务于一个具体任务，不是组织知识的全集。把技能当成一次高质量交接，而不是一本百科，篇幅和重点都会更自然。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>提示词服务一次对话，指令文件服务一类任务；后者可复用、可评审、可追溯。</li>
+    <li>YAML frontmatter 提供机器可读的元数据，Markdown 正文提供人机都可读的流程。</li>
+    <li>Skill 不是更长的提示词，而是带加载策略和资源的能力包；文件边界本身就是设计工具。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 判断：把“你是一名资深财务分析师，请严谨”写进 SKILL.md 正文，是不是好做法？为什么？</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 通常不是。它没有提供模型不知道的事实，也不改变具体流程，属于空泛的角色设定。除非它能约束可观察的行为（例如“金额一律保留两位小数并注明币种”），否则应删掉。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把下面这段聊天说明改写成 SKILL.md 的正文草稿（不必写 frontmatter）：<br>“我们周报要用上周一到周日的数，不是自然周；金额是含税的；如果某个区域没有数据，要写 0 而不是留空；最后按金额降序。”</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 应包含四条可执行规则：周区间定义、金额口径、缺失值处理、排序方式。每条都要具体到可验证。若你加了“请注意数据质量”之类的话，删掉——那不是规则。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 选一个你熟悉的文件格式（例如团队的周报模板、事故复盘模板），指出其中哪些信息适合放 frontmatter 的 <code>metadata</code>，哪些必须放正文，哪些应该放 <code>assets/</code>。说明判断依据。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../01-background/b3-context.html"><span>上一页</span><strong>上下文窗口与 Token：为什么上下文是稀缺资源</strong></a>
+      <a class="pager-next" href="../01-background/b5-progressive.html"><span>下一页</span><strong>渐进披露：为什么不能把所有内容一次塞进去</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

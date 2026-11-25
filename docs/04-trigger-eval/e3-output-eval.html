@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>输出质量评估：断言、基线与迭代 · Agent Skills 课程</title>
+  <meta name="description" content="把“看起来还行”变成可比较的证据：写评估用例、跑有/无 Skill 的对照、用断言与证据打分、比较通过率与成本。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html" class="current" aria-current="page">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#case">一个评估用例包含什么</a></li>
+        <li><a href="#baseline">运行：有技能 vs 无技能</a></li>
+        <li><a href="#assertions">断言：把“好”拆成可检查的句子</a></li>
+        <li><a href="#grading">评分：PASS / FAIL 加证据</a></li>
+        <li><a href="#benchmark">汇总：通过率、时间、token 与差值</a></li>
+        <li><a href="#patterns">看模式，而不是只看总数</a></li>
+        <li><a href="#human">人工评审不可省</a></li>
+        <li><a href="#iterate">迭代：三类信号，四条原则</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>触发与评估</span></p>
+      <p class="stage-badge">S4 触发与评估</p>
+      <h1>输出质量评估：断言、基线与迭代</h1>
+      <p class="lead">把“看起来还行”变成可比较的证据：写评估用例、跑有/无 Skill 的对照、用断言与证据打分、比较通过率与成本。</p>
+      <p class="page-meta">阶段：S4 触发与评估 · 建议 45 分钟 · 先修：触发评估</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> 触发正确，只说明技能被用上了；输出是否真的更好，还需要另一套证据。这一页把“看起来还行”变成可比较的数字：用例、断言、基线、通过率与成本。</p>
+
+<h2 id="case">一个评估用例包含什么</h2>
+
+<p>来源定义了三部分：<strong>提示</strong>（真实用户会输入的话）、<strong>预期输出</strong>（人类可读的成功描述）、<strong>输入文件</strong>（可选）。用例存放在技能目录下的 <code>evals/evals.json</code>。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/evaluating-skills.md#designing-test-cases">evaluating-skills.md</a>）</p>
+
+<pre><code>{
+  "skill_name": "csv-analyzer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have a CSV of monthly sales data in data/sales_2025.csv. Can you find the top 3 months by revenue and make a bar chart?",
+      "expected_output": "A bar chart image showing the top 3 months by revenue, with labeled axes and values.",
+      "files": ["evals/files/sales_2025.csv"],
+      "assertions": [
+        "The output includes a bar chart image file",
+        "The chart shows exactly 3 months",
+        "Both axes are labeled",
+        "The chart title or caption mentions revenue"
+      ]
+    }
+  ]
+}</code></pre>
+
+<h3 id="prompt-tips">写提示的四个建议</h3>
+
+<ul>
+  <li><strong>先写 2–3 个用例</strong>，看到第一轮结果后再扩展。不要在没跑过之前过度投入。</li>
+  <li><strong>变化说法</strong>：随意（“hey can you clean up this csv”）与精确（“Parse the CSV at data/input.csv, drop rows where column B is null, and write the result to data/output.csv”）都要有。</li>
+  <li><strong>覆盖边界</strong>：至少一个畸形输入、异常请求或指令可能歧义的情况。</li>
+  <li><strong>使用真实上下文</strong>：文件路径、列名、个人背景；“处理这个数据”太空泛，测不出什么。</li>
+</ul>
+
+<p><span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/evaluating-skills.md#tips-for-writing-good-test-prompts">evaluating-skills.md</a>）</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 三部分里，“预期输出”最容易被写空。不要写“输出良好”，要写可观察的结果：文件存在、字段齐全、图表有标签、行数正确、错误被拒绝。输入文件也要真实：用脱敏后的实际数据，而不是手工构造的完美样例。只有真实输入才能暴露编码、缺失值、格式不一致这些常见问题。用例不用多，先写两三个能覆盖主路径与一个边界的，跑完再扩展。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="baseline">运行：有技能 vs 无技能</h2>
+
+<p>核心模式是每个用例跑两遍：一次<strong>带技能</strong>，一次<strong>不带技能</strong>（或带上一版本）。这给你一个对照基线。改进已有技能时，先快照当前版本，把基线指向快照，输出存到 <code>old_skill/</code> 而不是 <code>without_skill/</code>。<span class="prov-mark prov-src">[源站]</span></p>
+
+<p><span class="prov-mark prov-src">[源站]</span> 每次运行都应在干净上下文中开始，不带上一轮的残留，也不带技能开发过程的记忆。支持子代理的客户端天然满足；否则每个用例用独立会话。</p>
+
+<pre><code>csv-analyzer-workspace/
+└── iteration-1/
+    ├── eval-top-months-chart/
+    │   ├── with_skill/
+    │   │   ├── outputs/
+    │   │   ├── timing.json
+    │   │   └── grading.json
+    │   └── without_skill/
+    │       ├── outputs/
+    │       ├── timing.json
+    │       └── grading.json
+    ├── eval-clean-missing-emails/
+    │   └── ...
+    └── benchmark.json
+</code></pre>
+
+<p><span class="prov-mark prov-src">[源站]</span> 目录结构不是硬性规定，但“每轮一个目录、每用例有对照、结果可追溯”值得保留。否则几轮之后你会分不清哪个结果对应哪个版本。</p>
+
+<h3 id="timing">同时记录成本</h3>
+
+<p><span class="prov-mark prov-src">[源站]</span> 技能可能显著提升质量，也可能把 token 用量翻三倍。来源建议每次运行记录 token 数与耗时：</p>
+
+<pre><code>{
+  "total_tokens": 84852,
+  "duration_ms": 23332
+}</code></pre>
+
+<p>在 Claude Code 中，子任务完成通知会带上 <code>total_tokens</code> 与 <code>duration_ms</code>，要立即保存，因为它们不会持久化到别处。<span class="prov-mark prov-src">[源站]</span></p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 没有基线，就无法判断技能是否真的有价值。模型本身可能已经能完成 60% 的任务，技能把它提升到 80%，这是有价值的；如果无技能也能达到 80%，技能可能只是增加了成本。基线还可以帮助你区分“技能变好”与“模型这次状态好”。每次比较都应在相同模型、相同输入、相同运行次数下进行；否则差异无法归因。对照不是形式，而是判断收益的唯一方法。</p>
+<h2 id="assertions">断言：把“好”拆成可检查的句子</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 断言是对输出应包含或达成什么的<strong>可验证陈述</strong>。来源建议先看第一轮输出，再写断言——你往往在看到结果之前，并不知道“好”具体长什么样。</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>强断言</th><th>弱断言</th><th>原因</th></tr></thead>
+  <tbody>
+    <tr><td>输出文件是合法 JSON</td><td>输出很好</td><td>前者可程序化验证，后者无法评分</td></tr>
+    <tr><td>柱状图有带标签的坐标轴</td><td>图表使用精确短语 “Total Revenue: $X”</td><td>前者具体可观察；后者过于脆弱，正确但措辞不同的输出会失败</td></tr>
+    <tr><td>报告至少包含 3 条建议</td><td>报告看起来专业</td><td>前者可计数，后者依赖主观印象</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>不是所有质量都能拆成断言。写作风格、视觉设计、“感觉对不对”更适合人工评审。断言留给能客观检查的东西。<span class="prov-mark prov-src">[源站]</span></p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 写断言时，先问“这条能不能由另一个人从输出中检查”。能，就写成可观察的陈述；不能，就交给人工评审。断言不应该依赖模型的自我评价，也不应该要求特定措辞，除非措辞本身就是业务要求。一个用例的断言不必覆盖所有质量维度：机械检查用脚本，结构检查用计数，语义质量用人工或盲评。分工清楚，评分才稳定。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="grading">评分：PASS / FAIL 加证据</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 逐条评估断言，记录 PASS 或 FAIL，并附<strong>具体证据</strong>：引用输出内容或指出文件，而不是只给结论。</p>
+
+<pre><code>{
+  "assertion_results": [
+    { "text": "The output includes a bar chart image file", "passed": true,
+      "evidence": "Found chart.png (45KB) in outputs directory" },
+    { "text": "Both axes are labeled", "passed": false,
+      "evidence": "Y-axis is labeled 'Revenue ($)' but X-axis has no label" }
+  ],
+  "summary": { "passed": 3, "failed": 1, "total": 4, "pass_rate": 0.75 }
+}</code></pre>
+
+<p><span class="prov-mark prov-src">[源站]</span> 评分原则：<strong>PASS 必须有具体证据</strong>，不要给“情有可原”的通过；一个标题叫“Summary”但只有一句空话的小节，应判 FAIL。同时复查断言本身：太容易（总是通过）、太难（总是失败）、无法从输出验证的，都要在下一轮修正。（<a href="https://agentskills.io/skill-creation/evaluating-skills.md#grading-outputs">evaluating-skills.md</a>）</p>
+
+<p><span class="prov-mark prov-src">[源站]</span> 机械性检查（JSON 合法、行数正确、文件存在）优先用脚本，而不是让 LLM 判断；脚本更可靠，也能跨轮复用。主观质量可以用“盲评”：把两个版本的输出匿名交给评审者，不告知来源，减少偏见。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> PASS 必须附证据，是为了防止“看起来差不多”被当成通过。证据可以是文件路径、输出片段、计数结果或截图；关键是别人能根据证据复核。FAIL 也要写清缺什么，否则下一轮不知道该修技能还是修断言。评分时还要复查断言本身：如果一条断言无论有无技能都通过，它没有区分度；如果无论怎么改都失败，可能断言写错了。评分不是给模型打分，而是给“技能是否解决了一个具体问题”提供证据。</p>
+<h2 id="benchmark">汇总：通过率、时间、token 与差值</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 每轮结束后，按配置汇总统计，写入 <code>benchmark.json</code>：</p>
+
+<pre><code>{
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": { "mean": 0.83, "stddev": 0.06 },
+      "time_seconds": { "mean": 45.0, "stddev": 12.0 },
+      "tokens": { "mean": 3800, "stddev": 400 }
+    },
+    "without_skill": {
+      "pass_rate": { "mean": 0.33, "stddev": 0.10 },
+      "time_seconds": { "mean": 32.0, "stddev": 8.0 },
+      "tokens": { "mean": 2100, "stddev": 300 }
+    },
+    "delta": { "pass_rate": 0.50, "time_seconds": 13.0, "tokens": 1700 }
+  }
+}</code></pre>
+
+<p>差值告诉你技能的成本与收益：多花 13 秒、通过率提升 50 个百分点，通常值得；token 翻倍但只提升 2 个百分点，可能不值得。早期用例少时，先看原始通过数与差值，标准差在样本扩大后才更有意义。<span class="prov-mark prov-src">[源站]</span></p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 汇总时不要只报一个平均通过率。至少要分开报告有技能/无技能、每个用例的通过情况、以及 token 与耗时。平均值会掩盖极端值：一个用例从 0 到 1，另一个从 1 到 0，平均可能不变，但技能的实际价值完全不同。把每个用例的变化列出来，才能看到技能在哪些场景有效、哪些场景无效。成本也要分用例看，异常值往往指向某个具体步骤的低效。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="patterns">看模式，而不是只看总数</h2>
+
+<ul>
+  <li><strong>两边都总是通过的断言</strong>：没有信息量，模型不用技能也能做；删掉或替换，否则会虚高“有技能”的通过率。</li>
+  <li><strong>两边都总是失败的断言</strong>：断言本身有错、用例太难，或检查了错误的东西；下一轮前修复。</li>
+  <li><strong>有技能通过、无技能失败的断言</strong>：技能真正增值的地方。弄清楚是哪条指令或脚本起了作用。</li>
+  <li><strong>同一条用例时过时不过（高标准差）</strong>：可能是不稳定用例，也可能是指令歧义导致模型每次理解不同；加示例或更具体的指导。</li>
+  <li><strong>时间/token 异常值</strong>：某条用例耗时是其他三倍，去读完整执行记录找瓶颈。</li>
+</ul>
+
+<p><span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/evaluating-skills.md#analyzing-patterns">evaluating-skills.md</a>）</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 模式分析的目标是“找到技能真正增值的地方”。“有技能通过、无技能失败”的断言最有价值，它说明某条指令或脚本改变了结果；追查是哪一条，能帮你保留有效内容、删掉无效内容。“两边都通过”的断言没有区分度，应该删掉或换成更难的边界；“两边都失败”的断言可能是断言本身有问题，也可能是任务超出当前能力。不要为了让报告好看而保留无信息量的断言。</p>
+<h2 id="human">人工评审不可省</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 断言只能检查你想到的东西。人工评审能发现：技术上正确但没抓住重点、格式合规但不可用、以及难以表达为 pass/fail 的质量问题。逐用例看实际输出与评分，记录具体反馈：</p>
+
+<pre><code>{
+  "eval-top-months-chart": "The chart is missing axis labels and the months are in alphabetical order instead of chronological.",
+  "eval-clean-missing-emails": ""
+}</code></pre>
+
+<p>“缺少轴标签”是可行动的反馈；“看起来不好”不是。空字符串表示该用例通过人工评审。<span class="prov-mark prov-src">[源站]</span></p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 人工评审要带着具体问题看输出：它是否解决了用户的真实目标？结构是否让读者能快速找到答案？有没有技术上正确但业务上不可用的地方？反馈要写成可修改的句子，例如“图表缺少单位，无法判断量级”，而不是“看起来一般”。评审者不需要重写技能，只需要指出“哪里不满足预期、为什么”。这些反馈会和失败断言、执行轨迹一起，成为下一轮修改的输入。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="iterate">迭代：三类信号，四条原则</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 三类信号：<strong>失败断言</strong>指向具体缺口；<strong>人工反馈</strong>指向更广的质量问题；<strong>执行记录</strong>揭示为什么——指令被忽略可能是歧义，浪费步骤可能是指令该删。</p>
+
+<p><span class="prov-mark prov-src">[源站]</span> 把三类信号连同当前 SKILL.md 交给 LLM，请它提出修改。来源给出的四条原则：</p>
+
+<ol>
+  <li><strong>从反馈中泛化。</strong> 技能会在许多不同提示上使用，修复应针对底层问题，而不是给具体例子打补丁。</li>
+  <li><strong>保持精简。</strong> 更少、更好的指令往往胜过大而全；如果加了规则通过率仍不升，可能是过度约束，试着删。</li>
+  <li><strong>解释原因。</strong> “做 X，因为 Y 容易导致 Z”比“永远做 X、绝不 Y”更容易被稳定遵循。</li>
+  <li><strong>打包重复工作。</strong> 如果每次运行都在重写同一段辅助逻辑（画图、解析、校验），把它写成脚本放进 <code>scripts/</code>。</li>
+</ol>
+
+<p>循环：提出改进 → 应用 → 在新 <code>iteration-N+1/</code> 重跑全部用例 → 评分汇总 → 人工评审 → 重复。当结果满意、反馈持续为空，或不再有实质提升时停止。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/evaluating-skills.md#iterating-on-the-skill">evaluating-skills.md</a>）</p>
+
+<div class="keybox">
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>评估用例 = 提示 + 预期输出 +（可选）输入文件；每例跑有/无技能两遍。</li>
+    <li>断言要可验证、可计数、不过度依赖措辞；PASS 必须附证据。</li>
+    <li>看通过率差值、成本差值与失败模式；按底层问题改，不要给个例打补丁。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 判断断言强弱：（A）输出包含一个 CSV 文件；（B）输出令人满意；（C）摘要不超过 200 字。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> A 强（文件存在且扩展名可查）；B 弱（无法评分）；C 强（可计数，但需确认“不超过”是硬要求）。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 为“会议纪要转行动项”写 3 个评估用例（含 1 个边界），每个至少 2 条断言。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 边界可以是“会议中没有明确负责人”或“录音含两人重叠发言”。断言示例：“输出包含负责人列”“无负责人时写‘待定’而非编造姓名”“行动项数量与记录中的决策数一致”。断言应可从输出直接检查。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 设计一次两轮迭代：第一轮 3 个用例，第二轮扩展到 6 个；给出 benchmark 表头、停止条件，并说明如何处理“两边都通过”的断言。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../04-trigger-eval/e2-trigger-eval.html"><span>上一页</span><strong>触发评估：用查询集调准 description</strong></a>
+      <a class="pager-next" href="../05-tutorials/t1-roll-dice.html"><span>下一页</span><strong>教程 1：20 分钟做出第一个 Skill（roll-dice）</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

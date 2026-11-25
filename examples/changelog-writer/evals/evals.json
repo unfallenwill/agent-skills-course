@@ -1,0 +1,36 @@
+{
+  "skill_name": "changelog-writer",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "写 v2.4.0 的更新日志，范围是 v2.3.1..v2.4.0。里面有一个删除 /v1/users 接口的破坏性变更。",
+      "expected_output": "按 Features / Improvements / Fixes / Breaking changes 分组的更新日志；破坏性变更条目说明旧接口、新接口与迁移步骤。",
+      "assertions": [
+        "输出包含四个分组标题（无内容的组可写 None）",
+        "Breaking changes 条目提到 /v1/users 与 /v2/users",
+        "Breaking changes 条目包含迁移步骤",
+        "没有出现内部工单号或人员姓名"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "上次发布以来都改了啥？随便说说就行，不用太正式。",
+      "expected_output": "仍然按结构输出用户可见变更，而不是散乱的提交列表；范围不明确时询问上次发布的标签。",
+      "assertions": [
+        "输出按功能/改进/修复分类",
+        "每条以动词开头且面向用户结果",
+        "若无法确定范围，明确询问而不是编造版本号"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "这周只有 chore: 升级依赖、test: 补充用例、docs: 修错别字，帮我写更新日志。",
+      "expected_output": "明确说明本次没有用户可见变更，不编造功能条目。",
+      "assertions": [
+        "输出明确写“无用户可见变更”或等价表述",
+        "没有把 chore/test/docs 提交包装成 Features",
+        "没有编造不存在的功能或修复"
+      ]
+    }
+  ]
+}

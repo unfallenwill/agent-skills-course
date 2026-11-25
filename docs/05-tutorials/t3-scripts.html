@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>教程 3：打包 scripts/ 并建立验证循环 · Agent Skills 课程</title>
+  <meta name="description" content="给 Skill 配一个无依赖的 Node.js 脚本，让它输出结构化结果、用退出码报告失败，并把“运行—检查—修复—重跑”写进指令。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html" class="current" aria-current="page">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#goal">目标与前置</a></li>
+        <li><a href="#step1">步骤 1：创建目录并写入 SKILL.md</a></li>
+        <li><a href="#step2">步骤 2：写入脚本</a></li>
+        <li><a href="#step3">步骤 3：写入样例</a></li>
+        <li><a href="#step4">步骤 4：运行并对照预期</a></li>
+        <li><a href="#step5">步骤 5：验证失败路径</a></li>
+        <li><a href="#step6">步骤 6：用 Agent 跑一遍</a></li>
+        <li><a href="#expected">预期结果</a></li>
+        <li><a href="#checkpoint">检查点</a></li>
+        <li><a href="#loop">验证循环为什么写在技能里</a></li>
+        <li><a href="#errors">常见错误</a></li>
+        <li><a href="#takeaway">你刚刚建立了什么</a></li>
+        <li><a href="#if-error">如果出错了</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><a href="../05-tutorials/t1-roll-dice.html">动手教程</a><span aria-hidden="true">/</span><span>教程 3</span></p>
+      <p class="stage-badge">S3 写出好内容</p>
+      <h1>教程 3：打包 scripts/ 并建立验证循环</h1>
+      <p class="lead">给 Skill 配一个无依赖的 Node.js 脚本，让它输出结构化结果、用退出码报告失败，并把“运行—检查—修复—重跑”写进指令。</p>
+      <p class="page-meta">阶段：S3 写出好内容 · 建议 50 分钟 · 先修：教程 2；本机有 Node.js 18+</p>
+      <article class="content">
+<p class="lead">当 Agent 每次都要重新写同一段解析逻辑时，结果会随模型状态波动。把这段逻辑固化成脚本，是让技能稳定下来的最有效办法。这一课还会建立“运行—检查—修复—重跑”的验证循环。</p>
+
+<h2 id="goal">目标与前置</h2>
+
+<p>我们要做一个 <code>csv-profile</code> 技能：在分析 CSV 之前，先输出行数、列数、缺失值与数值摘要。解析、统计、错误处理都放进一个零依赖的 Node.js 脚本；SKILL.md 只负责流程、默认规则与验证要求。</p>
+
+<ul>
+  <li><strong>前置：</strong>完成教程 2；本机有 Node.js 18 或更高版本（<code>node --version</code> 可查看）。</li>
+  <li><strong>预计时间：</strong>50 分钟。</li>
+  <li><strong>预期结果：</strong>脚本在样例上输出 <code>rows=4</code>、<code>amount.mean=1176.67</code>；畸形 CSV 以退出码 4 失败；Agent 会先运行脚本再汇报。</li>
+</ul>
+
+<div class="callout">
+  <p class="callout-title">为什么用 Node 而不是 Python</p>
+  <p>来源支持 Python、Bash、JavaScript 等语言，选择取决于运行环境。本课选 Node，是因为它零第三方依赖、跨平台，且你通常已经为其他工具装过。真实项目中应按团队环境选择，并把要求写进 <code>compatibility</code>。</p>
+</div>
+
+<h2 id="step1">步骤 1：创建目录并写入 SKILL.md</h2>
+
+<div class="callout">
+  <p class="callout-title">Windows 命令提示</p>
+  <p>下面的 <code>mkdir -p</code>、<code>printf</code>、<code>echo $?</code> 是 Unix / Git Bash 写法。PowerShell 可用 <code>New-Item -ItemType Directory -Force</code> 创建目录；生成坏样例可用 <code>Set-Content -Path bad.csv -Value "a,b`n1"</code>；查看退出码用 <code>$LASTEXITCODE</code>。也可以手动创建文件，只需保证内容相同。</p>
+</div>
+
+<pre><code>mkdir -p .agents/skills/csv-profile/scripts
+mkdir -p .agents/skills/csv-profile/assets
+</code></pre>
+
+<p>创建 <code>.agents/skills/csv-profile/SKILL.md</code>：</p>
+
+<pre><code>---
+name: csv-profile
+description: Profile a CSV file before analysis — row and column counts, missing values, duplicate headers, and numeric summaries. Use when the user asks to inspect, sanity-check, or summarize a CSV or tabular file.
+compatibility: Requires Node.js 18+ and a local shell.
+---
+
+## 何时使用 / 不适用
+
+当用户要在分析前检查 CSV 结构、缺失与数值分布时使用。不适用于清洗数据、修改文件或处理 Excel 工作簿。
+
+## 参考文件
+
+当需要解释输出字段、缺失值口径或退出码时，读 `references/profile-output.md`，按其中的 schema 与错误码说明汇报。
+
+# CSV Profile
+
+## 流程
+
+1. 运行 `node scripts/profile.js &lt;file&gt;`。
+2. 若退出码非 0，读 stderr 并在报告中说明；不要继续分析部分数据。
+3. 检查 `rows` 与 `columns` 是否合理；`rows` 为 0 时直接报告空文件并停止。
+4. 用下方模板报告；必须包含 missing 与 numeric 摘要。
+5. 若某列含货币符号、百分号或千分位逗号，说明它未被识别为数值，需要先清洗。
+
+## 输出模板
+
+```markdown
+## 数据概览
+- 文件：&lt;path&gt;
+- 行数：&lt;rows&gt;，列数：&lt;columns&gt;
+- 列名：&lt;headers&gt;
+
+## 缺失值
+- &lt;column&gt;：&lt;missing&gt;
+
+## 数值列摘要
+- &lt;column&gt;：min=&lt;min&gt;，max=&lt;max&gt;，mean=&lt;mean&gt;
+
+## 注意事项
+- 未识别为数值的列及原因
+```
+
+## 验证循环
+
+1. 在 `assets/sample.csv` 上运行，期望 `rows=4`、`columns=4`、`amount.mean=1176.67`。
+2. 若不一致，核对脚本版本与输入文件；不要修改期望值来迁就输出。
+3. 失败路径：用缺列文件运行，应退出码 4，且 stderr 包含行号与期望字段数。
+
+## Gotchas
+
+- 脚本按 UTF-8 读取。GBK 文件会得到乱码，先用编辑器或 `iconv` 转成 UTF-8。
+- 重复列名会直接以退出码 4 拒绝。不要重命名后静默继续，先让用户确认。
+- 只有纯数字（如 `1200`、`-3.5`）会被识别为数值；`$1,200`、`15%` 不会，需先清洗。
+- 行尾多一个逗号会产生一个空字段，并被计为缺失值；这通常是导出问题，不是真实缺失。
+
+## Scripts
+
+- `scripts/profile.js` — 输出 JSON 概要；`--format csv` 输出逐列摘要；`--help` 查看用法与退出码。</code></pre>
+
+<p>注意三个设计点：</p>
+
+<ul>
+  <li><strong>流程第 2 步</strong>规定退出码非 0 时停止，避免“带着错误数据继续分析”。</li>
+  <li><strong>输出模板</strong>给出固定结构，而不是用文字描述“报告应清晰”。</li>
+  <li><strong>验证循环</strong>给出可对照的期望值（4 行、4 列、均值 1176.67），以及失败路径。</li>
+</ul>
+
+<h2 id="step2">步骤 2：写入脚本</h2>
+
+<p>创建 <code>.agents/skills/csv-profile/scripts/profile.js</code>。这是一个完整的、无第三方依赖的 Node.js 脚本：</p>
+
+<pre><code>#!/usr/bin/env node
+// 零依赖 CSV 概要分析器，供 Agent 在技能中调用。
+// 用法：node scripts/profile.js FILE [--format json|csv]
+'use strict';
+
+const fs = require('fs');
+
+const USAGE = `Usage: node scripts/profile.js FILE [--format json|csv]
+
+Profile a CSV file: row/column counts, missing values, numeric summaries.
+
+Options:
+  --format FORMAT   Output format: json (default) or csv
+  --help            Show this help and exit
+
+Exit codes:
+  0  success
+  2  invalid arguments
+  3  file not found
+  4  malformed CSV (unclosed quote, duplicate header, ragged rows)
+`;
+
+function fail(message, code) {
+  console.error(`Error: ${message}`);
+  if (code === 2) console.error(USAGE);
+  process.exit(code);
+}
+
+function parseArgs(argv) {
+  let file = null;
+  let format = 'json';
+  for (let i = 0; i &lt; argv.length; i++) {
+    const arg = argv[i];
+    if (arg === '--help' || arg === '-h') {
+      process.stdout.write(USAGE);
+      process.exit(0);
+    } else if (arg === '--format') {
+      format = argv[++i];
+      if (format !== 'json' &amp;&amp; format !== 'csv') {
+        fail(`--format must be json or csv. Received: "${format}"`, 2);
+      }
+    } else if (arg.startsWith('-')) {
+      fail(`Unknown option: ${arg}`, 2);
+    } else if (!file) {
+      file = arg;
+    } else {
+      fail(`Expected one input file, got extra argument: ${arg}`, 2);
+    }
+  }
+  if (!file) fail('FILE is required.', 2);
+  return { file, format };
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+  for (let i = 0; i &lt; text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else {
+        field += ch;
+      }
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === ',') {
+      row.push(field); field = '';
+    } else if (ch === '\n') {
+      row.push(field); rows.push(row); row = []; field = '';
+    } else if (ch === '\r') {
+      if (text[i + 1] !== '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+    } else {
+      field += ch;
+    }
+  }
+  if (inQuotes) fail('Unclosed quoted field in CSV.', 4);
+  row.push(field);
+  rows.push(row);
+  if (rows.length &amp;&amp; rows[rows.length - 1].length === 1 &amp;&amp; rows[rows.length - 1][0] === '') rows.pop();
+  return rows;
+}
+
+function isMissing(value) {
+  const v = value.trim();
+  return v === '' || v === 'NULL' || v === 'null' || v === 'NA';
+}
+
+function main() {
+  const { file, format } = parseArgs(process.argv.slice(2));
+
+  let raw;
+  try {
+    raw = fs.readFileSync(file, 'utf8');
+  } catch (err) {
+    if (err.code === 'ENOENT') fail(`File not found: ${file}`, 3);
+    fail(`Cannot read ${file}: ${err.message}`, 3);
+  }
+
+  raw = raw.replace(/^\uFEFF/, '');
+  if (!raw.trim()) fail(`File is empty: ${file}`, 4);
+
+  const rows = parseCsv(raw);
+  const headers = rows[0].map(h =&gt; h.trim());
+  if (headers.length === 0 || headers.every(h =&gt; h === '')) fail('Header row is empty.', 4);
+
+  const seen = new Set();
+  headers.forEach(h =&gt; {
+    if (seen.has(h)) fail(`Duplicate header: "${h}". Rename columns before profiling.`, 4);
+    seen.add(h);
+  });
+
+  const body = rows.slice(1);
+  body.forEach((r, idx) =&gt; {
+    if (r.length !== headers.length) {
+      fail(`Row ${idx + 2} has ${r.length} field(s), expected ${headers.length}.`, 4);
+    }
+  });
+
+  const missing = {};
+  const numeric = {};
+  headers.forEach((header, col) =&gt; {
+    const values = body.map(r =&gt; r[col]);
+    missing[header] = values.filter(isMissing).length;
+    const present = values.filter(v =&gt; !isMissing(v));
+    if (present.length &gt; 0 &amp;&amp; present.every(v =&gt; Number.isFinite(Number(v)))) {
+      const nums = present.map(Number);
+      const sum = nums.reduce((a, b) =&gt; a + b, 0);
+      numeric[header] = {
+        min: Math.min(...nums),
+        max: Math.max(...nums),
+        mean: Number((sum / nums.length).toFixed(2))
+      };
+    }
+  });
+
+  const result = {
+    ok: true,
+    file,
+    rows: body.length,
+    columns: headers.length,
+    headers,
+    missing,
+    numeric
+  };
+
+  if (format === 'json') {
+    process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+  } else {
+    process.stdout.write('column,missing,numeric_min,numeric_max,numeric_mean\n');
+    headers.forEach(h =&gt; {
+      const n = numeric[h];
+      process.stdout.write([h, missing[h], n ? n.min : '', n ? n.max : '', n ? n.mean : ''].join(',') + '\n');
+    });
+  }
+}
+
+main();</code></pre>
+
+<p>它刻意做了几件事，都是为了“被 Agent 调用”而不是“被人交互使用”：</p>
+
+<ul>
+  <li>所有输入来自命令行；没有 <code>readline</code>、没有确认提示。</li>
+  <li><code>--help</code> 说明用法、选项与<strong>每一个退出码</strong>。</li>
+  <li>数据（JSON/CSV）走 stdout，诊断与错误走 stderr。</li>
+  <li>参数错误返回 2，文件不存在返回 3，CSV 畸形返回 4；错误信息说明“错在哪、期望什么”。</li>
+  <li>输出是结构化 JSON，字段名稳定，便于 Agent 读取或再用 <code>jq</code> 处理。</li>
+</ul>
+
+<h2 id="step3">步骤 3：写入样例</h2>
+
+<p>创建 <code>.agents/skills/csv-profile/assets/sample.csv</code>：</p>
+
+<pre><code>date,region,amount,note
+2025-01-05,华东,1200,
+2025-01-12,华北,980,补录
+2025-01-19,华东,,加急
+2025-01-26,华南,1350,"含税,已开票"</code></pre>
+
+<p>这份样例故意包含一个缺失金额、一个带逗号的引号字段，以及行尾空字段，用来检验解析与缺失统计。</p>
+
+<h2 id="step4">步骤 4：运行并对照预期</h2>
+
+<pre><code>node .agents/skills/csv-profile/scripts/profile.js .agents/skills/csv-profile/assets/sample.csv
+</code></pre>
+
+<p>预期输出（节选）：</p>
+
+<pre><code>{
+  "ok": true,
+  "file": ".agents/skills/csv-profile/assets/sample.csv",
+  "rows": 4,
+  "columns": 4,
+  "headers": ["date", "region", "amount", "note"],
+  "missing": { "date": 0, "region": 0, "amount": 1, "note": 1 },
+  "numeric": {
+    "amount": { "min": 980, "max": 1350, "mean": 1176.67 }
+  }
+}
+</code></pre>
+
+<p>再试 CSV 摘要格式：</p>
+
+<pre><code>node .agents/skills/csv-profile/scripts/profile.js .agents/skills/csv-profile/assets/sample.csv --format csv
+</code></pre>
+
+<pre><code>column,missing,numeric_min,numeric_max,numeric_mean
+date,0,,,
+region,0,,,
+amount,1,980,1350,1176.67
+note,1,,,
+</code></pre>
+
+<h2 id="step5">步骤 5：验证失败路径</h2>
+
+<p>好消息路径容易测，坏消息路径才是脚本价值的来源。创建一个缺列文件：</p>
+
+<pre><code>printf 'a,b\n1\n' &gt; /tmp/bad.csv
+node .agents/skills/csv-profile/scripts/profile.js /tmp/bad.csv
+echo "exit=$?"
+</code></pre>
+
+<p>预期：</p>
+
+<pre><code>Error: Row 2 has 1 field(s), expected 2.
+exit=4
+</code></pre>
+
+<p>Agent 拿到这条错误后，能判断是输入问题而不是脚本崩溃，并可以告诉用户“第 2 行少一列”。这比一个堆栈跟踪有用得多。</p>
+
+<h2 id="step6">步骤 6：用 Agent 跑一遍</h2>
+
+<p>在支持技能的环境中，让 Agent 处理：</p>
+
+<pre><code>先帮我看看 .agents/skills/csv-profile/assets/sample.csv 的数据质量，别急着分析。
+</code></pre>
+
+<p>预期行为：Agent 激活 <code>csv-profile</code>，运行脚本，然后按模板报告行数、列数、缺失值与数值摘要。展开工具记录，应该能看到它执行了 <code>node .../scripts/profile.js</code>，而不是自己用肉眼读 CSV。</p>
+
+<h2 id="expected">预期结果</h2>
+<p>预期结果是脚本成为可重复的确定性组件：正常输入返回结构化 JSON，错误输入以非零码失败并给出可操作信息，Agent 先运行再汇报。</p>
+<h2 id="checkpoint">检查点</h2>
+<p>先直接运行脚本，确认 happy path 与 bad path；再让 Agent 执行同一任务，确认它调用了脚本而不是凭肉眼读 CSV。两者都通过，才算完成。</p>
+<div class="checkpoint">
+  <span class="cp-label">CHECKPOINT</span>
+  <ol>
+    <li><code>node --version</code> 显示 ≥18。</li>
+    <li><code>node .agents/skills/csv-profile/scripts/profile.js .agents/skills/csv-profile/assets/sample.csv</code> 退出码为 0，输出含 <code>"rows": 4</code>、<code>"columns": 4</code>、<code>"mean": 1176.67</code>。</li>
+    <li>同一命令加 <code>--format csv</code>，首行为 <code>column,missing,numeric_min,numeric_max,numeric_mean</code>。</li>
+    <li>畸形文件命令输出 <code>Error: Row 2 has 1 field(s), expected 2.</code>，且 <code>echo $?</code> 为 4。</li>
+    <li><code>node scripts/profile.js --help</code> 列出 <code>--help</code>、<code>--format</code> 与四个退出码。</li>
+    <li>Agent 提示后实际执行脚本，并在报告中包含缺失值与数值摘要。</li>
+  </ol>
+</div>
+
+<h2 id="loop">验证循环为什么写在技能里</h2>
+
+<p>脚本本身不会自动保证结果正确，需要在 SKILL.md 里要求 Agent 对照期望值检查：</p>
+
+<pre><code>## 验证循环
+
+1. 在 assets/sample.csv 上运行，期望 rows=4、columns=4、amount.mean=1176.67。
+2. 若不一致，核对脚本版本与输入文件；不要修改期望值来迁就输出。
+3. 失败路径：用缺列文件运行，应退出码 4，且 stderr 包含行号与期望字段数。
+</code></pre>
+
+<p>第 2 步的“不要修改期望值来迁就输出”很关键。没有这句话，模型可能把断言改成通过，而不是修复问题。这与来源强调的“验证失败时读错误、修复、重跑”一致。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#validation-loops">best-practices.md</a>）</p>
+
+<h2 id="errors">常见错误</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>错误</th><th>表现</th><th>修复</th></tr></thead>
+  <tbody>
+    <tr><td>脚本等待输入</td><td>Agent 运行后一直挂起</td><td>改成命令行参数，提供默认值与明确报错</td></tr>
+    <tr><td>把日志混进 stdout</td><td>JSON 无法解析，<code>jq</code> 报错</td><td>数据走 stdout，日志走 stderr</td></tr>
+    <tr><td>失败也返回 0</td><td>Agent 以为成功，继续处理空结果</td><td>用非零退出码区分参数、文件、格式错误</td></tr>
+    <tr><td>错误信息只有堆栈</td><td>Agent 无法判断下一步</td><td>说明错在哪、期望什么、怎么修</td></tr>
+    <tr><td>正文写相对路径，但 Agent 不在技能目录运行</td><td>找不到文件</td><td>脚本接受显式路径；正文用技能根目录相对路径并说明基准</td></tr>
+    <tr><td>没有验证步骤</td><td>脚本改坏了也没人发现</td><td>在 SKILL.md 写期望值与失败路径</td></tr>
+    <tr><td>GBK 文件按 UTF-8 读</td><td>中文变乱码，列名异常</td><td>在 Gotchas 说明先转码，或在脚本中显式检测</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="takeaway">你刚刚建立了什么</h2>
+
+<ul>
+  <li>一个可执行的确定性组件（脚本），加上一段描述“何时运行、如何判断成功”的指令。</li>
+  <li>一个失败可诊断的接口：退出码、stderr、行号、期望值。</li>
+  <li>一个验证循环：期望值固定，失败时修问题而不是改期望。</li>
+</ul>
+
+<h2 id="if-error">如果出错了</h2>
+<p>下面按“症状—原因—修复”列出最常见的三类问题。先定位症状，再检查原因，不要同时改多个地方；每次只改一处，重跑同一检查点。</p>
+<div class="table-wrap"><table><thead><tr><th>症状</th><th>可能原因</th><th>修复</th></tr></thead><tbody><tr><td>运行后一直挂起</td><td>脚本里有 input()、readline 或确认提示</td><td>改为命令行参数；缺少参数时直接报错退出</td></tr><tr><td>JSON 无法解析</td><td>日志、进度或警告写进了 stdout</td><td>数据走 stdout，诊断走 stderr</td></tr><tr><td>坏输入也返回 0</td><td>没有设置非零退出码</td><td>按参数/文件/格式错误分别返回 2/3/4，并写进 --help</td></tr></tbody></table></div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p>运行 <code>--help</code>，把四个退出码及含义抄下来，并说明为什么不能用统一的 1。</p>
+      <details><summary>提示与自检</summary><p>0 成功、2 参数错误、3 文件不存在、4 格式错误。统一 1 会让 Agent 无法区分“我传错了参数”“路径不对”“数据有问题”，也就无法选择正确的恢复动作。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p>回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p>合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p>给脚本加一个 <code>--max-cols N</code>：列数超过 N 时只输出前 N 列，并在 JSON 中标记 <code>truncated: true</code>。写出参数解析、错误处理与验证方法。</p>
+      <details><summary>提示与自检</summary><p>需处理 N 非数字、N≤0（退出码 2），输出中保留 <code>columns</code> 原始值并标记截断。验证：用 4 列样例加 <code>--max-cols 2</code>，确认 headers 长度 2、truncated 为 true、columns 仍为 4。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p>把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p>两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p>把脚本改成“编码自动检测”：先按 UTF-8 读，若出现替换字符则尝试 GBK。要求不引入第三方依赖，并说明如何在 Node 中实现 GBK 解码、以及失败时的退出码。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../05-tutorials/t2-references.html"><span>上一页</span><strong>教程 2：用 references/ 给 Skill 减负</strong></a>
+      <a class="pager-next" href="../05-tutorials/t4-description-eval.html"><span>下一页</span><strong>教程 4：写 3 个评估用例并调好 description</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

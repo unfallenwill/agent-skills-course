@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>关于本课程 · Agent Skills 课程</title>
+  <meta name="description" content="课程目标、目标读者、教学设计、技术实现、已知限制与使用许可。">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+  <script>window.SITE_ROOT = "";</script>
+  <script src="assets/search-index.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="index.html">首页</a>
+        <a href="path.html">学习路径</a>
+        <a href="01-background/b1-agent.html">预备知识</a>
+        <a href="02-core/c1-anatomy.html">规范</a>
+        <a href="03-authoring/a1-expertise.html">设计方法</a>
+        <a href="04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="06-cases/case1-pdf-forms.html">案例</a>
+        <a href="07-capstone.html">毕业项目</a>
+        <a href="glossary.html">术语表</a>
+        <a href="index-all.html" class="current" aria-current="page">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#goals">课程目标</a></li>
+        <li><a href="#audience">适合谁</a></li>
+        <li><a href="#design">教学设计</a></li>
+        <li><a href="#provenance">来源与诚实性</a></li>
+        <li><a href="#tech">技术实现</a></li>
+        <li><a href="#limitations">已知限制</a></li>
+        <li><a href="#usage">使用与许可</a></li>
+        <li><a href="#feedback">如何继续</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>参考资料</span><span aria-hidden="true">/</span><span>关于</span></p>
+      <p class="stage-badge">参考</p>
+      <h1>关于本课程</h1>
+      <p class="lead">课程目标、目标读者、教学设计、技术实现、已知限制与使用许可。</p>
+      <p class="page-meta">阶段：参考 · 建议 8 分钟</p>
+      <article class="content">
+<p class="lead">这是一套独立编写的中文课程，目标是把“会写 SKILL.md”提升为“能判断什么样的 Skill 值得写、能被可靠触发、能被验证和维护”。</p>
+
+<h2 id="goals">课程目标</h2>
+
+<ul>
+  <li>让没有 AI 工程背景的读者理解 Agent、工具调用、上下文与渐进披露。</li>
+  <li>准确讲清 Agent Skills 的格式规范，不把“建议”写成“硬性要求”，不把客户端行为写成规范。</li>
+  <li>训练可迁移的设计判断：范围、上下文经济、控制校准、触发、验证。</li>
+  <li>通过四个教程与三个案例，让读者完成从模仿到独立交付的过渡。</li>
+  <li>提供一个可打印的检查清单与 100 分评分表，使自我评估和同行评审有共同标准。</li>
+</ul>
+
+<h2 id="audience">适合谁</h2>
+
+<div class="stage-card-grid">
+  <article class="card">
+    <h3>适合</h3>
+    <ul>
+      <li>第一次接触 Agent Skills，希望系统入门的产品、运营、设计、工程人员。</li>
+      <li>已经能写提示词，但想把重复流程固化成可维护资产的人。</li>
+      <li>需要在团队内推广技能库、制定评审标准的负责人。</li>
+    </ul>
+  </article>
+  <article class="card">
+    <h3>不完全适合</h3>
+    <ul>
+      <li>想直接学习某个客户端内部实现细节的读者；课程只讲到生命周期与加载机制。</li>
+      <li>寻找现成技能市场或安装包的读者；课程不提供技能分发服务。</li>
+      <li>希望零阅读、只看代码的读者；设计判断需要文字说明。</li>
+    </ul>
+  </article>
+</div>
+
+<h2 id="design">教学设计</h2>
+
+<ol>
+  <li><strong>五阶段路径。</strong> 认知准备 → 读懂规范 → 写出好内容 → 触发与评估 → 交付与迁移。每阶段有进入/离开状态、先修、时间、页面与可观察能力。</li>
+  <li><strong>四种来源标注。</strong> <span class="prov-mark prov-src">[源站]</span>、<span class="prov-mark prov-norm">[规范]</span>、<span class="prov-mark prov-ext">[外部: URL]</span>、<span class="prov-mark prov-course">[本课程观点]</span>。读者可以随时区分来源事实、规范、外部背景与教学框架。</li>
+  <li><strong>每模块三级练习。</strong> 基础 / 进阶 / 挑战，均附提示或参考答案要点，便于自检。</li>
+  <li><strong>从短到长。</strong> 教程 1 只有 20 行；教程 2 引入 references；教程 3 引入 scripts 与验证循环；教程 4 引入评估。每次只增加一种结构。</li>
+  <li><strong>案例覆盖不同领域。</strong> 文档处理、代码评审、数据分析，展示同一套方法在不同风险结构下的调整。</li>
+  <li><strong>毕业项目。</strong> 真实任务、完整交付、评分表与反模式清单，强调证据而非印象。</li>
+</ol>
+
+<h2 id="provenance">来源与诚实性</h2>
+
+<p>课程以 agentskills.io 的九个页面为主要依据，检索日期 2026-11-25。完整 URL、每页覆盖内容、外部补充资料与“哪些不是来源”都列在<a href="sources.html">来源页</a>。我们不做以下事情：</p>
+
+<ul>
+  <li>不虚构规范字段、章节名、限制值或引文。</li>
+  <li>不把客户端实现行为写成规范要求。</li>
+  <li>不把课程的类比、时间估计、评分权重说成官方内容。</li>
+  <li>不在来源不可达时凭记忆补写。</li>
+</ul>
+
+<h2 id="tech">技术实现</h2>
+
+<ul>
+  <li><strong>纯静态：</strong>HTML5 + 一个共享 CSS + 一个共享 JS；无框架、无构建步骤、无 npm 依赖。</li>
+  <li><strong>离线可用：</strong>不加载任何外部字体、脚本、样式或图片；系统字体栈；所有资源在本地。</li>
+  <li><strong>项目子路径：</strong>所有页面与资源引用均为相对路径，可直接部署到 <code>https://用户.github.io/仓库名/</code>。</li>
+  <li><strong>搜索：</strong>预生成的 <code>assets/search-index.js</code> 加客户端过滤，不使用 <code>fetch</code>，因此 <code>file://</code> 下也可用。</li>
+  <li><strong>可访问性基础：</strong><code>lang="zh-CN"</code>、每页一个 <code>h1</code>、跳转链接、可见焦点、语义化导航；未做完整的 WCAG 审计。</li>
+  <li><strong>打印：</strong><code>@media print</code> 隐藏导航与搜索；检查清单按 A4 排版。</li>
+</ul>
+
+<h2 id="limitations">已知限制</h2>
+
+<ul>
+  <li><strong>客户端差异。</strong> 教程以 VS Code + GitHub Copilot 为主，其他客户端的目录、调用语法与日志形态可能不同。格式相同，行为不完全相同。</li>
+  <li><strong>模型差异。</strong> 工具使用可靠性因模型而异；来源本身也提示了这一点。课程中的触发通过率是方法示例，不是普遍结论。</li>
+  <li><strong>来源可能更新。</strong> 规范与最佳实践会演进；课程以检索日内容为准，不保证与未来版本一致。</li>
+  <li><strong>客户端名单不完整。</strong> 展示页为动态渲染，课程未列出具体客户端，也不声称覆盖全部生态。</li>
+  <li><strong>示例可运行性。</strong> <code>csv-profile</code> 附带完整脚本并已验证；三个案例的 SKILL.md 展示设计与流程，其中引用的业务脚本未随站点提供，不能直接运行。教程中的 roll-dice、release-notes、changelog-writer 可直接创建使用。</li>
+  <li><strong>评估规模。</strong> 教程 4 使用 6 条查询与 3 个用例，是为了在 50 分钟内走完流程；真实项目应按来源建议准备约 20 条查询并做多轮评估。</li>
+  <li><strong>搜索能力。</strong> 仅做标题、模块、关键词的子串匹配，不理解同义词；复杂查找请用<a href="index-all.html">全站索引</a>。</li>
+  <li><strong>未部署。</strong> 仓库未执行 <code>git init</code>、未推送、未启用 GitHub Pages；站点是“可部署”，不是“已上线”。</li>
+  <li><strong>翻译。</strong> 英文术语保留原文并用括号标注；个别术语的中文译法可能与其他资料不同，以术语表为准。</li>
+</ul>
+
+<h2 id="usage">使用与许可</h2>
+
+<p>课程文本与示例代码可自由用于学习、教学与内部培训；转载或再发布时请注明本课程名称与<a href="sources.html">来源页链接</a>。来源页面与第三方资料的版权归其各自作者所有；引用处以链接标注，未大段复制。</p>
+
+<p>示例技能中的组织名、版本号、字段名与数据均为虚构或通用示例，不对应任何真实组织。请勿把案例中的业务规则直接用于生产，除非你已用自己的真实流程验证。</p>
+
+<h2 id="feedback">如何继续</h2>
+
+<ol>
+  <li>按<a href="path.html">学习路径</a>完成五个阶段。</li>
+  <li>用<a href="checklist.html">检查清单</a>做提交前自检。</li>
+  <li>用<a href="07-capstone.html">毕业项目评分表</a>评审自己与他人的技能。</li>
+  <li>回到<a href="sources.html">来源页</a>核对任何你存疑的说法。</li>
+</ol>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="sources.html"><span>上一页</span><strong>来源、检索日期与溯源说明</strong></a>
+      <span class="pager-empty"></span>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="path.html">学习路径</a>
+        <a href="checklist.html">检查清单</a>
+        <a href="index-all.html">全站索引</a>
+        <a href="sources.html">来源与检索日期</a>
+        <a href="about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

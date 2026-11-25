@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>触发评估：用查询集调准 description · Agent Skills 课程</title>
+  <meta name="description" content="构造 20 条真实查询、划分训练/验证集、每条跑 3 次算触发率，按五步循环改进而不是堆关键词。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html" class="current" aria-current="page">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#queries">第一步：构造查询集</a></li>
+        <li><a href="#rate">第二步：每条跑多次，算触发率</a></li>
+        <li><a href="#split">第三步：划分训练集与验证集</a></li>
+        <li><a href="#loop">第四步：五步优化循环</a></li>
+        <li><a href="#apply">第五步：应用与最终检查</a></li>
+        <li><a href="#record">记录什么</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>触发与评估</span></p>
+      <p class="stage-badge">S4 触发与评估</p>
+      <h1>触发评估：用查询集调准 description</h1>
+      <p class="lead">构造 20 条真实查询、划分训练/验证集、每条跑 3 次算触发率，按五步循环改进而不是堆关键词。</p>
+      <p class="page-meta">阶段：S4 触发与评估 · 建议 40 分钟 · 先修：描述字段</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> “我觉得这个描述挺清楚的”不是证据。触发准确率可以测：准备一批真实查询，标明该不该触发，每条跑多次，算比例。方法不复杂，难的是构造好查询和避免自欺。</p>
+
+<h2 id="queries">第一步：构造查询集</h2>
+
+<p>你需要一组真实用户会输入的话，每条标注 <code>should_trigger</code> 是 true 还是 false。来源建议约 20 条：8–10 条应触发，8–10 条不应触发。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/optimizing-descriptions.md#designing-trigger-eval-queries">optimizing-descriptions.md</a>）</p>
+
+<pre><code>[
+  {
+    "query": "I've got a spreadsheet in ~/data/q4_results.xlsx with revenue in col C and expenses in col D — can you add a profit margin column and highlight anything under 10%?",
+    "should_trigger": true
+  },
+  {
+    "query": "whats the quickest way to convert this json file to yaml",
+    "should_trigger": false
+  }
+]
+</code></pre>
+
+<h3 id="positive">应触发查询：沿四个轴变化</h3>
+
+<ul>
+  <li><strong>说法</strong>：正式、随意、带错别字或缩写。</li>
+  <li><strong>明确程度</strong>：有的直接点名领域（“分析这个 CSV”），有的只描述需求（“老板要我从这个数据文件做张图”）。</li>
+  <li><strong>细节</strong>：短句与带文件路径、列名、背景的长句混合。</li>
+  <li><strong>复杂度</strong>：单步任务与多步工作流混合，测试技能在长链条中是否仍能被识别。</li>
+</ul>
+
+<p><span class="prov-mark prov-src">[源站]</span> 最有价值的正例，是“技能会帮上忙、但单看查询不明显”的那些。如果查询已经把技能要做的事说得一清二楚，任何合理描述都会触发，测不出差异。</p>
+
+<h3 id="negative">不应触发查询：优先“近邻”</h3>
+
+<p><span class="prov-mark prov-src">[源站]</span> 来源强调，最有价值的负例是<strong>近邻</strong>（near-miss）：与技能共享关键词或概念，但实际需要别的东西。弱负例（“写个斐波那契函数”“今天天气如何”）什么都测不出。</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>弱负例</th><th>强负例</th><th>为什么强</th></tr></thead>
+  <tbody>
+    <tr><td>写一个排序算法</td><td>“帮我改一下 Excel 预算表里的公式”</td><td>共享“表格/数据”概念，但需要表格编辑，不是 CSV 分析</td></tr>
+    <tr><td>今天天气怎么样</td><td>“写个 Python 脚本把 CSV 每行上传到 Postgres”</td><td>涉及 CSV，但任务是数据库 ETL</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="realism">让查询更像真的</h3>
+
+<p>真实提示里通常有：文件路径（<code>~/Downloads/report_final_v2.xlsx</code>）、个人背景（“我经理让我……”）、具体细节（列名、公司名、数据值）、口语、缩写与偶发错别字。<span class="prov-mark prov-src">[源站]</span></p>
+
+<h2 id="rate">第二步：每条跑多次，算触发率</h2>
+
+<p>模型行为是非确定性的：同一条查询这次触发、下次可能不触发。来源建议每条跑 3 次作为起点，计算<strong>触发率</strong>（触发次数 / 运行次数）。应触发的查询，触发率高于阈值（0.5 是合理默认）算通过；不应触发的，低于阈值算通过。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/optimizing-descriptions.md#running-multiple-times">optimizing-descriptions.md</a>）</p>
+
+<p><span class="prov-mark prov-src">[源站]</span> 20 条 × 3 次 = 60 次调用，手动做很痛苦，应该脚本化。来源给出的脚本骨架（已简化，检测逻辑需替换为你所用客户端的方式）：</p>
+
+<pre><code>#!/bin/bash
+QUERIES_FILE="${1:?Usage: $0 &lt;queries.json&gt;}"
+SKILL_NAME="my-skill"
+RUNS=3
+
+# 返回 0 表示技能被调用。这里以 Claude Code 的 JSON 输出为例，
+# 其他客户端请替换为对应的日志/工具调用检测方式。
+check_triggered() {
+  local query="$1"
+  claude -p "$query" --output-format json 2&gt;/dev/null \
+    | jq -e --arg skill "$SKILL_NAME" \
+      'any(.messages[].content[]; .type == "tool_use" and .name == "Skill" and .input.skill == $skill)' \
+      &gt; /dev/null 2&gt;&amp;1
+}
+
+count=$(jq length "$QUERIES_FILE")
+for i in $(seq 0 $((count - 1))); do
+  query=$(jq -r ".[$i].query" "$QUERIES_FILE")
+  should_trigger=$(jq -r ".[$i].should_trigger" "$QUERIES_FILE")
+  triggers=0
+  for run in $(seq 1 $RUNS); do
+    check_triggered "$query" &amp;&amp; triggers=$((triggers + 1))
+  done
+  jq -n --arg query "$query" --argjson should_trigger "$should_trigger" \
+    --argjson triggers "$triggers" --argjson runs "$RUNS" \
+    '{query: $query, should_trigger: $should_trigger, triggers: $triggers, runs: $runs, trigger_rate: ($triggers / $runs)}'
+done | jq -s '.'
+</code></pre>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 如果你使用的客户端没有脚本接口，用手工表格也能得到可用结论：每条查询跑 3 次，记录“加载了 SKILL.md / 没加载”，算比例。关键是<strong>固定查询、固定次数、记录证据</strong>，而不是凭印象。</p>
+
+<p><span class="prov-mark prov-src">[源站]</span> 来源提示：如果客户端支持，一旦结果明确（已经咨询了技能，或已经开始不借助技能工作）就可以提前停止该次运行，节省时间与成本。</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 触发率把“非确定性”变成可比较的数字，但它不是精确的准确率。三次运行只是一个小样本，0.33 与 0.67 的差别可能来自随机波动；当结论接近阈值时，应该增加运行次数或换一个模型再测。报告结果时，同时写出运行次数与触发次数，不要只写一个百分比。更重要的是记录“失败时发生了什么”：模型是没读描述、读了但判断无关，还是客户端没有扫描到技能。三种原因对应不同修法。</p>
+<h2 id="split">第三步：划分训练集与验证集</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 如果拿所有查询来调描述，很容易过拟合：针对这些具体说法调好了，换一种说法就失效。来源建议：</p>
+
+<ul>
+  <li><strong>训练集约 60%</strong>：用来发现失败、指导修改。</li>
+  <li><strong>验证集约 40%</strong>：只用来检查改进是否泛化，不参与修改决策。</li>
+  <li>两边都要有比例合理的正负例；随机打乱后<strong>固定划分</strong>，保证多轮比较的是同一组数据。</li>
+</ul>
+
+<p>实现上可以分成 <code>train_queries.json</code> 与 <code>validation_queries.json</code>，分别运行脚本。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/optimizing-descriptions.md#avoiding-overfitting-with-trainvalidation-splits">optimizing-descriptions.md</a>）</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 划分之后要“锁住”。把两个文件固定下来，不要在优化过程中把验证集里的查询挪到训练集，也不要根据验证集的失败去改描述。验证集的作用是模拟“上线后遇到的新说法”；一旦你用它指导修改，它就不再是独立检验。可以多轮使用同一个验证集来选版本，但不能用它调参。这个纪律比任何具体算法都重要。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="loop">第四步：五步优化循环</h2>
+
+<ol>
+  <li><strong>评估</strong>：当前描述在训练集与验证集上的触发率。</li>
+  <li><strong>找失败</strong>：只看<strong>训练集</strong>——哪些正例没触发？哪些负例误触发？验证集结果不参与修改。</li>
+  <li><strong>改描述</strong>：
+    <ul>
+      <li>正例失败 → 可能太窄：扩大范围，补充“何时有用”的上下文。</li>
+      <li>负例误触发 → 可能太宽：增加“不做什么”或与相邻能力的边界。</li>
+      <li>不要直接塞入失败查询里的具体词，那是过拟合；找它代表的一般类别。</li>
+      <li>改了几轮没进展，换一种结构/框架重写，而不是继续微调。</li>
+      <li>检查 1024 字符上限，描述在优化中容易膨胀。</li>
+    </ul>
+  </li>
+  <li><strong>重复</strong>：直到训练集全部通过，或不再有实质提升。</li>
+  <li><strong>选最佳版本</strong>：按<strong>验证集通过率</strong>选，而不是“最后一版”。早一点的版本可能泛化更好。</li>
+</ol>
+
+<p>来源的实践建议：通常五轮就够；如果一直不提升，问题可能在查询集（太简单、太难、标注错误），而不是描述。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/optimizing-descriptions.md#the-optimization-loop">optimizing-descriptions.md</a>）</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 循环里最容易做错的是第三步“改描述”。看到正例失败，直觉是“把那个词加进去”；看到负例误触发，直觉是“把那个词排除掉”。这两种做法都会过拟合。更稳的思路是问：失败查询代表哪一类意图？描述是否缺少这类意图的覆盖？边界是否与相邻技能重叠？例如“老板要一张图”失败，不是缺“老板”这个词，而是缺少“用户描述需求但不点名工具”的场景。修的是类别，不是个例。</p><p><span class="prov-mark prov-src">[源站]</span> 当多轮微调没有进展时，换结构比继续改词更有效。可以尝试把描述从“能力清单 + 何时用”改成“用户意图 + 典型输入 + 明确边界”，或者反过来。不同框架会改变模型匹配的方式。换结构后仍然用同一套训练/验证集评估，才能比较。不要因为某一版在训练集上完美就停止；要看验证集是否也提升。</p>
+<h2 id="apply">第五步：应用与最终检查</h2>
+
+<ol>
+  <li>把选中的描述写回 <code>SKILL.md</code> 的 <code>description</code>。</li>
+  <li>确认长度 ≤1024 字符。</li>
+  <li>手动试几个提示，做快速 sanity check。</li>
+  <li>另写 5–10 条全新查询（正负混合），这些查询从未参与优化，用来做一次诚实检验。</li>
+</ol>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 最后一步很重要：它模拟“上线后遇到没见过的说法”。如果新查询表现明显差于验证集，说明前面的优化仍然过拟合。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 应用阶段要防止“最后一次修改一定最好”的错觉。优化循环里，早一点的版本可能验证集通过率更高；选版本看验证集，不看你投入了多少轮。写回 SKILL.md 后，再跑一次格式校验与手动触发，确认没有把描述写坏。最后用一批全新查询做一次盲测：这些查询没有参与任何修改，能更诚实地反映泛化能力。如果新查询表现明显下降，说明前面的优化仍然过拟合。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="record">记录什么</h2>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 一个可复核的触发评估至少留下：</p>
+
+<ul>
+  <li>查询集文件（含 <code>should_trigger</code> 标注）与训练/验证划分。</li>
+  <li>每轮的描述版本（可用 git 记录，或复制到 <code>iteration-N/description.txt</code>）。</li>
+  <li>每条查询 × 每次运行的结果。</li>
+  <li>汇总表：正例通过数、负例通过数、训练/验证通过率。</li>
+  <li>选择该版本的理由。</li>
+</ul>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-course">[本课程观点]</span> 记录的目的不是交作业，而是让下一次修改有依据。最少要留下：查询集与标注、训练/验证划分、每轮描述版本、每条查询的运行结果、以及选择该版本的理由。没有这些，几周后你只会记得“当时调过”，却无法复现为什么。团队评审时，记录还能让评审者检查你是否用验证集调参，避免“看起来通过率很高，其实过拟合”的假象。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 记录不需要复杂工具：一个表格加一个版本目录就够。关键是别人能根据记录复现你的判断，而不是只看到结论。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>约 20 条查询，正负各半，负例优先用近邻；每条跑 3 次算触发率。</li>
+    <li>训练集调参，验证集只评估；固定划分，防止自欺。</li>
+    <li>按失败类型改描述（太窄/太宽），不要堆失败查询里的关键词。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 为“PDF 表单填写”技能写 4 条查询：2 条应触发、2 条近邻负例。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 正例示例：“帮我把这份申请表的姓名和日期填上”“这批表单能批量填吗，字段名在 Excel 里”。负例示例：“把这个 PDF 转成 Word”“提取这份 PDF 的目录”。负例应共享 PDF 概念但任务不同。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 一条正例跑了 3 次，触发 1 次。触发率是多少？按 0.5 阈值算通过还是失败？下一步你会先检查什么？</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 0.33，失败。先检查：任务是否本来就不需要技能（简单一步请求）；描述是否缺少该说法；客户端是否可靠执行。不要立刻改描述——先排除前两类原因。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 设计一次完整评估：20 条查询、训练/验证划分、每轮修改原则、停止条件、最终检验。说明你如何保证验证集没有被“偷看”。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../04-trigger-eval/e1-description.html"><span>上一页</span><strong>描述字段：Skill 触发的唯一入口</strong></a>
+      <a class="pager-next" href="../04-trigger-eval/e3-output-eval.html"><span>下一页</span><strong>输出质量评估：断言、基线与迭代</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

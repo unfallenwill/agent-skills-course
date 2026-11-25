@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>可打印检查清单 · Agent Skills 课程</title>
+  <meta name="description" content="从设计前到发布前的逐项检查，可直接打印在 A4 纸上，也可作为评审他人 Skill 的对照表。">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+  <script>window.SITE_ROOT = "";</script>
+  <script src="assets/search-index.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="index.html">首页</a>
+        <a href="path.html">学习路径</a>
+        <a href="01-background/b1-agent.html">预备知识</a>
+        <a href="02-core/c1-anatomy.html">规范</a>
+        <a href="03-authoring/a1-expertise.html">设计方法</a>
+        <a href="04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="06-cases/case1-pdf-forms.html">案例</a>
+        <a href="07-capstone.html">毕业项目</a>
+        <a href="glossary.html">术语表</a>
+        <a href="index-all.html" class="current" aria-current="page">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#before">一、设计前</a></li>
+        <li><a href="#frontmatter">二、Frontmatter 与描述</a></li>
+        <li><a href="#body">三、正文内容</a></li>
+        <li><a href="#structure">四、结构</a></li>
+        <li><a href="#scripts">五、脚本（如使用）</a></li>
+        <li><a href="#trigger-eval">六、触发评估</a></li>
+        <li><a href="#output-eval">七、输出评估</a></li>
+        <li><a href="#release">八、发布</a></li>
+        <li><a href="#gate">九、毕业门禁</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>参考资料</span><span aria-hidden="true">/</span><span>检查清单</span></p>
+      <p class="stage-badge">参考</p>
+      <h1>可打印检查清单</h1>
+      <p class="lead">从设计前到发布前的逐项检查，可直接打印在 A4 纸上，也可作为评审他人 Skill 的对照表。</p>
+      <p class="page-meta">阶段：参考 · 建议 8 分钟 · 先修：读完 S3</p>
+      <article class="content">
+<p class="lead">从选题到发布前的逐项检查。可直接打印在 A4 纸上，也可以作为评审他人技能的对照表。勾选状态只保留在当前页面，不会保存。</p>
+
+<div class="print-toolbar">
+  <button type="button" id="print-page">打印这一页</button>
+  <button type="button" class="secondary" onclick="window.location.href='07-capstone.html'">查看毕业项目要求</button>
+</div>
+
+<h2 id="before">一、设计前</h2>
+<ul class="print-checklist">
+  <li>这个任务最近三个月至少出现过三次。<span class="why">一次性任务往往没有可复用的稳定模式。</span></li>
+  <li>我能说出至少三个“外行会做错、内行会做对”的决定。<span class="why">这是技能价值的来源。</span></li>
+  <li>我知道正确结果长什么样，并能用命令或观察来验证。<span class="why">没有验证方式就无法评估。</span></li>
+  <li>我能用一句话说清技能范围，且与相邻能力区分开。<span class="why">范围决定触发与正文。</span></li>
+  <li>我确认这不是模型本来就能稳定完成的任务。<span class="why">否则技能只是增加成本。</span></li>
+</ul>
+
+<h2 id="frontmatter">二、Frontmatter 与描述</h2>
+<ul class="print-checklist">
+  <li>目录名与 <code>name</code> 完全一致。<span class="why">规范硬性要求。</span></li>
+  <li><code>name</code> 只含小写字母、数字与连字符，不以连字符开头/结尾，无连续连字符，≤64 字符。</li>
+  <li><code>description</code> 非空，1–1024 字符。<span class="why">规范硬性要求。</span></li>
+  <li>描述同时说明“做什么”和“什么时候用”。</li>
+  <li>描述覆盖至少 3 种用户可能说法，包括不点名领域的场景。</li>
+  <li>描述能用一句话划出与相邻技能的边界。</li>
+  <li>YAML 无 Tab、无未加引号的多余冒号；长描述用块标量或引号。</li>
+  <li>仅在确有环境要求时写 <code>compatibility</code>，且 ≤500 字符。</li>
+  <li><code>metadata</code> 的值均为字符串（版本号加引号）。</li>
+  <li><code>allowed-tools</code>（如使用）没有被当作权限控制。</li>
+</ul>
+
+<h2 id="body">三、正文内容</h2>
+<ul class="print-checklist">
+  <li>没有解释模型已知的通用概念。<span class="why">“补缺的，省已知的”。</span></li>
+  <li>随机抽三段，每段都能回答“没有它 Agent 会不会做错”。</li>
+  <li>至少一条 Gotcha 描述具体错误、原因与正确做法，含实际字段/命令/阈值。</li>
+  <li>流程步骤有明确顺序，隐含依赖已写明。</li>
+  <li>高风险步骤有停止条件，而不是“小心操作”。</li>
+  <li>输出格式用模板或真实样例约束，而不是“结构清晰”。</li>
+  <li>多方案处给出默认值与明确逃生口，而不是菜单。</li>
+  <li>脆弱步骤给了精确命令或固定顺序。</li>
+  <li>开放步骤给了判断标准与原因，而不是机械步骤。</li>
+  <li>方法能泛化到同类任务，而不是只对某个实例有效。</li>
+</ul>
+
+<h2 id="structure">四、结构</h2>
+<ul class="print-checklist">
+  <li>SKILL.md 少于 500 行（建议 50–150 行）。<span class="why">规范建议，不是硬校验。</span></li>
+  <li>每次执行都要用的内容在主文件；低频细节在支持文件。</li>
+  <li>每个支持文件都有加载触发，写成“当 X 时读 Y，用于 Z”。</li>
+  <li>触发条件是可观察的：退出码、扩展名、缺失字段、流程阶段。</li>
+  <li>所有引用从主文件出发，保持一层深度。</li>
+  <li>文件命名表达内容，大小写在全平台一致。</li>
+  <li>主文件中的参考清单列出了每个支持文件的用途。</li>
+  <li>拆出去的内容没有与主流程强耦合到无法执行。</li>
+</ul>
+
+<h2 id="scripts">五、脚本（如使用）</h2>
+<ul class="print-checklist">
+  <li>脚本不等待交互输入，所有输入来自参数、环境变量或 stdin。</li>
+  <li><code>--help</code> 给出用途、选项、示例与退出码。</li>
+  <li>错误信息说明错在哪、期望什么、下一步怎么做。</li>
+  <li>结构化数据走 stdout，诊断走 stderr。</li>
+  <li>失败返回非零退出码，且不同失败类型有不同码。</li>
+  <li>重复运行安全（幂等），破坏性操作支持 <code>--dry-run</code> 或显式确认。</li>
+  <li>输出体积有上限或分页机制。</li>
+  <li>依赖与运行时版本写进 <code>compatibility</code> 或正文前置检查。</li>
+</ul>
+
+<h2 id="trigger-eval">六、触发评估</h2>
+<ul class="print-checklist">
+  <li>至少 6 条触发查询（建议 20），正负大致各半。</li>
+  <li>至少 2 条近邻负例：共享关键词但任务不同。</li>
+  <li>正例覆盖正式、随意、口语、未点名领域等说法。</li>
+  <li>每条查询运行 3 次，记录触发率，而不是只跑一次。</li>
+  <li>训练集与验证集固定划分，验证集不参与修改。</li>
+  <li>修改依据是失败类型（太窄/太宽），不是堆关键词。</li>
+  <li>最终描述 ≤1024 字符，并用未参与优化的新查询做一次检验。</li>
+  <li>能出示完整记录表：查询、应否触发、触发次数、判定。</li>
+</ul>
+
+<h2 id="output-eval">七、输出评估</h2>
+<ul class="print-checklist">
+  <li>至少 3 个评估用例，含提示、预期输出与可选输入文件。</li>
+  <li>至少一个用例覆盖边界或歧义输入。</li>
+  <li>每个用例至少 2 条断言，可由输出直接检查。</li>
+  <li>断言不过度依赖精确措辞；PASS 必须附证据。</li>
+  <li>有“有技能 / 无技能”或“新旧版本”的对照。</li>
+  <li>记录通过率、token 与耗时，并解释收益是否值得成本。</li>
+  <li>检查“两边都通过”的断言，删除或替换无信息量的检查。</li>
+  <li>至少有一次人工评审，反馈具体到可修改之处。</li>
+</ul>
+
+<h2 id="release">八、发布</h2>
+<ul class="print-checklist">
+  <li><code>skills-ref validate</code> 或本地校验脚本通过。</li>
+  <li>在至少一个真实客户端中可见、可激活、可执行。</li>
+  <li>许可证与来源信息完整；未包含内部敏感信息。</li>
+  <li>目录自包含，无绝对路径、无对外部主机的运行时依赖。</li>
+  <li>设计说明写清了范围、三个取舍、触发策略与验证结论。</li>
+  <li>反模式清单逐项排除。</li>
+</ul>
+
+<h2 id="gate">九、毕业门禁</h2>
+<ul class="print-checklist">
+  <li>第 1–8 节全部检查完毕，没有“暂时跳过”。</li>
+  <li>自评 ≥80/100，且真实专长、触发描述、验证闭环均 ≥3 分。</li>
+  <li>能向他人解释三个取舍：范围、references、脚本。</li>
+  <li>他人能按说明复现你的验证。</li>
+</ul>
+
+<p class="page-note">打印提示：浏览器打印时选择 A4、默认边距；导航、搜索与按钮会自动隐藏，复选框以方框打印，便于手写勾选。</p>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="glossary.html"><span>上一页</span><strong>术语表</strong></a>
+      <a class="pager-next" href="index-all.html"><span>下一页</span><strong>全站索引</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="path.html">学习路径</a>
+        <a href="checklist.html">检查清单</a>
+        <a href="index-all.html">全站索引</a>
+        <a href="sources.html">来源与检索日期</a>
+        <a href="about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

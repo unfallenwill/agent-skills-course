@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>教程 1：20 分钟做出第一个 Skill（roll-dice） · Agent Skills 课程</title>
+  <meta name="description" content="从空目录开始，写出一个能真正掷骰子的 Skill：创建目录、写 frontmatter、在 Agent 模式下确认被发现、观察激活与执行。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html" class="current" aria-current="page">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#prereq">前置条件</a></li>
+        <li><a href="#step1">步骤 1：创建目录</a></li>
+        <li><a href="#step2">步骤 2：写入 SKILL.md</a></li>
+        <li><a href="#step3">步骤 3：确认技能被发现</a></li>
+        <li><a href="#step4">步骤 4：触发并观察执行</a></li>
+        <li><a href="#expected">预期结果</a></li>
+        <li><a href="#checkpoint">检查点</a></li>
+        <li><a href="#why">它为什么能工作</a></li>
+        <li><a href="#errors">常见错误</a></li>
+        <li><a href="#takeaway">你刚刚验证了什么</a></li>
+        <li><a href="#if-error">如果出错了</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><a href="../05-tutorials/t1-roll-dice.html">动手教程</a><span aria-hidden="true">/</span><span>教程 1</span></p>
+      <p class="stage-badge">S3 写出好内容</p>
+      <h1>教程 1：20 分钟做出第一个 Skill（roll-dice）</h1>
+      <p class="lead">从空目录开始，写出一个能真正掷骰子的 Skill：创建目录、写 frontmatter、在 Agent 模式下确认被发现、观察激活与执行。</p>
+      <p class="page-meta">阶段：S3 写出好内容 · 建议 25 分钟 · 先修：S2 完成；本机有 VS Code 与 Copilot</p>
+      <article class="content">
+<p class="lead">这是最短的一次端到端：一个目录、一份十几行的 SKILL.md，然后亲眼看到 Agent 发现它、加载它、按它执行。做完你会对“发现—激活—执行”有具体感受，而不只是概念。</p>
+
+<h2 id="prereq">前置条件</h2>
+
+<ul>
+  <li>安装 <a href="https://code.visualstudio.com/">VS Code</a>，并安装 <a href="https://marketplace.visualstudio.com/items?itemName=GitHub.copilot">GitHub Copilot</a> 扩展。</li>
+  <li>能在 VS Code 中打开一个项目文件夹，并使用 Copilot Chat 的 Agent 模式。</li>
+  <li>会打开终端。Windows 可用 PowerShell 或 Git Bash；macOS / Linux 用系统终端。</li>
+</ul>
+
+<p><span class="prov-mark prov-src">[源站]</span> 本教程的步骤与文件内容来自来源快速入门；它使用 VS Code，但 Agent Skills 是开放格式，同一个技能也能在 Claude Code、OpenAI Codex 等兼容客户端中工作。（<a href="https://agentskills.io/skill-creation/quickstart.md">quickstart.md</a>）</p>
+
+<div class="callout">
+  <p class="callout-title">目录位置因客户端而异</p>
+  <p>VS Code 默认扫描项目根目录下的 <code>.agents/skills/</code>。其他客户端可能扫描自己的目录或用户主目录；如果你的客户端不是 VS Code，先查它的文档，再替换下面的路径。技能的<strong>内容格式</strong>不变。</p>
+</div>
+
+<h2 id="step1">步骤 1：创建目录</h2>
+
+<p>在项目根目录执行（Git Bash / macOS / Linux）：</p>
+
+<pre><code>mkdir -p .agents/skills/roll-dice
+</code></pre>
+
+<p>PowerShell：</p>
+
+<pre><code>New-Item -ItemType Directory -Force -Path .agents/skills/roll-dice
+</code></pre>
+
+<p>最终结构必须是：</p>
+
+<pre><code>你的项目/
+└── .agents/
+    └── skills/
+        └── roll-dice/
+            └── SKILL.md
+</code></pre>
+
+<p>注意 <code>SKILL.md</code> 在 <code>roll-dice/</code> 里面，而不是直接在 <code>skills/</code> 下。父目录名 <code>roll-dice</code> 必须与 frontmatter 里的 <code>name</code> 完全一致。</p>
+
+<h2 id="step2">步骤 2：写入 SKILL.md</h2>
+
+<p>创建 <code>.agents/skills/roll-dice/SKILL.md</code>，内容如下（可直接复制）：</p>
+
+<pre><code>---
+name: roll-dice
+description: Roll dice using a random number generator. Use when asked to roll a die (d6, d20, etc.), roll dice, or generate a random dice roll.
+---
+
+## 何时使用 / 不适用
+
+当用户要求掷骰、生成桌面游戏随机数（d6、d20、3d6 等）时使用。不适用于密码、验证码、抽奖等需要安全随机性或可审计公平性的场景；遇到这类请求应说明限制，不要用本技能的命令冒充安全随机源。
+
+## 参考文件
+
+当用户使用 3d6、4d6kh3 等骰子记号，或需要解释结果时，读 `references/dice-notation.md`，按其中的记号规则解析并逐项报告。
+
+To roll a die, use the following command that generates a random number from 1
+to the given number of sides:
+
+```bash
+echo $((RANDOM % &lt;sides&gt; + 1))
+```
+
+```powershell
+Get-Random -Minimum 1 -Maximum (&lt;sides&gt; + 1)
+```
+
+Replace `&lt;sides&gt;` with the number of sides on the die (e.g., 6 for a standard
+die, 20 for a d20).</code></pre>
+
+<p>逐部分解释：</p>
+
+<ul>
+  <li><code>name</code>：技能标识，必须与文件夹名 <code>roll-dice</code> 一致。</li>
+  <li><code>description</code>：告诉 Agent 什么时候用。它包含 “roll a die”、“d6, d20”、“roll dice”、“random dice roll”，覆盖了用户可能说的几种方式。</li>
+  <li>正文：Agent 激活后要遵循的指令。这里只写了一件模型不知道的事：用哪条终端命令，以及如何替换面数。</li>
+</ul>
+
+<p>整份文件不到 20 行。它没有解释骰子是什么，也没有介绍随机数原理——那些模型都知道。</p>
+
+<h2 id="step3">步骤 3：确认技能被发现</h2>
+
+<ol>
+  <li>在 VS Code 中打开项目文件夹。</li>
+  <li>打开 Copilot Chat 面板。</li>
+  <li>在面板底部把模式切换为 <strong>Agent</strong>。</li>
+  <li>输入 <code>/skills</code>，确认 <code>roll-dice</code> 出现在列表中。</li>
+</ol>
+
+<p>如果没出现，先检查文件是否精确位于 <code>.agents/skills/roll-dice/SKILL.md</code>（相对于项目根目录），并确认文件名大小写完全一致。<span class="prov-mark prov-src">[源站]</span></p>
+
+<h2 id="step4">步骤 4：触发并观察执行</h2>
+
+<p>在同一个聊天里输入：</p>
+
+<pre><code>Roll a d20
+</code></pre>
+
+<p>Agent 应当激活 <code>roll-dice</code> 技能。它可能会请求运行终端命令的权限，允许它。然后它会运行命令，返回一个 1 到 20 之间的随机整数。</p>
+
+<p><strong>预期结果：</strong>你看到一个具体的数字，例如 <code>14</code>；展开工具调用记录，可以看到它读取了 <code>SKILL.md</code> 并执行了一条类似 <code>echo $((RANDOM % 20 + 1))</code> 的命令。具体工具调用形态因客户端而异，但“读文件 → 跑命令 → 返回数字”的顺序应当可观察。</p>
+
+<h2 id="expected">预期结果</h2>
+<p>这一课的预期结果不是“Agent 回答了一个数字”，而是你能观察到完整链路：技能出现在列表中、被加载、执行了终端命令、返回了范围内的结果。只看到自然语言答案，无法证明技能真的生效。</p>
+<h2 id="checkpoint">检查点</h2>
+
+<p>逐条对照上面的检查点；任何一条失败，都先按“如果出错了”排查，再继续下一课。尤其是第 4、5 条，它们验证的是执行，而不是回答。</p>
+<div class="checkpoint">
+  <span class="cp-label">CHECKPOINT</span>
+  <p>逐条执行并确认：</p>
+  <ol>
+    <li><code>ls .agents/skills/roll-dice/SKILL.md</code> 能列出文件。</li>
+    <li><code>grep -n "^name: roll-dice$" .agents/skills/roll-dice/SKILL.md</code> 输出行号，说明 name 精确匹配。</li>
+    <li>在 Copilot Chat 的 <code>/skills</code> 列表中能看到 <code>roll-dice</code>。</li>
+    <li>输入 “Roll a d20” 后，Agent 实际执行了终端命令，而不是凭语言能力编一个数字；返回值为 1–20 的整数。</li>
+    <li>再输入 “Roll a d6”，返回值为 1–6 的整数，说明它把面数替换进了命令。</li>
+  </ol>
+  <p>第 4、5 条是关键：如果它只是回答“你掷出了 12”却没有工具调用，说明技能可能没被加载，或模型选择自行作答。</p>
+</div>
+
+<h2 id="why">它为什么能工作</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 会话启动时，Agent 扫描默认技能目录，只读 <code>name</code> 与 <code>description</code>，知道有个技能可能与掷骰相关；当你说 “Roll a d20”，问题与描述匹配，它加载完整正文；随后按正文执行命令，并把 <code>&lt;sides&gt;</code> 替换为 20。整个过程就是渐进披露：启动时只付出一行元数据的成本，激活时才读全文。（<a href="https://agentskills.io/skill-creation/quickstart.md#how-it-works">quickstart.md</a>）</p>
+
+<h2 id="errors">常见错误</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>现象</th><th>原因</th><th>修复</th></tr></thead>
+  <tbody>
+    <tr><td><code>/skills</code> 里没有</td><td>文件放错层级，例如 <code>.agents/skills/SKILL.md</code></td><td>确保在 <code>.agents/skills/roll-dice/SKILL.md</code></td></tr>
+    <tr><td>有警告或校验失败</td><td>name 与目录不一致，或含大写/下划线</td><td>同时改目录名与 name</td></tr>
+    <tr><td>技能在列表里，但不触发</td><td>描述没有覆盖你的说法；或模型认为任务太简单，不需要技能</td><td>换一种说法测试；或在描述中加入该说法</td></tr>
+    <tr><td>Agent 直接回答数字，不运行命令</td><td>不同模型的工具使用可靠性不同</td><td>换一个模型重试；来源明确提示这是已知差异</td></tr>
+    <tr><td>PowerShell 命令报语法错误</td><td>在 PowerShell 里用了 bash 的 <code>$((...))</code></td><td>使用 SKILL.md 中的 PowerShell 版本，或改用 Git Bash</td></tr>
+    <tr><td>数字总是同一个</td><td>没有真正执行随机命令，或用了固定值</td><td>展开工具调用查看实际命令</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="takeaway">你刚刚验证了什么</h2>
+
+<ul>
+  <li>Skill 的最小单位是“目录 + SKILL.md”，不需要构建、打包或注册。</li>
+  <li>描述决定触发；正文决定执行；两者缺一不可。</li>
+  <li>一个有用的技能可以非常短。短不等于简陋，前提是只写模型不知道的内容。</li>
+</ul>
+
+<h2 id="if-error">如果出错了</h2>
+<p>下面按“症状—原因—修复”列出最常见的三类问题。先定位症状，再检查原因，不要同时改多个地方；每次只改一处，重跑同一检查点。</p>
+<div class="table-wrap"><table><thead><tr><th>症状</th><th>可能原因</th><th>修复</th></tr></thead><tbody><tr><td>/skills 列表里没有 roll-dice</td><td>文件不在 .agents/skills/roll-dice/SKILL.md，或文件名大小写不一致</td><td>确认目录层级与 SKILL.md 拼写，重新打开会话</td></tr><tr><td>技能在列表里，但不触发</td><td>描述没有覆盖你的说法，或模型认为任务太简单</td><td>换一种说法；检查描述是否包含 roll dice、d20 等场景</td></tr><tr><td>Agent 直接报数字，没有工具调用</td><td>模型选择自行作答，未执行命令</td><td>展开工具记录；换一个模型重试；要求给出命令输出</td></tr></tbody></table></div>
+
+<p>把这次练习当成一次完整的验收：你不是在检查“答案像不像”，而是在检查“链路是否打通”。发现、激活、执行、验证四步都能被观察到，才说明这个技能真正可用。以后写更复杂的技能时，也先用最小版本打通这四步，再补内容；否则一旦失败，你很难判断问题出在格式、描述还是客户端。</p>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p>把技能改成支持 d100，并验证一次。需要改哪几处？</p>
+      <details><summary>提示与自检</summary><p>正文不需要改（它已经用 <code>&lt;sides&gt;</code> 参数化）；描述可加入 “d100” 以覆盖说法。验证 “Roll a d100” 返回值在 1–100。若你硬编码了 20，说明没理解参数替换。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p>回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p>合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p>让技能支持“掷 3 个 d6 并求和”。写出正文修改，并说明如何验证每个骰子都在 1–6、总和正确。</p>
+      <details><summary>提示与自检</summary><p>可用循环执行三次并累加，或生成三个随机数后求和；输出应同时给出每个结果与总和。验证：连续运行多次，检查每个值范围与总和等于三者之和。若只返回总和，无法验证单骰范围。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p>把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p>两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p>把描述改写成能覆盖中文口语（“帮我扔个骰子”“跑团要个 d20”“随机来个 1 到 20 的数”），同时避免在用户说“生成随机密码”时误触发。测试至少 6 条说法并记录结果。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../04-trigger-eval/e3-output-eval.html"><span>上一页</span><strong>输出质量评估：断言、基线与迭代</strong></a>
+      <a class="pager-next" href="../05-tutorials/t2-references.html"><span>下一页</span><strong>教程 2：用 references/ 给 Skill 减负</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

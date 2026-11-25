@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>控制校准：自由度与规定性的取舍 · Agent Skills 课程</title>
+  <meta name="description" content="同一个 Skill 里，不同部分需要不同强度的控制。学会按“脆弱性”决定是给自由还是给死命令，并提供默认值而非菜单。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html" class="current" aria-current="page">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#fragility">准则：控制强度匹配任务的脆弱程度</a></li>
+        <li><a href="#free">给自由的写法：说明看什么，不规定怎么做</a></li>
+        <li><a href="#prescribe">给规定的写法：命令、顺序、禁止项</a></li>
+        <li><a href="#defaults">提供默认值，而不是菜单</a></li>
+        <li><a href="#procedure">程序优先于声明</a></li>
+        <li><a href="#mix">在一个文件里混合校准</a></li>
+        <li><a href="#contrast">坏与好：控制的错配</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>设计方法</span></p>
+      <p class="stage-badge">S3 写出好内容</p>
+      <h1>控制校准：自由度与规定性的取舍</h1>
+      <p class="lead">同一个 Skill 里，不同部分需要不同强度的控制。学会按“脆弱性”决定是给自由还是给死命令，并提供默认值而非菜单。</p>
+      <p class="page-meta">阶段：S3 写出好内容 · 建议 30 分钟 · 先修：结构设计</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> 同一个 Skill 里，有些部分应该放手让模型判断，有些部分必须一字不差地执行。把“给自由”和“给死命令”搞反，是很多技能失效的根源：该严的地方模糊，该活的地方僵化。</p>
+
+<h2 id="fragility">准则：控制强度匹配任务的脆弱程度</h2>
+
+<p>来源的表述是：让指令的具体程度匹配任务的脆弱性。当多种做法都有效、任务能容忍变化时，给 Agent 自由；当操作脆弱、一致性很重要或必须遵循特定顺序时，要写得极具规定性。大多数技能是混合体，应逐部分独立校准。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#match-specificity-to-fragility">best-practices.md</a>）</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>任务特征</th><th>控制方式</th><th>写法</th></tr></thead>
+  <tbody>
+    <tr><td>多种路径都可行；结果可容忍风格差异</td><td>给自由</td><td>描述目标、判断标准与原因，不规定每一步</td></tr>
+    <tr><td>顺序错了会丢数据；命令参数不能改</td><td>给规定</td><td>精确命令、固定顺序、禁止改参数</td></tr>
+    <tr><td>高风险但路径灵活</td><td>混合</td><td>规定检查点与停止条件，过程给自由</td></tr>
+  </tbody>
+</table>
+</div>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 判断“脆弱性”可以问三个问题：做错了能不能撤销？换一种做法结果是否仍然可接受？多个步骤之间是否有严格顺序？三个答案里有一个是“不可逆”或“必须一致”，就应该偏向规定性。反过来，如果结果可逆、风格差异可接受、顺序不影响正确性，就应该给自由，并把判断标准解释清楚。控制强度不是作者的性格，而是任务属性；同一个技能里，不同步骤完全可以使用不同强度。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="free">给自由的写法：说明看什么，不规定怎么做</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 来源给出的代码评审例子，描述的是关注点而不是精确步骤：</p>
+
+<pre><code>## Code review process
+
+1. Check all database queries for SQL injection (use parameterized queries)
+2. Verify authentication checks on every endpoint
+3. Look for race conditions in concurrent code paths
+4. Confirm error messages don't leak internal details
+</code></pre>
+
+<p><span class="prov-mark prov-src">[源站]</span> 它没有说“先打开第 1 个文件、再运行某个脚本”，因为评审的路径取决于代码结构。它给的是<strong>判断维度</strong>，模型可以按实际情况决定顺序与深度。</p>
+
+<p>给自由时，解释“为什么”往往比堆规则更有效：理解了目的的 Agent，能在新情境下做出更好的判断。来源在评估指南中也建议用“做 X，因为 Y 容易导致 Z”这样的理由型指令，而不是“永远做 X、绝不 Y”的僵硬命令。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/evaluating-skills.md#the-loop">evaluating-skills.md</a>）</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 给自由不等于什么都不写。自由式指令仍然要给出检查维度和停止条件：看哪些风险、什么算严重、什么情况必须报告、什么情况可以忽略。代码评审的例子之所以有效，是因为它规定了关注点，而不是规定扫描顺序；模型可以根据代码结构决定先看哪里。如果只写“自由评审”，模型就会退回通用建议，输出一堆与项目无关的正确废话。</p>
+<h2 id="prescribe">给规定的写法：命令、顺序、禁止项</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 数据库迁移是典型的高脆弱任务：</p>
+
+<pre><code>## Database migration
+
+Run exactly this sequence:
+
+```bash
+python scripts/migrate.py --verify --backup
+```
+
+Do not modify the command or add additional flags.
+</code></pre>
+
+<p>这里不适合写“选择一个合适的迁移工具并备份”。备份是否真的发生、参数顺序是否正确，直接决定能否回滚。规定性不是不信任模型，而是降低不可逆操作的风险。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#match-specificity-to-fragility">best-practices.md</a>）</p>
+
+<div class="callout">
+  <div class="callout-title">判断练习</div>
+  <p><span class="prov-mark prov-src">[源站]</span> 问自己：如果模型换一种做法，结果会“不同但可以接受”，还是“可能不可逆地错”？前者给自由，后者给规定。</p>
+</div>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 规定性写法的标志是“命令可复制、顺序不可换、禁止项明确”。数据库迁移的例子给出了完整命令、固定参数和“不要修改”的约束，因为这些细节直接决定备份是否发生、能否回滚。规定性不是对模型能力的否定，而是对不可逆操作的保险。写这类步骤时，最好同时说明“为什么不能改”，让模型在遇到变体时知道该停下来问，而不是自行调整参数。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="defaults">提供默认值，而不是菜单</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> 当多种工具或方法都可行时，选一个默认，简要提及替代方案，而不是把它们作为平等选项列出来。来源的对比例子：</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>选项太多</th><th>清晰默认 + 逃生口</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><pre><code>你可以使用 pypdf、pdfplumber、
+PyMuPDF 或 pdf2image……</code></pre></td>
+      <td><pre><code>文本提取用 pdfplumber。
+
+对于需要 OCR 的扫描件，改用
+pdf2image + pytesseract。</code></pre></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>菜单看似“给模型自由”，实际是把选择成本转嫁给模型，并且常常导致它在多个方案之间反复尝试。默认值加明确例外，既减少探索，又保留了必要的灵活性。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#provide-defaults-not-menus">best-practices.md</a>）</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 菜单式写法的问题不只是“选择多”，而是“没有判断依据”。当四个库并列时，模型只能根据训练数据里的偏好选择，而不是根据当前环境。默认值加逃生口的写法，把选择变成了有条件的决策：默认适用于大多数情况，例外有明确触发条件。写默认值时，最好给出理由或环境依据，例如“项目已安装”“跨平台稳定”“无需额外依赖”，这样模型在例外情况下能判断是否偏离。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="procedure">程序优先于声明</h2>
+
+<p><span class="prov-mark prov-src">[源站]</span> Skill 应该教 Agent <strong>如何 approach 一类问题</strong>，而不是<strong>为某个具体实例给出答案</strong>。来源的对比：</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>具体答案（只对这次有用）</th><th>可复用方法</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><pre><code>把 orders 表按 customer_id
+连接 customers，筛选
+region = 'EMEA'，对 amount 求和。</code></pre></td>
+      <td><pre><code>1. 从 references/schema.yaml 读取 schema，
+   找到相关表。
+2. 按 _id 外键约定连接表。
+3. 把用户请求中的筛选条件写成 WHERE。
+4. 按需聚合数值列，输出 markdown 表格。</code></pre></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>这不意味着技能不能含具体细节。输出模板、“绝不输出 PII（个人身份信息）”这类约束、针对特定工具的指令都很有价值。关键点是：<strong>方法要能泛化，即使个别细节是具体的。</strong><span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#favor-procedures-over-declarations">best-practices.md</a>）</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 程序与声明的区别，可以理解为“方法”与“答案”的区别。具体答案只对某个实例有效，方法则能迁移到同类问题。写技能时，先问：这个任务下次换一份数据、换一个客户、换一个仓库，步骤还成立吗？如果只有具体数字成立，就把数字放进示例或参数，把方法写成步骤。具体细节并非不能写，但应该服务于方法，而不是替代方法。一个只会背答案的技能，遇到稍微不同的输入就会失效。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="mix">在一个文件里混合校准</h2>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 下面是一个混合型技能的片段：</p>
+
+<pre><code>## 生成季度报告
+
+### 取数（规定）
+必须运行：
+python scripts/fetch.py --quarter Q3 --output data/q3.csv
+不要改用其他脚本或手工导出。
+
+### 分析（自由）
+找出三个最值得管理层关注的发现。判断标准：
+- 金额影响超过 10 万元；
+- 或环比变化超过 20%；
+- 或涉及新客户/新区域。
+不要为了凑数而列出无关发现。
+
+### 排版（规定）
+套用 assets/quarterly-template.md，章节顺序不可调整；
+金额统一保留一位小数，单位为万元。
+
+### 自检（规定）
+运行 python scripts/check_report.py output/report.md。
+任何 FAIL 都必须修复后重跑，不得跳过。
+</code></pre>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 取数与排版是脆弱环节，给死命令；分析是判断环节，给标准与理由；自检是质量门禁，要求必须通过。这种“分段校准”比整篇都写死或整篇都放开更可靠。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这个片段展示了“分段校准”的实际写法。取数与排版是不可逆或需一致的环节，所以给死命令；分析是判断环节，所以给标准与理由；自检是质量门禁，所以要求必须通过。每个段落开头的小标题（规定/自由）不是装饰，而是让读者一眼看出控制强度。写自己的技能时，也可以先用这三个标签给每段分类，再检查分类是否合理。如果一段既没有精确命令，也没有判断标准，它大概率会变成模糊指令。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="contrast">坏与好：控制的错配</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>错配</th><th>问题</th><th>修正</th></tr></thead>
+  <tbody>
+    <tr><td>对迁移写“选择合适方式备份”</td><td>该严的地方太松，可能无法回滚</td><td>精确命令、固定顺序、禁止改参数</td></tr>
+    <tr><td>对评审写“必须按 A→B→C 顺序检查”</td><td>该活的地方太死，忽略代码结构差异</td><td>给关注点与判断标准，不规定顺序</td></tr>
+    <tr><td>对库选择列四个选项</td><td>把选择成本丢给模型，导致反复试错</td><td>一个默认 + 一个明确例外</td></tr>
+    <tr><td>对输出格式只写“整洁美观”</td><td>不可验证，模型无法判断达标</td><td>给模板或一个真实样例</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-course">[本课程观点]</span> 四行错配分别对应四种常见后果：该严的地方太松，可能无法回滚；该活的地方太死，会忽略代码结构差异；给菜单会让模型反复试错；只写“整洁美观”则无法判断达标。修正方法不是一律写死或一律放开，而是回到脆弱性判断：不可逆、需一致、顺序敏感的地方给规定；可逆、风格可变、路径多样的地方给标准与自由。每改一处，都问自己“换一种做法是否可接受”，答案会决定控制强度。</p><p><span class="prov-mark prov-course">[本课程观点]</span> 还有一个容易被忽略的错配：把“输出格式”写成形容词。格式是可以用模板或样例约束的，属于可规定的内容；写成“清晰、专业”只会让模型自由发挥。反过来，把“分析思路”写成固定步骤，又会限制模型发现数据中的异常。控制校准的目标不是让技能看起来严谨，而是让关键行为稳定、非关键行为灵活。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>控制强度取决于脆弱性：可逆、可变 → 给自由；不可逆、需一致 → 给规定。</li>
+    <li>多方案时给默认值和明确的逃生口，不要给菜单。</li>
+    <li>教方法而不是背答案；具体细节可以保留，但方法要能泛化。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 判断应给自由还是规定：（A）删除生产数据库表；（B）给一段代码写总结；（C）生成对外合同 PDF。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> A 规定（不可逆、高风险）；B 自由（可逆、风格可变）；C 规定（对外文件，格式与措辞一致性重要）。判断依据是“换一种做法是否可接受”。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把“你可以用 Jest、Vitest、Mocha 或 Node 内置测试运行器”改成“默认 + 逃生口”的写法，并说明默认选择的理由。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 示例：“默认使用 Vitest（项目已有配置，无需额外安装）。仅当项目使用 Jest 既有配置时，沿用 Jest。”默认选择应基于项目事实（已安装、配置、团队习惯），而不是个人偏好。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 选一个你熟悉的流程，把它分成“规定 / 自由 / 验证”三段，并为每段写出至少一条规则。然后指出：如果全部写成规定，会有什么代价？全部写成自由呢？</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../03-authoring/a4-structure.html"><span>上一页</span><strong>结构设计：渐进披露与文件组织</strong></a>
+      <a class="pager-next" href="../03-authoring/a6-patterns.html"><span>下一页</span><strong>高效指令模式：坑点、模板、清单、验证循环</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

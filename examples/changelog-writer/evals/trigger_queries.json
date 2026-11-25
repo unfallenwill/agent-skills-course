@@ -1,0 +1,8 @@
+[
+  { "query": "帮我把 v2.4.0 自 v2.3.1 以来的提交写成更新日志", "should_trigger": true },
+  { "query": "what changed since the last release? our users keep asking", "should_trigger": true },
+  { "query": "这周的提交挺多的，整理一份给用户看的变更说明吧", "should_trigger": true },
+  { "query": "解释一下 3f2a1c 这个提交为什么会导致登录失败", "should_trigger": false },
+  { "query": "帮我把这五条 commit message 改写成更符合规范的英文", "should_trigger": false },
+  { "query": "revert 掉最近一次提交，它把首页弄坏了", "should_trigger": false }
+]

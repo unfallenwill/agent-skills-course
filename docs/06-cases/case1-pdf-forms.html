@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>案例 1：PDF 表单批量填写（文档处理） · Agent Skills 课程</title>
+  <meta name="description" content="300 份表单、字段名不统一、填错代价高。完整走一遍情境、需求、被否决的方案、SKILL.md、验证方法与失败模式。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html" class="current" aria-current="page">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#situation">情境</a></li>
+        <li><a href="#requirements">需求</a></li>
+        <li><a href="#design">设计与权衡</a></li>
+        <li><a href="#skill">完整 SKILL.md</a></li>
+        <li><a href="#validation">验证方法</a></li>
+        <li><a href="#failures">常见失败模式</a></li>
+        <li><a href="#transfer">可迁移的经验</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><a href="../06-cases/case1-pdf-forms.html">实战案例</a><span aria-hidden="true">/</span><span>案例 1</span></p>
+      <p class="stage-badge">S5 交付与迁移</p>
+      <h1>案例 1：PDF 表单批量填写（文档处理）</h1>
+      <p class="lead">300 份表单、字段名不统一、填错代价高。完整走一遍情境、需求、被否决的方案、SKILL.md、验证方法与失败模式。</p>
+      <p class="page-meta">阶段：S5 交付与迁移 · 建议 45 分钟 · 先修：S3、S4 完成</p>
+      <article class="content">
+<p class="lead">这是一类高风险、低容错的文档任务：字段名对不上就整份作废，填错日期或金额会引发合规问题。案例重点不是“怎么用 PDF 库”，而是如何把校验前置，让 Agent 在想清楚之前不要动手。</p>
+
+<h2 id="situation">情境</h2>
+
+<p>一家共享服务中心每月要处理约 300 份 PDF 申请表，涵盖入职、报销与供应商登记。表单模板由不同部门维护，字段命名不统一：同样的“申请日期”，有的叫 <code>apply_date</code>，有的叫 <code>ApplicationDate</code>，还有的是带页码后缀的重复字段。业务方提供一份 Excel 值表，列名与表单字段并不一一对应。</p>
+
+<p>过去由两名同事手工填写，平均每份 4 分钟，错误主要出现在：字段串行、日期格式、必填项遗漏、复选框值写错。一次批量返工约半天。团队希望 Agent 承担重复劳动，但明确要求：<strong>宁可停下来问，也不要静默填错。</strong></p>
+
+<h2 id="requirements">需求</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>类型</th><th>要求</th><th>可验证标准</th></tr></thead>
+  <tbody>
+    <tr><td>功能</td><td>从值表与 PDF 提取字段，建立映射，批量填写</td><td>给定 3 份样例与值表，输出字段数与预期一致</td></tr>
+    <tr><td>正确性</td><td>字段名必须精确匹配；未知字段、缺失必填项必须停止</td><td>注入一个未知字段，进程以非零码停止并列出可用字段</td></tr>
+    <tr><td>可追溯</td><td>每份输出附填写报告：总数、已填、未填、校验结果</td><td>报告字段齐全，数字可与 PDF 复核</td></tr>
+    <tr><td>安全</td><td>不覆盖原文件；不自动压平；不处理加密/扫描件</td><td>原文件哈希不变；扫描件被拒绝并说明原因</td></tr>
+    <tr><td>可维护</td><td>字段类型规则独立于流程；新增模板不改主流程</td><td>新增一种字段类型只需改 reference</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="design">设计与权衡</h2>
+
+<h3 id="rejected">被否决的方案</h3>
+
+<ol>
+  <li><strong>一次性大提示词，把字段表直接贴进正文。</strong> 字段表 300 多行，模板一更新就过期；每次激活都付出全部 token；模型容易在长表中错位。否决理由：不可维护、上下文成本高。</li>
+  <li><strong>对扫描件先 OCR 再填写。</strong> 扫描件没有表单字段，OCR 只能得到文本位置，无法可靠对应字段；错填的置信度反而更高。否决理由：不可验证，风险不可接受。</li>
+  <li><strong>用 UI 自动化模拟人工点击。</strong> 依赖阅读器版本、窗口尺寸与字体；Agent 环境未必有图形界面。否决理由：脆弱且不可移植。</li>
+  <li><strong>让 Agent 直接写一个临时脚本，每次现生成。</strong> 首次可能成功，但每次逻辑不同，无法积累修复，也无法做回归验证。否决理由：不可重复。</li>
+</ol>
+
+<h3 id="chosen">采用的结构</h3>
+
+<p>核心是<strong>计划—校验—执行</strong>：先提取事实源（<code>form_fields.json</code>），再生成计划（<code>field_values.json</code>），用校验脚本对照两者，只有通过才写文件。这与来源推荐的高风险操作模式一致。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/skill-creation/best-practices.md#plan-validate-execute">best-practices.md</a>）</p>
+
+<ul>
+  <li><strong>脚本承担确定性逻辑</strong>：解析、校验、填写、复核。Agent 不直接操作 PDF 字节。</li>
+  <li><strong>主文件只写流程与停止条件</strong>：约 70 行，每次执行都要用。</li>
+  <li><strong>字段类型细节进 references</strong>：只在遇到未知类型、复选框、单选组时加载。</li>
+  <li><strong>值表模板进 assets</strong>：用户提供 CSV 时参照，不在正文里重复列结构。</li>
+</ul>
+
+<h3 id="tradeoffs">取舍</h3>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>决定</th><th>代价</th><th>为什么接受</th></tr></thead>
+  <tbody>
+    <tr><td>多一步校验</td><td>每份多一次脚本运行，批量耗时增加</td><td>一次返工的成本远高于校验；错误不可逆</td></tr>
+    <tr><td>不自动压平</td><td>部分阅读器显示效果不一致</td><td>压平后不可编辑；应由用户明确要求</td></tr>
+    <tr><td>扫描件直接拒绝</td><td>覆盖不了历史纸质档案</td><td>OCR 填写无法可靠验证；宁可人工处理</td></tr>
+    <tr><td>未知字段必须停</td><td>批量任务可能中途暂停</td><td>猜测字段对应关系会产生静默错误</td></tr>
+    <tr><td>脚本而非纯指令</td><td>需要维护 Python 依赖</td><td>字段解析与 PDF 写入需要确定性</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="key-tradeoffs">三项关键取舍：决定、被否决的替代方案与理由</h3>
+<div class="table-wrap"><table><thead><tr><th>决定</th><th>被否决的替代方案</th><th>为什么</th></tr></thead><tbody><tr><td>计划—校验—执行</td><td>直接写 PDF 后检查结果</td><td>错误不可逆；前置校验能在写文件前停下并给出可用字段</td></tr><tr><td>只接受可填写 PDF</td><td>对扫描件 OCR 后直接填写</td><td>OCR 无法可靠对应字段；静默错填比明确拒绝更危险</td></tr><tr><td>字段名精确匹配，未知即停</td><td>按列序或相似度猜字段</td><td>猜错会串行填充且校验仍可能通过，返工成本高</td></tr></tbody></table></div>
+<p>第一个取舍把风险从“事后发现”移到“写文件前”。代价是每份多一次脚本运行，批量耗时增加；收益是错误不会进入最终文档。对于不可逆的对外文件，这个交换几乎总是值得。</p>
+<p>第二个取舍主动放弃扫描件市场。OCR 能提取文字，却无法可靠建立“文字—字段”的对应关系；一旦填错，错误看起来和正确结果一样可信。明确拒绝并转人工，比“尽力而为”更负责。</p>
+<p>第三个取舍拒绝按列序或相似度猜测。字段名不一致时，正确做法是停下来建立映射并让人确认，而不是让模型选一个“看起来最像”的字段。这会降低自动化率，但保住了可追溯性。</p>
+<h2 id="skill">完整 SKILL.md</h2>
+
+<pre><code>---
+name: pdf-form-filler
+description: Fill fillable PDF forms from a CSV or JSON mapping of field names to values, validating every field before writing. Use when the user needs to fill one or many PDF forms, especially batch jobs where wrong or missing fields are costly.
+license: Proprietary. LICENSE.txt has complete terms
+compatibility: Requires Python 3.10+, pypdf, and a local shell.
+metadata:
+  author: example-org
+  version: "1.0"
+---
+
+## 何时使用 / 不适用
+
+当用户需要填写一份或多份可填写 PDF 表单，尤其是字段不匹配代价高的批量任务时使用。不适用于扫描件、加密 PDF、签名字段，或需要 OCR 猜测字段的场景；遇到这些情况应停止并说明。
+
+# PDF Form Filler
+
+## 前置检查
+
+1. 确认 PDF 可填写：`python scripts/analyze_form.py input.pdf`。
+   - 若字段数为 0：这是扫描件或纯图片 PDF。停止，请用户提供可填写版本；不要用 OCR 猜测后直接盖章。
+2. 确认值文件存在且为 UTF-8 编码。
+3. 若输出文件已存在，先复制到 `output/backup/&lt;timestamp&gt;/`，不要覆盖。
+
+## 计划—校验—执行
+
+按顺序执行，不得跳过校验：
+
+1. **提取字段**：`python scripts/analyze_form.py input.pdf` → `form_fields.json`
+   （字段名、类型、是否必填、所在页）。
+2. **建立映射**：创建 `field_values.json`，把每个字段名映射到值。
+   - 字段名必须与 `form_fields.json` 完全一致，区分大小写。
+   - 不要按位置或顺序猜测字段。
+3. **校验**：`python scripts/validate_fields.py form_fields.json field_values.json`
+   - 退出码 0 才能继续。
+   - 非 0 时读 stderr，修正映射后重跑；最多 3 轮。
+4. **填写**：`python scripts/fill_form.py input.pdf field_values.json output.pdf`。
+5. **复核**：`python scripts/verify_output.py output.pdf form_fields.json field_values.json`
+   - 检查页数未变、已填字段数与预期一致、必填字段无空值。
+
+## 停止条件
+
+出现以下任一情况，停止并报告，不要自行处理：
+
+- PDF 无表单字段或已加密。
+- 值文件中有字段名在表单中不存在。
+- 必填字段缺少值。
+- 校验连续 3 轮失败。
+- 输出页数与输入不一致。
+
+## 报告模板
+
+```markdown
+## 填写结果
+- 输入：&lt;input.pdf&gt;（&lt;n&gt; 页，&lt;m&gt; 个字段）
+- 输出：&lt;output.pdf&gt;
+- 已填字段：&lt;filled&gt;/&lt;total&gt;
+- 未填必填项：&lt;none 或列表&gt;
+- 校验：PASS / FAIL（附错误摘要）
+- 备注：跳过的项目与原因
+```
+
+## Gotchas
+
+- 同名字段可能出现在多页。`analyze_form.py` 会列出页码；映射按“字段名 + 页码”核对，不要只按名字。
+- 复选框的值通常是导出值（如 `/Yes`、`/1`），不是 `true`。未知类型先读 `references/field-types.md`。
+- 签名字段不能通过程序填写；遇到时报告“需人工签署”，不要生成空白签名框。
+- 部分阅读器不显示新填的值，除非压平外观流（flatten）。只有在用户明确要求时才压平，因为压平后不可再编辑。
+- 加密 PDF 需要先解密；没有密码时停止，不要尝试破解。
+
+## 参考文件
+
+- 当遇到未知字段类型、复选框/单选组，或值格式报错时，读 `references/field-types.md`，按类型选择值的写法。
+- 当用户提供 CSV 值时，参照 `assets/value-template.csv` 的列结构；列名不是字段名时先建立映射表，不要直接按列序填写。</code></pre>
+
+<h2 id="validation">验证方法</h2>
+
+<ol>
+  <li><strong>夹具测试。</strong> 准备 3 份 PDF：正常双页表单、含重复字段名的表单、无字段的扫描件；各配一份正确值表与一份错误值表。</li>
+  <li><strong>正向。</strong> 正常表单应输出与输入相同页数、已填字段数等于值表字段数、必填项无空值，校验退出码 0。</li>
+  <li><strong>负向。</strong> 未知字段应以非零码停止，stderr 列出可用字段；扫描件应被拒绝，且不生成输出文件。</li>
+  <li><strong>幂等。</strong> 对同一输入运行两次，输出应一致（除时间戳），且原文件哈希不变。</li>
+  <li><strong>回归。</strong> 每次修改字段类型规则后，重跑全部夹具；记录通过数，而不只是“这次看起来对”。</li>
+  <li><strong>人工复核。</strong> 随机抽 5 份输出，在阅读器中打开，确认显示值与值表一致；这是断言难以覆盖的部分。</li>
+</ol>
+
+<div class="checkpoint">
+  <span class="cp-label">CHECKPOINT</span>
+  <p>如果你要实现这个技能，至少验证：3 个夹具全部通过；未知字段与扫描件都被拒绝；重复运行不改变原文件；每份输出都有报告且数字可复核。</p>
+</div>
+
+<h2 id="failures">常见失败模式</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>失败</th><th>表现</th><th>根因</th><th>预防</th></tr></thead>
+  <tbody>
+    <tr><td>字段错位</td><td>姓名填进地址栏，且校验通过</td><td>按列序而非字段名映射</td><td>校验脚本要求字段名存在；禁止按位置</td></tr>
+    <tr><td>重复字段只填一处</td><td>同一字段在多页出现，只有第一页有值</td><td>按名字去重，忽略页码</td><td>事实源包含页码；复核每页字段</td></tr>
+    <tr><td>复选框写成 true</td><td>PDF 显示未勾选或值异常</td><td>不理解导出值（/Yes、/1）</td><td>未知类型查 references/field-types.md</td></tr>
+    <tr><td>扫描件“成功”</td><td>生成一个没有内容的输出</td><td>未检查字段数为 0</td><td>前置检查直接拒绝</td></tr>
+    <tr><td>静默部分填写</td><td>报告说完成，实际漏了必填项</td><td>没有复核步骤</td><td>verify_output.py 比较必填项数量</td></tr>
+    <tr><td>覆盖原件</td><td>原文件被改写</td><td>输出路径等于输入路径</td><td>强制不同路径；先备份</td></tr>
+    <tr><td>改了期望值</td><td>校验脚本报错后，Agent 改脚本让错误消失</td><td>验证循环缺少“不得修改期望值”</td><td>期望值来自事实源，修改需人工确认</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="transfer">可迁移的经验</h2>
+
+<ul>
+  <li>高风险任务先建立“事实源”，再做计划，再校验，最后执行。</li>
+  <li>把“不确定”变成停止条件，而不是让模型猜。</li>
+  <li>校验脚本的错误信息要给出可用选项，模型才能自我纠正。</li>
+  <li>把低频的类型细节放进 references，主流程保持短小。</li>
+</ul>
+
+<p>这个案例的验证重点不是“能不能填”，而是“错的时候能不能停”。正向夹具只证明流程能跑通；负向夹具才证明系统不会静默产生错误文件。评审时先看未知字段、扫描件、必填缺失三类负向用例，再看正向输出的字段数与页数。把所有失败都变成可观察的拒绝，比提高一次成功率更重要。</p><p>还要检查幂等与原件保护。同一输入重复运行，输出应一致，原文件哈希不变；否则一次重试就可能覆盖证据。案例中的“先备份、强制不同输出路径、复核页数”不是形式要求，而是为了让错误可回滚。一个不能回滚的批量填写工具，不值得自动化。</p>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p>列出这个技能中“必须停止”的三种情况，并说明为什么不能降级为警告。</p>
+      <details><summary>提示与自检</summary><p>扫描件/无字段、未知字段名、必填项缺失（另有加密、连续校验失败）。它们的共同点是“继续执行会产生不可验证或不可逆的错误”；警告会被模型当作可忽略。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p>回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p>合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p>为“值表列名与字段名不一致”设计一个映射步骤：输入、输出、校验规则各是什么？不要直接按列序对应。</p>
+      <details><summary>提示与自检</summary><p>输入值表列名与表单字段名；输出 <code>mapping.json</code>（列名→字段名）；校验每个字段名存在、没有一对多、没有未映射的必填字段。映射需人工确认或由明确的命名规则生成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p>把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p>两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p>把“字段类型规则”设计成一个可扩展的 reference：新增一种字段类型时，主文件不需要改动。写出该文件的目录结构与主文件的加载触发。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../05-tutorials/t4-description-eval.html"><span>上一页</span><strong>教程 4：写 3 个评估用例并调好 description</strong></a>
+      <a class="pager-next" href="../06-cases/case2-code-review.html"><span>下一页</span><strong>案例 2：团队代码评审（代码工作流）</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

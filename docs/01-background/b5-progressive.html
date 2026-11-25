@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>渐进披露：为什么不能把所有内容一次塞进去 · Agent Skills 课程</title>
+  <meta name="description" content="用“目录—章节—附录”的类比建立渐进披露直觉，并看清它在 Agent Skills 中对应哪三层、各自花多少 token。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html" class="current" aria-current="page">预备知识</a>
+        <a href="../02-core/c1-anatomy.html">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#problem">问题：技能越多，上下文越不够用</a></li>
+        <li><a href="#three-tiers">三层加载</a></li>
+        <li><a href="#analogy">类比：图书馆、书与附录</a></li>
+        <li><a href="#why">渐进披露带来什么</a></li>
+        <li><a href="#not">它不是什么</a></li>
+        <li><a href="#design">对设计的三条直接要求</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><span>预备知识</span></p>
+      <p class="stage-badge">S1 认知准备</p>
+      <h1>渐进披露：为什么不能把所有内容一次塞进去</h1>
+      <p class="lead">用“目录—章节—附录”的类比建立渐进披露直觉，并看清它在 Agent Skills 中对应哪三层、各自花多少 token。</p>
+      <p class="page-meta">阶段：S1 认知准备 · 建议 25 分钟 · 先修：上下文窗口与 Token</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> 假设你的编辑器里装了 40 个 Skill。如果每个 SKILL.md 平均 3000 token，全部常驻就是 12 万 token——还没开始干活，上下文已经满了。渐进披露（progressive disclosure）就是为了避免这种局面。</p>
+
+<h2 id="problem">问题：技能越多，上下文越不够用</h2>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> Agent 的能力扩展有一个天然矛盾：</p>
+
+<ul>
+  <li>要让 Agent 在需要时想到某个技能，它必须“知道有这个技能”。</li>
+  <li>要让 Agent 用得好，它必须读到完整指令。</li>
+  <li>但完整指令很贵，不能对每个技能、每一轮都读。</li>
+</ul>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把所有技能全文常驻，会同时付出费用、延迟与注意力三重代价；只给技能名字不给描述，Agent 又无法判断何时该用。渐进披露的做法是：<strong>先给最小可判断的信息，再按需要逐层加深。</strong></p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把数字换成感受：一个技能正文 3000 token，十个就是 3 万；这还没有算系统提示词、工具定义和对话历史。窗口再大，也会被这些固定成本吃掉。更麻烦的是，模型需要在几十段描述里判断“这次该用哪个”，描述越相似，误判越多。渐进披露不是省一点钱的技巧，而是让技能数量增长时系统仍然可用的结构性选择。没有它，技能库越大，Agent 越难找到正确的那一个。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="three-tiers">三层加载</h2>
+
+<div class="prov prov-src">
+  <p><span class="prov-mark prov-src">[源站]</span> Agent 通过三个阶段加载技能：<strong>发现</strong>（Discovery）——启动时只加载每个可用技能的名字和描述，刚好够判断是否可能相关；<strong>激活</strong>（Activation）——当任务匹配某个技能的描述时，Agent 把完整的 <code>SKILL.md</code> 指令读入上下文；<strong>执行</strong>（Execution）——Agent 遵循指令，按需执行捆绑代码或加载被引用的文件。</p>
+</div>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>层级</th><th>加载什么</th><th>何时加载</th><th>参考成本</th></tr></thead>
+  <tbody>
+    <tr><td>第 1 层：元数据</td><td><code>name</code> 与 <code>description</code></td><td>会话启动时，对全部技能</td><td>约 100 token / 技能；客户端实现指南给出约 50–100</td></tr>
+    <tr><td>第 2 层：指令</td><td>完整 SKILL.md 正文</td><td>技能被激活时</td><td>建议少于 5000 token</td></tr>
+    <tr><td>第 3 层：资源</td><td><code>scripts/</code>、<code>references/</code>、<code>assets/</code> 中的文件</td><td>指令引用且任务需要时</td><td>因文件而异</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>这张表的数字来自规范与客户端实现指南：规范建议 SKILL.md 正文少于 5000 token、主文件少于 500 行；客户端实现指南把目录层描述为每技能约 50–100 token。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/specification.md#progressive-disclosure">specification.md</a>、<a href="https://agentskills.io/client-implementation/adding-skills-support.md#the-core-principle-progressive-disclosure">adding-skills-support.md</a>）</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 三层之间的关系不是“越深越详细”，而是“越深越有条件”。元数据回答“要不要考虑这个技能”，正文回答“这类任务的标准做法是什么”，资源回答“当前这个分支的特殊情况怎么处理”。因此，正文不应该包含只在 5% 情况下才需要的细节，资源也不应该承担每次都要执行的步骤。判断内容放在哪一层，先问：如果这次用不上，读它是不是浪费？答案是“是”，就往下放，并写清加载条件。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="analogy">类比：图书馆、书与附录</h2>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 可以用三层类比来建立直觉：</p>
+
+<ol>
+  <li><strong>目录卡片</strong>（元数据）：每本书一张卡，写着书名和一句话简介。你扫一眼就知道要不要借。卡片很小，所以整个柜子都能放在桌上。</li>
+  <li><strong>正文</strong>（SKILL.md）：真正开始读这本书。它应该自足，能支撑一次完整操作，但不必包含所有历史考据。</li>
+  <li><strong>附录与工具箱</strong>（references / scripts / assets）：遇到具体问题时再翻。查表、跑脚本、套模板，都在这一步。</li>
+</ol>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 类比不能过度延伸：Agent 不是真的“先借书再读”，它每次激活都可能重新读取；也没有人类那样的长期记忆。但这个类比能帮你判断内容该放哪一层：<strong>决定“要不要用”的信息放第 1 层，决定“怎么做”的信息放第 2 层，只有做某一步才需要的信息放第 3 层。</strong></p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 类比的边界也要说清：图书馆的目录卡片不会自动被“理解”，而技能描述会被模型用来做语义判断；书读完就记住了，技能内容却可能被上下文压缩掉。所以不能把类比推得太远。它真正有用的地方，是帮你形成“先判断、再展开”的直觉，以及在写作时问自己：这段信息是目录卡、正文，还是附录？一旦能稳定回答这个问题，内容分层就不会乱。</p>
+<h2 id="why">渐进披露带来什么</h2>
+
+<ul>
+  <li><strong>可扩展</strong>：装 50 个技能，启动时也只需要读 50 段短描述，而不是 50 篇长文。</li>
+  <li><strong>更准的激活</strong>：描述足够具体时，模型能区分相邻技能，不会把所有任务都交给同一个“万能技能”。</li>
+  <li><strong>更低的单次成本</strong>：只有真正相关的技能才付出正文成本。</li>
+  <li><strong>更易维护</strong>：把易变的细节放进独立文件，修改时不必动主流程。</li>
+</ul>
+
+<p>来源在客户端实现指南中算过一笔账：装了 20 个技能的 Agent，不必在启动时支付 20 套完整指令的成本，只支付实际用到的那些。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/client-implementation/adding-skills-support.md#the-core-principle-progressive-disclosure">adding-skills-support.md</a>）</p>
+
+
+<p><span class="prov-mark prov-src">[源站]</span> 除了成本，渐进披露还改善“可维护性”。当所有内容堆在一个文件里，修改一个字段说明就要重新检查整篇；拆成资源后，变化被限制在局部，评审也更容易聚焦。它同时降低了技能之间的冲突：两个技能都激活时，只有各自真正需要的部分进入上下文，互相矛盾的规则出现概率更低。这些收益不会立刻显现在一次运行里，但会随着技能数量和团队人数增长而放大。</p>
+<h2 id="not">它不是什么</h2>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 为了避免误解，明确三点：</p>
+
+<ol>
+  <li><strong>不是自动摘要。</strong> 渐进披露依赖作者把内容切开并写好加载条件；客户端不会替你判断哪段重要。</li>
+  <li><strong>不是检索增强生成（RAG）。</strong> 它没有向量库和相似度检索；是否加载由模型读描述后判断，或由用户显式调用。</li>
+  <li><strong>不是“文件越多越好”。</strong> 拆得太碎会增加导航成本和漏读风险；来源建议文件引用保持在一层深度，避免深链。<span class="prov-mark prov-src">[源站]</span>（<a href="https://agentskills.io/specification.md#file-references">specification.md</a>）</li>
+</ol>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 还要避免一种反向误区：为了“渐进披露”而把所有内容拆成很多小文件，结果主文件变成一张导航表，模型每做一步都要猜该读哪个文件。拆分的前提是你能够为每个文件写出清晰的加载条件；写不出条件，就不要拆。一个好的经验是：先写一个自足的短正文，等它确实超过预算，再按“同一情境下一起需要”的原则拆出一两个文件。结构应该跟着真实需求长出来，而不是先搭架子。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节放回真实任务检验：找一个会用到它的决定，写出遵守与不遵守两种做法，并指出不遵守时会出现什么可观察的错误。写不出具体错误，说明还需要更具体的场景、字段或命令。</p>
+<h2 id="design">对设计的三条直接要求</h2>
+
+<ol>
+  <li><strong>把描述当成产品入口来写。</strong> 它是唯一常量；写得窄，技能不触发；写得宽，处处误触发。第 4 模块会专门训练。</li>
+  <li><strong>正文只放“每次都要”的内容。</strong> 一次性才用的字段表、长示例、模板，移到资源层。</li>
+  <li><strong>给每个资源写加载触发。</strong> “参见 references/”几乎没有用；要写“当 API 返回非 200 时，读 references/api-errors.md”。</li>
+</ol>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这三条要求可以落到具体检查：描述里有没有“当用户……时使用”的句子；正文里有没有一段明显是低频细节的内容；每个支持文件旁边有没有“当 X 时读 Y”的触发。三个检查都不通过，说明你写的可能还是一篇提示词，而不是一个可维护的技能。先修结构，再修措辞；结构错了，措辞再好也只能延缓问题。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 把这一节的每条要求对应到一个失败场景：如果不这样做，会出现什么可观察的错误？写不出错误的条目，要么删掉，要么补上具体字段、阈值或命令。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这三条要求不是一次性的写作检查，而是每次修改技能后都应该重跑的自检：描述是否仍覆盖真实说法、正文是否仍只放高频内容、每个资源是否仍有可观察的加载条件。任何一项退化，都会让渐进披露重新变成“把文件堆在一起”。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>渐进披露分三层：元数据（全部加载）、指令（激活时加载）、资源（需要时加载）。</li>
+    <li>它解决的是“技能数量增长”与“上下文有限”之间的矛盾，不是让内容自动变聪明。</li>
+    <li>拆分的质量取决于加载触发写得是否具体；没有触发条件的拆分只是把长文切碎。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把下列内容分到三层：① 技能名与一句话描述；② “先用 <code>jq</code> 校验 JSON，再写入”；③ 一份 12 页的 API 错误码表。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> ① 元数据；② SKILL.md 正文（每次执行都要）；③ references（只在遇到错误码时读）。若你把错误码表放进正文，激活成本会无谓增加。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 某 SKILL.md 正文 620 行，其中 300 行是“字段字典”。请给出拆分方案，并写出至少两条具体的加载触发。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 方案应把字段字典移到 <code>references/fields.md</code>，主文件保留流程、默认值与校验命令。触发示例：“当需要填写或校验字段值时，读 references/fields.md”“当遇到未知字段名时，先查 references/fields.md 再报错”。只写“详见 references”不合格。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 设计一个包含 5 个相邻技能（例如 PDF 读取、PDF 表单填写、PDF 合并、PDF 转图片、OCR）的目录。为每个技能写一句 20–40 字的描述，使它们尽可能不互相误触发。再指出哪两个最容易混淆，以及你如何在描述中划边界。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../01-background/b4-prompt-config.html"><span>上一页</span><strong>提示词、指令与文件式配置</strong></a>
+      <a class="pager-next" href="../02-core/c1-anatomy.html"><span>下一页</span><strong>Skill 的解剖：目录结构与 SKILL.md</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>

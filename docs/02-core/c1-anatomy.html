@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skill 的解剖：目录结构与 SKILL.md · Agent Skills 课程</title>
+  <meta name="description" content="一个 Skill 就是一个目录，最少只需要一个 SKILL.md。看清必选与可选的每一部分，以及正文该怎么组织。">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+  <script>window.SITE_ROOT = "../";</script>
+  <script src="../assets/search-index.js" defer></script>
+  <script src="../assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="../index.html" aria-label="Agent Skills 课程首页">
+        <span class="brand-mark" aria-hidden="true">AS</span>
+        <span class="brand-text">Agent Skills 课程</span>
+      </a>
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">搜索本站</label>
+        <input id="search-input" type="search" placeholder="搜索课程（按 / 聚焦）" autocomplete="off" aria-controls="search-results" aria-expanded="false">
+        <div id="search-results" class="search-results" aria-live="polite" hidden></div>
+      </div>
+      <nav class="site-nav" aria-label="主导航">
+        <a href="../index.html">首页</a>
+        <a href="../path.html">学习路径</a>
+        <a href="../01-background/b1-agent.html">预备知识</a>
+        <a href="../02-core/c1-anatomy.html" class="current" aria-current="page">规范</a>
+        <a href="../03-authoring/a1-expertise.html">设计方法</a>
+        <a href="../04-trigger-eval/e1-description.html">触发与评估</a>
+        <a href="../05-tutorials/t1-roll-dice.html">教程</a>
+        <a href="../06-cases/case1-pdf-forms.html">案例</a>
+        <a href="../07-capstone.html">毕业项目</a>
+        <a href="../glossary.html">术语表</a>
+        <a href="../index-all.html">参考资料</a>
+      </nav>
+    </div>
+  </header>
+  <div class="page-shell">
+    <aside class="toc" aria-label="本页目录">
+      <p class="toc-title">本页目录</p>
+      <ol>
+        <li><a href="#tree">目录结构</a></li>
+        <li><a href="#two-parts">SKILL.md 由两部分组成</a></li>
+        <li><a href="#body">正文写什么</a></li>
+        <li><a href="#dirs">三个可选目录的分工</a></li>
+        <li><a href="#refs">文件引用：相对路径，且只深一层</a></li>
+        <li><a href="#annotated">一个带支持文件的完整结构</a></li>
+        <li><a href="#three-things">如果你只记住三件事</a></li>
+        <li><a href="#exercises-h">练习</a></li>
+      </ol>
+    </aside>
+    <main id="main" tabindex="-1">
+      <p class="breadcrumb"><a href="../02-core/c1-anatomy.html">规范与机制</a><span aria-hidden="true">/</span><span>规范</span></p>
+      <p class="stage-badge">S2 读懂规范</p>
+      <h1>Skill 的解剖：目录结构与 SKILL.md</h1>
+      <p class="lead">一个 Skill 就是一个目录，最少只需要一个 SKILL.md。看清必选与可选的每一部分，以及正文该怎么组织。</p>
+      <p class="page-meta">阶段：S2 读懂规范 · 建议 30 分钟 · 先修：渐进披露</p>
+      <article class="content">
+<p class="lead"><span class="prov-mark prov-course">[本课程观点]</span> 规范其实很短：一个目录，一个必选文件，最多再加三个约定目录。真正需要花时间的是正文——它决定 Agent 能不能把事做对。</p>
+
+<h2 id="tree">目录结构</h2>
+
+<div class="prov prov-src">
+  <p><span class="prov-mark prov-norm">[规范]</span> 一个 Skill 是一个目录，至少包含一个 <code>SKILL.md</code> 文件。目录还可以包含任意其他文件与目录；规范约定 <code>scripts/</code>、<code>references/</code>、<code>assets/</code> 三个可选目录用于组织常见内容。（来源：<a href="https://agentskills.io/specification.md#directory-structure">specification.md</a>）</p>
+</div>
+
+<pre><code>my-skill/
+├── SKILL.md          # 必选：元数据 + 指令
+├── scripts/          # 可选：可执行代码
+├── references/       # 可选：参考文档
+├── assets/           # 可选：模板、静态资源
+└── ...               # 其他任何文件或目录
+</code></pre>
+
+<p>目录名不是随便取的：<code>name</code> 字段必须与父目录名完全一致。也就是说，<code>pdf-form-filler/SKILL.md</code> 里的 <code>name</code> 必须是 <code>pdf-form-filler</code>。<span class="prov-mark prov-norm">[规范]</span>（<a href="https://agentskills.io/specification.md#name-field">specification.md</a>）这条规则会在<a href="../02-core/c2-frontmatter.html#name">下一课</a>展开。</p>
+
+
+<p><span class="prov-mark prov-norm">[规范]</span> 目录结构看似简单，实际决定了三件事：客户端能否发现技能、相对引用能否解析、以及技能能否被整体复制。父目录名与 name 一致，不只是校验规则，也是客户端用目录归属技能的依据。三个可选目录只是约定，不是白名单；你可以放任意文件，但把它们放进 scripts、references、assets 能让读者一眼判断用途，也方便按需加载。不要为了“看起来规范”创建空目录，空目录不会带来任何加载收益。</p><p><span class="prov-mark prov-norm">[规范]</span> 另一个常见问题是把技能放在项目根目录之外，或者目录层级多套了一层。客户端通常只扫描特定位置的直接子目录，例如 .agents/skills/roll-dice/。如果你写成 .agents/skills/my-skills/roll-dice/，多出来的中间层会让技能无法被直接发现。移动目录后要同步检查 name，避免出现“文件能打开但校验失败”的情况。</p>
+<h2 id="two-parts">SKILL.md 由两部分组成</h2>
+
+<ol>
+  <li><strong>YAML frontmatter</strong>：文件最开头，由两行 <code>---</code> 包围的键值块。至少包含 <code>name</code> 与 <code>description</code>。</li>
+  <li><strong>Markdown 正文</strong>：第二个 <code>---</code> 之后的所有内容。没有格式限制。</li>
+</ol>
+
+<pre><code>---
+name: roll-dice
+description: Roll dice using a random number generator. Use when asked to roll a die (d6, d20, etc.), roll dice, or generate a random dice roll.
+---
+
+To roll a die, use the following command that generates a random number from 1
+to the given number of sides:
+
+```bash
+echo $((RANDOM % &lt;sides&gt; + 1))
+```
+
+Replace `&lt;sides&gt;` with the number of sides on the die (e.g., 6 for a standard
+die, 20 for a d20).
+</code></pre>
+
+<p>上面是来源快速入门中的完整例子。注意它没有：解释什么是骰子、介绍随机数原理、列出所有可能的桌面游戏。它只写了 Agent 不知道的一件事——用哪条命令、怎么替换参数。这是“上下文经济”的最简示范。<span class="prov-mark prov-norm">[规范]</span>（<a href="https://agentskills.io/skill-creation/quickstart.md">quickstart.md</a>）</p>
+
+
+<p><span class="prov-mark prov-norm">[规范]</span> frontmatter 与正文的边界要严格：第一个 --- 必须在文件开头，第二个 --- 单独成行，之后才是正文。frontmatter 里的值如果包含冒号或井号，要加引号或使用块标量；正文里则可以自由使用 Markdown、代码块和表格。解析器只关心元数据块，不理解正文；因此不要把关键触发信息只写在正文第一段里，客户端在发现阶段看不到它。正文可以写得很长，但规范建议控制在 500 行以内，并把低频细节移到支持文件。</p><p><span class="prov-mark prov-norm">[规范]</span> 写作时可以先只写 frontmatter 和三条流程，运行一次，确认技能能被发现、能触发，再补细节。这样能把“格式错误”和“内容不好”两类问题分开排查。如果一上来就写 300 行，最后触发失败时，你很难判断是描述没写对，还是 YAML 解析失败，抑或客户端根本没扫描到目录。</p>
+<h2 id="body">正文写什么</h2>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 规范没有强制结构，但给出三个推荐部分：</p>
+
+<ul>
+  <li><strong>分步指令</strong>：按执行顺序写，步骤之间不要藏隐含依赖。</li>
+  <li><strong>输入与输出示例</strong>：一个真实输入、一个期望输出，比十句形容词更能约束格式。</li>
+  <li><strong>常见边界情况</strong>：空文件、缺列、重复键、编码错误、权限不足。写成具体现象与处理方式。</li>
+</ul>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 本课程建议的正文骨架（不是规范要求）：</p>
+
+<pre><code># 技能标题（可选）
+
+## 何时使用 / 不适用
+一句话边界，帮助模型避免误用。
+
+## 前置检查
+必须存在的文件、命令、权限；缺失时怎么办。
+
+## 流程
+1. ...
+2. ...
+3. ...
+
+## 输出格式
+一个模板或一个真实示例。
+
+## Gotchas
+- 具体字段/命令/边界的坑，每条都能对应一次真实错误。
+
+## 验证
+运行什么命令、看到什么算通过。
+</code></pre>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这个骨架覆盖了“开始前—执行中—结束后”三个阶段。它不适用于所有技能：一个纯知识型技能可能只需要“判断规则 + 示例”，一个脚本编排型技能可能需要更详细的错误处理。骨架是起点，不是模板。</p>
+
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 骨架的价值在于顺序，而不是标题本身。前置检查放在流程前，能让 Agent 在动手前发现缺少文件或权限；验证放在最后，能让“完成”变成可检查的状态。Gotchas 最好紧跟流程，因为模型在执行中最容易犯的就是这些具体错误；如果放到文末，它可能读不到就开始了。输出模板可以内联，也可以放 assets，但必须在生成结果之前被引用。每个小节都应该能回答“如果没有它，会在哪一步出错”。</p>
+<h2 id="dirs">三个可选目录的分工</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>目录</th><th>放什么</th><th>什么时候读/执行</th><th>注意</th></tr></thead>
+  <tbody>
+    <tr><td><code>scripts/</code></td><td>可执行代码，如校验器、解析器、转换器</td><td>流程执行到对应步骤时</td><td>应自包含或明确依赖；要有帮助信息与错误处理</td></tr>
+    <tr><td><code>references/</code></td><td>详细技术参考、表单结构、领域规则</td><td>指令明确要求时</td><td>单个文件保持聚焦；文件越小，按需加载越省</td></tr>
+    <tr><td><code>assets/</code></td><td>模板、图片、查找表、schema</td><td>需要套用模板或查表时</td><td>是静态资源，不是指令；不要指望模型自动理解图片</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="prov prov-src">
+  <p><span class="prov-mark prov-norm">[规范]</span> 规范对三个目录的说明：<code>scripts/</code> 中的脚本应自包含或清楚记录依赖，包含有帮助的错误信息，并优雅处理边界情况；<code>references/</code> 用于 Agent 在需要时阅读的额外文档，建议保持单个文件聚焦；<code>assets/</code> 存放模板、图片、数据文件等静态资源。（来源：<a href="https://agentskills.io/specification.md#optional-directories">specification.md</a>）</p>
+</div>
+
+
+<p><span class="prov-mark prov-norm">[规范]</span> 三个目录的选择可以用一个问题判断：这份内容是让 Agent“知道”，还是让 Agent“执行”？知道且每次都要，放正文；知道但偶尔才要，放 references；需要确定性执行，放 scripts；需要被套用或填充，放 assets。分类不清时，优先看加载成本：脚本通常只在某一步运行，不会整份读入上下文；参考文件会被读入，所以要控制大小；模板和图片通常只被引用，不进入推理。把它们混在一个目录里，会让按需加载失去意义。</p><p><span class="prov-mark prov-norm">[规范]</span> 还有一条实用规则：不要让脚本依赖 assets 里的相对路径而不说明。Agent 执行命令时的工作目录未必是技能目录，脚本应该接受显式路径参数，或在内部基于自身位置解析。正文里写“scripts/extract.py”是给读者看的相对引用，不等于 shell 的工作目录。把这两件事分开，能避免大量“本地能跑、Agent 跑不了”的问题。</p>
+<h2 id="refs">文件引用：相对路径，且只深一层</h2>
+
+<p><span class="prov-mark prov-norm">[规范]</span> 在 SKILL.md 中引用其他文件时，使用<strong>相对于技能根目录</strong>的路径：</p>
+
+<pre><code>详细字段说明见 [references/fields.md](references/fields.md)。
+
+运行提取脚本：
+scripts/extract.py
+</code></pre>
+
+<p>规范建议把文件引用保持在一层深度，避免深层引用链。<span class="prov-mark prov-norm">[规范]</span>（<a href="https://agentskills.io/specification.md#file-references">specification.md</a>）原因很实际：如果 A 指向 B、B 又指向 C，Agent 需要连续做两次“是否要读”的判断，漏读概率上升，定位成本也上升。</p>
+
+<div class="callout callout-warn">
+  <div class="callout-title">路径陷阱</div>
+  <p><span class="prov-mark prov-norm">[规范]</span> 脚本里的路径和正文里的引用是两回事。正文中的 <code>references/fields.md</code> 相对于技能目录；脚本中的路径通常相对于<strong>当前工作目录</strong>，而 Agent 运行命令时未必在技能目录下。稳妥做法是让脚本接受显式路径参数，或在脚本内部基于自身位置解析。</p>
+</div>
+
+
+<p><span class="prov-mark prov-norm">[规范]</span> 引用路径的基准是技能根目录，而不是当前工作目录，也不是 SKILL.md 所在的系统绝对路径。规范建议保持一层深度：SKILL.md 直接指向 references/fields.md，而不是让 fields.md 再指向更深层的文件。深链的问题不是“不允许”，而是每多一层，模型就多一次判断，漏读和读错的概率都会上升。文件名也应该承担导航作用，fields.md 比 doc2.md 更容易被正确选择。</p>
+<h2 id="annotated">一个带支持文件的完整结构</h2>
+
+<pre><code>release-notes/
+├── SKILL.md
+├── references/
+│   └── style-guide.md      # 团队措辞与分类规则
+└── assets/
+    └── template.md         # 发布说明模板
+</code></pre>
+
+<p><span class="prov-mark prov-course">[本课程观点]</span> 对应的 SKILL.md 只需要写清：何时生成发布说明、从哪里取变更、如何分类、套哪个模板、写完如何自检，以及“当需要调整措辞时，读 references/style-guide.md”。模板本身放在 assets，不占正文。这样做的效果会在<a href="../05-tutorials/t2-references.html">教程 2</a>中被实际测量。</p>
+
+<div class="keybox">
+  
+<p><span class="prov-mark prov-course">[本课程观点]</span> 这个结构的关键不是“有三个目录”，而是每个文件都有明确的加载时机。主文件写流程与判断，style-guide 只在需要调整措辞时读，template 只在生成最终文本前套用。你可以用一张纸画出这三者的关系：哪一步需要哪个文件，读完它解决什么问题。如果画不出来，说明结构还停留在“分类”，没有进入“调度”。真正的渐进披露，是让模型在正确的步骤看到正确的内容，而不是把文件整齐地摆在那里。</p>
+<p><span class="prov-mark prov-course">[本课程观点]</span> 用一个你熟悉的真实材料照这一节做一遍：先保留必须的字段与判断，再删掉模型已知的解释，最后补一个别人能执行的验证。完成后让同事只看结构，判断他能否说出何时该读哪个文件。</p>
+<h2 id="three-things">如果你只记住三件事</h2>
+  <ol>
+    <li>Skill 是目录，SKILL.md 必选；scripts / references / assets 是可选约定，不是必需。</li>
+    <li>SKILL.md = YAML 元数据 + Markdown 正文；正文唯一的目标是让 Agent 做对，而不是写全。</li>
+    <li>引用用相对路径，保持一层深度；路径解析基准是技能根目录，不是当前工作目录。</li>
+  </ol>
+</div>
+
+<section class="exercises" id="exercises">
+  <h2 id="exercises-h">练习</h2>
+  <div class="ex-grid">
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 列出创建一个最小可用 Skill 所需的全部文件，并指出哪些是可选的。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 必需：<code>&lt;skill-name&gt;/SKILL.md</code>，其中包含 name 与 description。可选：scripts/、references/、assets/ 及其他任何文件。若你答“还需要 manifest.json 或 package.json”，那是别的工具链，不是 Agent Skills 规范。</p></details>
+    </article>
+    <article class="ex">
+      <h3>基础</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 回到本页第一个概念小节，用两三句话说明它解决什么问题，并举一个你工作中会遇到的例子。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 合格答案要包含“问题—做法—具体场景”三部分；只复述小节标题，或举一个与本页无关的例子，都不算完成。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 一个技能正文引用了 <code>references/a.md</code>，而 a.md 又让你读 <code>references/b.md</code>。这样设计有什么问题？给出两种改法。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 问题：形成两层引用链，增加漏读与定位成本。改法一：把 b.md 的关键内容合并进 a.md；改法二：让 SKILL.md 直接按条件引用 b.md，保持所有引用都从主文件出发、只深一层。</p></details>
+    </article>
+    <article class="ex">
+      <h3>进阶</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 把本页的方法用到你自己的一个真实任务上，写出两条可执行指令和一个别人能照着做的验证方式。</p>
+      <details><summary>提示与自检</summary><p><span class="prov-mark prov-course">[本课程观点]</span> 两条指令要具体到字段、命令、阈值或判断标准；验证方式必须给出可观察的结果，例如某个文件存在、某条命令退出码为 0、某个字段等于期望值。</p></details>
+    </article>
+    <article class="ex">
+      <h3>挑战</h3>
+      <p><span class="prov-mark prov-course">[本课程观点]</span> 为一个“把会议录音转成行动项”的技能设计目录结构。指出哪些内容必须留在 SKILL.md，哪些应进 references 或 assets，并为每个支持文件写一句加载触发。</p>
+      <details><summary>评分点</summary><ul><li>完整回应题目中的两个关键要求：2 分</li><li>给出可验证的检查、示例或对照：2 分</li><li>说明一个取舍、边界或失败情况：1 分</li></ul></details>
+    </article>
+  </div>
+</section>
+      </article>
+      <footer class="page-footer" aria-label="课程翻页"><nav class="pager">
+      <a class="pager-prev" href="../01-background/b5-progressive.html"><span>上一页</span><strong>渐进披露：为什么不能把所有内容一次塞进去</strong></a>
+      <a class="pager-next" href="../02-core/c2-frontmatter.html"><span>下一页</span><strong>Frontmatter 字段完全指南</strong></a>
+    </nav></footer>
+    </main>
+  </div>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-brand">Agent Skills 学习课程</p>
+      <nav aria-label="辅助导航" class="footer-nav">
+        <a href="../path.html">学习路径</a>
+        <a href="../checklist.html">检查清单</a>
+        <a href="../index-all.html">全站索引</a>
+        <a href="../sources.html">来源与检索日期</a>
+        <a href="../about.html">关于本课程</a>
+      </nav>
+      <p class="fine">课程内容基于 agentskills.io 的公开文档整理，检索日期 2026-11-25。来源事实、外部补充与本课程设计采用不同标注。</p>
+    </div>
+  </footer>
+</body>
+</html>
